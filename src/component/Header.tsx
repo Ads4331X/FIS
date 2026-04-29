@@ -30,7 +30,9 @@ function Header() {
       >
         {/* logo */}
         <Box sx={{ width: 90, height: 90 }}>
-          <img src={FisLogo} alt="logo" style={{ width: "100%" }} />
+          <Link to={"/"} component={NavLink}>
+            <img src={FisLogo} alt="logo" style={{ width: "100%" }} />
+          </Link>
         </Box>
 
         <Box component="nav" sx={{ display: "flex", gap: 2 }}>
