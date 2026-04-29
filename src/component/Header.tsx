@@ -3,20 +3,12 @@ import { Box, Container, Link } from "@mui/material";
 import FisLogo from "../assets/FIS_logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 function Header() {
-  const [showHamIcon, setShowHamIcon] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 768 : false,
-  );
+  const isMobile = useMediaQuery("(max-width:768px)");
   const [showOpenMenuIcon, setShowOpenMenuIcon] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setShowHamIcon(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const links = [
     { label: "Home", path: "/" },
@@ -43,11 +35,16 @@ function Header() {
 
         <Box component="nav" sx={{ display: "flex", gap: 2 }}>
           {/* Hamburger icon */}
-          {showHamIcon &&
+          {isMobile &&
             (!showOpenMenuIcon ? (
               <MenuIcon
                 onClick={() => setShowOpenMenuIcon(true)}
-                sx={{ cursor: "pointer" }}
+                sx={{
+                  cursor: "pointer",
+                  transform: showOpenMenuIcon
+                    ? "rotate(90deg)"
+                    : "rotate(0deg)",
+                }}
               />
             ) : (
               <MenuOpenIcon
@@ -62,7 +59,7 @@ function Header() {
               component={NavLink}
               to={item.path}
               sx={{
-                display: showHamIcon ? "none" : "flex",
+                display: isMobile ? "none" : "flex",
                 textDecoration: "none",
                 fontWeight: "bold",
                 color: "black",
@@ -81,8 +78,18 @@ function Header() {
         </Box>
       </Container>
 
-      {showHamIcon && showOpenMenuIcon && (
-        <Box sx={{ marginTop: 1, width: "100%", padding: 0 }}>
+      {isMobile && (
+        <Box
+          sx={{
+            marginTop: 1,
+            width: "100%",
+            padding: 0,
+            overflow: "hidden",
+            maxHeight: showOpenMenuIcon ? 300 : 0,
+            opacity: showOpenMenuIcon ? 1 : 0,
+            transition: "all 0.4s ease",
+          }}
+        >
           {links.map((item, i) => (
             <Link
               key={i}
@@ -93,10 +100,18 @@ function Header() {
                 textDecoration: "none",
                 fontWeight: "bold",
                 color: "black",
+                maxHeight: showOpenMenuIcon ? 300 : 0,
+                opacity: showOpenMenuIcon ? 1 : 0,
                 borderBottom: "1px solid #ddd",
-                padding: "8px 0",
+                transform: showOpenMenuIcon
+                  ? "translateY(0)"
+                  : "translateY(-10px)",
+                transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+
+                padding: "10px 0",
                 "&.active": { color: "#0d6efd" },
               }}
+              onClick={() => setShowOpenMenuIcon(false)}
             >
               {item.label}
             </Link>
