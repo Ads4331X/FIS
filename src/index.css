@@ -1,0 +1,13 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.swiper-wrapper {
+  margin: 0;
+  padding: 0;
+}
+
+.swiper-slide {
+  margin: 0 !important;
+}

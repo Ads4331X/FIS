@@ -17,10 +17,20 @@ function Header() {
     { label: "Academics", path: "/academics" },
     { label: "News & Events", path: "/news_and_events" },
     { label: "Contact", path: "/contact" },
+    { label: "Apply Now", path: "/apply_now" },
   ];
 
   return (
-    <Box>
+    <Box
+      sx={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        backgroundColor: "whitesmoke",
+        color: "#1F2937",
+        padding: "10px 20px",
+      }}
+    >
       <Container
         sx={{
           display: "flex",
@@ -61,13 +71,14 @@ function Header() {
               component={NavLink}
               to={item.path}
               sx={{
+                color: "#1F2937",
                 display: isMobile ? "none" : "flex",
                 textDecoration: "none",
-                fontWeight: "bold",
-                color: "black",
+                justifyContent: "center",
+                alignItems: "center",
                 "@media (hover: hover) and (pointer: fine)": {
                   "&:hover": {
-                    color: "#66a3ff",
+                    color: "#2563EB",
                     textDecoration: "underline",
                   },
                 },
@@ -101,7 +112,7 @@ function Header() {
                 display: "flex",
                 textDecoration: "none",
                 fontWeight: "bold",
-                color: "black",
+                color: "#1F2937",
                 maxHeight: showOpenMenuIcon ? 300 : 0,
                 opacity: showOpenMenuIcon ? 1 : 0,
                 borderBottom: "1px solid #ddd",
