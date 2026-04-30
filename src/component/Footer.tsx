@@ -5,6 +5,7 @@ import LocationPinIcon from "@mui/icons-material/LocationPin";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import YouTubeIcon from "@mui/icons-material/YouTube";
+import EmailIcon from "@mui/icons-material/Email";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 function Footer() {
@@ -139,6 +140,29 @@ function Footer() {
             >
               ext. 01416023
             </Box>
+          </Box>
+          {/* email */}
+          <Box
+            component="a"
+            href="mailto:fairylandinternationalschool@gmail.com"
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
+              textDecoration: "none",
+              color: "inherit",
+              "@media (hover: hover) and (pointer: fine)": {
+                "&:hover": {
+                  color: "black",
+                  textDecoration: "underline",
+                },
+              },
+            }}
+          >
+            <EmailIcon />
+            fairylandinternationalschool@gmail.com
           </Box>
         </Box>
         {/* nav links */}
