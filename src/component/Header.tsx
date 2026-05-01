@@ -13,9 +13,8 @@ function Header() {
   const links = [
     { label: "Home", path: "/" },
     { label: "About Us", path: "/about_us" },
-    { label: "Facilities", path: "/facilities" },
     { label: "Academics", path: "/academics" },
-    { label: "News & Events", path: "/news_and_events" },
+    { label: "Gallery", path: "/gallery" },
     { label: "Contact", path: "/contact" },
     { label: "Apply Now", path: "/apply_now" },
   ];
@@ -26,12 +25,14 @@ function Header() {
         position: "sticky",
         top: 0,
         zIndex: 1000,
-        backgroundColor: "whitesmoke",
+        backgroundColor: "white",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         color: "#1F2937",
         padding: "10px 20px",
       }}
     >
       <Container
+        maxWidth="xl"
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -66,27 +67,38 @@ function Header() {
             ))}
 
           {links.map((item, i) => (
-            <Link
+            <NavLink
               key={i}
-              component={NavLink}
               to={item.path}
-              sx={{
-                color: "#1F2937",
+              style={({ isActive }) => ({
+                color: isActive ? "#074783" : "#555",
+                fontSize: "1.2rem",
+                fontWeight: "bold",
                 display: isMobile ? "none" : "flex",
                 textDecoration: "none",
                 justifyContent: "center",
                 alignItems: "center",
-                "@media (hover: hover) and (pointer: fine)": {
-                  "&:hover": {
-                    color: "#2563EB",
-                    textDecoration: "underline",
-                  },
-                },
-                "&.active": { color: "#0d6efd" },
+                padding: "5px 8px",
+                borderBottom: isActive
+                  ? "2px solid #eb2525"
+                  : "2px solid transparent",
+                transition: "all 0.3s ease",
+              })}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.classList.contains("active")) {
+                  e.currentTarget.style.color = "#2563EB";
+                  e.currentTarget.style.borderBottom = "2px solid #2563EB";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.classList.contains("active")) {
+                  e.currentTarget.style.color = "#555";
+                  e.currentTarget.style.borderBottom = "2px solid transparent";
+                }
               }}
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
         </Box>
       </Container>
