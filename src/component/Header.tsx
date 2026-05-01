@@ -72,7 +72,7 @@ function Header() {
               to={item.path}
               style={({ isActive }) => ({
                 color: isActive ? "#074783" : "#555",
-                fontSize: "1.2rem",
+                fontSize: "1rem",
                 fontWeight: "bold",
                 display: isMobile ? "none" : "flex",
                 textDecoration: "none",
