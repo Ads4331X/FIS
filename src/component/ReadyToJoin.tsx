@@ -93,6 +93,7 @@ export default function ReadyToJoin() {
                     outline: "none",
                   },
                 }}
+                href="/apply_now"
               >
                 Apply Now
               </Button>
@@ -119,6 +120,7 @@ export default function ReadyToJoin() {
                     transform: "scale(0.96)",
                   },
                 }}
+                href="/schedule_visit"
               >
                 Schedule a Campus Visit
               </Button>

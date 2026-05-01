@@ -181,6 +181,7 @@ export default function AcademicExcellence() {
                         transform: "translateX(4px)",
                       },
                     }}
+                    href="/academics"
                   >
                     {item.buttonText}
                     <Box
