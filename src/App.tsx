@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import Footer from "./component/Footer";
 import Header from "./component/Header";
-import Home from "./component/Home";
+import Home from "./pages/Home/Home";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
