@@ -40,16 +40,14 @@ function Footer() {
         >
           {/* logo and descriptions */}
           <Box sx={{ maxWidth: 300 }}>
-            {!isMobile && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Link component={NavLink} to="/">
-                  <img src={FisLogo} alt="logo" width={28} />
-                </Link>
-                <Box sx={{ fontWeight: "bold", color: "#074783" }}>
-                  Fairyland Secondary School
-                </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Link component={NavLink} to="/">
+                <img src={FisLogo} alt="logo" width={28} />
+              </Link>
+              <Box sx={{ fontWeight: "bold", color: "#074783" }}>
+                Fairyland Secondary School
               </Box>
-            )}
+            </Box>
 
             <Box component="p" sx={{ mt: 2, color: "#555" }}>
               Developing excellence, character, and leadership since 1998. Our
