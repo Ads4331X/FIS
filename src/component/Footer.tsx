@@ -6,11 +6,8 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import EmailIcon from "@mui/icons-material/Email";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 function Footer() {
-  const isMobile = useMediaQuery("(max-width:768px)");
-
   const links = [
     { label: "About Us", path: "/about_us" },
     { label: "Academics", path: "/academics" },
