@@ -3,6 +3,7 @@ import Footer from "./component/Footer";
 import Header from "./component/Header";
 import Home from "./pages/Home/Home";
 import { Routes, Route } from "react-router-dom";
+import About from "./pages/About/About";
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about_us" element={<h1>About</h1>} />
+        <Route path="/about_us" element={<About />} />
         <Route path="/facilities" element={<h1>Facilities</h1>} />
         <Route path="/academics" element={<h1>Academics</h1>} />
         <Route path="/news_and_events" element={<h1>News</h1>} />
