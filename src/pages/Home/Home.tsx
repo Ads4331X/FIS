@@ -12,7 +12,9 @@ export default function Home() {
       }}
     >
       <HomeHero />
-      <HomeSubContent />
+      <Box sx={{ background: "#F9FAFB" }}>
+        <HomeSubContent />
+      </Box>
       <AcademicExcellence />
       <ReadyToJoin />
     </Box>

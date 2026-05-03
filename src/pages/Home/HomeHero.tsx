@@ -172,7 +172,7 @@ export default function HomeHero() {
           sx={{
             position: "absolute",
             bottom: "-20px",
-            left: "-12px",
+            left: { xs: "0px", md: "-8px" },
             background:
               "linear-gradient(to bottom, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.4) 100%)",
             backdropFilter: "blur(6px)",

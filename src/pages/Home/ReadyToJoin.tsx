@@ -1,4 +1,5 @@
 import { Container, Box, Button, Grid } from "@mui/material";
+
 export default function ReadyToJoin() {
   const date = new Date();
 
@@ -8,7 +9,7 @@ export default function ReadyToJoin() {
         position: "relative",
         overflow: "hidden",
         width: "100%",
-        padding: 2,
+        padding: { xs: 0, sm: 2 },
         background: "#F5F7FB",
         py: 6,
         display: "flex",
@@ -27,12 +28,12 @@ export default function ReadyToJoin() {
       }}
     >
       <Container
-        maxWidth={"lg"}
+        maxWidth="lg"
         disableGutters
         sx={{
           background: "#001C3A",
-          borderRadius: 3,
-          mt: 4,
+          borderRadius: { xs: 0, sm: 3 },
+          mt: { xs: 0, sm: 4 },
           overflow: "hidden",
         }}
       >
@@ -45,10 +46,17 @@ export default function ReadyToJoin() {
               flexDirection: "column",
               justifyContent: "center",
               gap: 3,
-              padding: 10,
+              padding: { xs: 4, sm: 6, md: 10 },
             }}
           >
-            <Box component="h1" sx={{ color: "white" }}>
+            <Box
+              component="h1"
+              sx={{
+                color: "white",
+                fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2.2rem" },
+                m: 0,
+              }}
+            >
               Ready to Join the{" "}
               <Box component="span" sx={{ color: "red" }}>
                 Fairyland
@@ -56,71 +64,70 @@ export default function ReadyToJoin() {
               family?
             </Box>
 
-            <Box component="p" sx={{ color: "#7FADF0" }}>
-              Admissions are now open for the {date.getFullYear()}-
+            <Box
+              component="p"
+              sx={{
+                color: "#7FADF0",
+                m: 0,
+                fontSize: { xs: "0.9rem", md: "1rem" },
+                lineHeight: 1.7,
+              }}
+            >
+              Admissions are now open for the {date.getFullYear()}–
               {date.getFullYear() + 1} academic year. Secure a seat for your
               child in a school that cares about their future.
             </Box>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row", md: "column" },
+                gap: 2,
+              }}
+            >
               <Button
                 disableRipple
                 variant="contained"
+                href="/apply_now"
                 sx={{
                   backgroundColor: "#BA1A20",
                   color: "white",
                   px: 4,
-                  width: "fit-content",
-                  py: 2,
+                  py: 1.5,
+                  width: { xs: "100%", sm: "fit-content" },
                   borderRadius: "12px",
                   fontWeight: "bold",
                   transition: "all 0.3s ease",
-
-                  "&:hover": {
-                    backgroundColor: "#DD3735",
-                  },
-
+                  "&:hover": { backgroundColor: "#DD3735" },
                   "&:active": {
                     backgroundColor: "#DD3735",
                     transform: "scale(0.95)",
                   },
-
-                  "&:focus": {
-                    outline: "none",
-                  },
-
-                  "&.Mui-focusVisible": {
-                    outline: "none",
-                  },
+                  "&:focus, &.Mui-focusVisible": { outline: "none" },
                 }}
-                href="/apply_now"
               >
                 Apply Now
               </Button>
 
               <Button
                 disableRipple
+                href="/schedule_visit"
                 sx={{
                   backgroundColor: "rgba(255,255,255,0.1)",
                   color: "white",
                   px: 4,
-                  py: 2,
-                  width: "fit-content",
+                  py: 1.5,
+                  width: { xs: "100%", sm: "fit-content" },
                   borderRadius: "12px",
                   fontWeight: "bold",
                   backdropFilter: "blur(12px)",
                   transition: "all 0.3s ease",
-
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.2)",
-                  },
-
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
                   "&:active": {
                     backgroundColor: "rgba(255,255,255,0.3)",
                     transform: "scale(0.96)",
                   },
                 }}
-                href="/schedule_visit"
               >
                 Schedule a Campus Visit
               </Button>
@@ -133,10 +140,9 @@ export default function ReadyToJoin() {
             sx={{
               position: "relative",
               overflow: "hidden",
-              minHeight: { xs: 300, md: "100%" },
+              minHeight: { xs: 220, sm: 300, md: "100%" }, // ✅ smaller on xs
             }}
           >
-            {/* image */}
             <Box
               sx={{
                 position: "absolute",
@@ -149,8 +155,6 @@ export default function ReadyToJoin() {
                 backgroundRepeat: "no-repeat",
               }}
             />
-
-            {/* overlay */}
             <Box
               sx={{
                 position: "absolute",
