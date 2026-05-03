@@ -140,7 +140,7 @@ export default function ReadyToJoin() {
             sx={{
               position: "relative",
               overflow: "hidden",
-              minHeight: { xs: 220, sm: 300, md: "100%" }, // ✅ smaller on xs
+              minHeight: { xs: 220, sm: 300, md: "100%" }, 
             }}
           >
             <Box
