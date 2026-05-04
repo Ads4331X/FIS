@@ -1,14 +1,12 @@
 import { Box } from "@mui/material";
-
-const DEFAULT_EMBED =
-  "https://www.google.com/maps?q=Budhanilkantha+Baluwakhani+Kathmandu+Nepal&output=embed";
+import { siteContact } from "../../constants/siteContact";
 
 type ContactMapProps = {
   embedUrl?: string;
 };
 
-/** Full-width responsive embed map; scales with container. */
-export default function ContactMap({ embedUrl = DEFAULT_EMBED }: ContactMapProps) {
+/** Full-width embed; default URL matches Footer map search (Fairyland International School). */
+export default function ContactMap({ embedUrl = siteContact.mapEmbedUrl }: ContactMapProps) {
   return (
     <Box
       sx={{
@@ -33,7 +31,7 @@ export default function ContactMap({ embedUrl = DEFAULT_EMBED }: ContactMapProps
       >
         <Box
           component="iframe"
-          title="School location map"
+          title="Fairyland International School — map"
           src={embedUrl}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
