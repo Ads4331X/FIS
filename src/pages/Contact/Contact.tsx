@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import { Hero } from "../../components/ui/Hero";
-import Aside from "./aside";
-import Form from "./form";
-import ContactMap from "./map";
-import Stats from "./stats";
+import Aside from "./Aside";
+import Form from "./Form";
+import ContactMap from "./Map";
+import Stats from "./Stats";
 
 export default function Contact() {
   return (
@@ -17,7 +17,6 @@ export default function Contact() {
         blurBackground
       />
 
-      {/* Wrapper: centres content, pads sides, never overflows */}
       <Box
         sx={{
           position: "relative",
@@ -29,7 +28,6 @@ export default function Contact() {
           maxWidth: "1200px",
         }}
       >
-        {/* Main grid */}
         <Box
           sx={{
             mt: { xs: -3, md: -8 },
@@ -37,10 +35,6 @@ export default function Contact() {
             display: "grid",
             gap: { xs: 2, md: 3 },
             alignItems: "start",
-            /*
-             * xs/sm  → 1 column, full width: form → aside → map stacked
-             * md+    → 2 columns side by side, map spans both below
-             */
             gridTemplateColumns: {
               xs: "1fr",
               md: "1.1fr 1fr",

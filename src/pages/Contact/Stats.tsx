@@ -1,7 +1,7 @@
-import { Box } from "@mui/material";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
+import { Box } from "@mui/material";
 import { StatCard } from "../../components/ui/StatCard";
 
 export default function Stats() {
@@ -17,7 +17,6 @@ export default function Stats() {
         maxWidth: "100%",
         minWidth: 0,
         boxSizing: "border-box",
-        /* Each stat card takes full width on xs, auto on larger */
         "& > *": {
           flex: { xs: "1 1 100%", sm: "1 1 200px" },
           maxWidth: { xs: "100%", sm: "260px" },

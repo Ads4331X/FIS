@@ -1,12 +1,12 @@
-import { Box, Divider, IconButton, Link, Typography } from "@mui/material";
-import type { ReactNode } from "react";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import PhoneIcon from "@mui/icons-material/Phone";
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import { siteContact } from "../../constants/siteContact";
+import { Box, Divider, IconButton, Link, Typography } from "@mui/material";
+import type { ReactNode } from "react";
 import { TikTokIcon } from "../../components/icons/TikTokIcon";
+import { siteContact } from "../../constants/siteContact";
 
 const navy = "#002D5B";
 const iconChipBg = "rgba(255, 255, 255, 0.14)";

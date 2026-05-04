@@ -1,5 +1,3 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
 import {
   Alert,
   Box,
@@ -8,10 +6,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import type { FormEvent } from "react";
+import { useState } from "react";
 
 const navy = "#002D5B";
 
-/** POST target for Fairyland Secondary School contact form → linked Google Sheet */
 const FORM_ACTION =
   "https://docs.google.com/forms/d/e/1FAIpQLSc_U9Ge3smTuXI_vWwqytB0Ec2JiYSrFP6TD8Ss7-8asphb0A/formResponse";
 
@@ -76,7 +75,6 @@ export default function Form() {
         body,
       });
 
-      /* no-cors: response is opaque; assume success when no network error */
       setStatus("sent");
       setFullName("");
       setEmail("");

@@ -5,7 +5,6 @@ type ContactMapProps = {
   embedUrl?: string;
 };
 
-/** Full-width responsive embed; default URL matches Footer map search (Fairyland International School). */
 export default function ContactMap({
   embedUrl = siteContact.mapEmbedUrl,
 }: ContactMapProps) {
@@ -26,7 +25,6 @@ export default function ContactMap({
           borderRadius: { xs: 2, sm: 3 },
           overflow: "hidden",
           boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-          /* CSS aspect-ratio: reliable, no pseudo-element hack needed */
           aspectRatio: { xs: "16/7", sm: "16/5", md: "16/4.5" },
         }}
       >
