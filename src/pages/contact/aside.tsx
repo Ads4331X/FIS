@@ -21,7 +21,15 @@ function Row({
   children: ReactNode;
 }) {
   return (
-    <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        alignItems: "flex-start",
+        minWidth: 0,
+        width: "100%",
+      }}
+    >
       <Box
         sx={{
           flexShrink: 0,
@@ -37,7 +45,7 @@ function Row({
       >
         {icon}
       </Box>
-      <Box>
+      <Box sx={{ minWidth: 0, flex: 1 }}>
         <Typography
           variant="subtitle2"
           sx={{ color: "rgba(255,255,255,0.7)", mb: 0.25 }}
@@ -46,7 +54,14 @@ function Row({
         </Typography>
         <Typography
           component="div"
-          sx={{ color: "white", fontSize: "0.95rem", lineHeight: 1.55 }}
+          sx={{
+            color: "white",
+            fontSize: "0.95rem",
+            lineHeight: 1.55,
+            wordBreak: "break-word",
+            overflowWrap: "anywhere",
+            "& a": { wordBreak: "break-word", overflowWrap: "anywhere" },
+          }}
         >
           {children}
         </Typography>
@@ -77,7 +92,7 @@ const socialIconSx = {
 
 export default function Aside() {
   return (
-    <Box>
+    <Box sx={{ width: "100%", boxSizing: "border-box" }}>
       <Box
         sx={{
           bgcolor: navy,
@@ -87,9 +102,13 @@ export default function Aside() {
           display: "flex",
           flexDirection: "column",
           gap: 2.75,
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
-        <Typography sx={{ color: "white", fontWeight: 700, fontSize: "1.2rem" }}>
+        <Typography
+          sx={{ color: "white", fontWeight: 700, fontSize: "1.2rem" }}
+        >
           Contact Information
         </Typography>
         <Row icon={<LocationOnIcon fontSize="small" />} kicker="Our Location">
@@ -119,7 +138,14 @@ export default function Aside() {
         <Typography sx={{ color: "white", fontWeight: 600 }}>
           Follow Us
         </Typography>
-        <Box sx={{ display: "flex", gap: 1.25, alignItems: "center", flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1.25,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <IconButton
             component={Link}
             href={siteContact.social.facebook}
