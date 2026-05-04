@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
-import { StatCard } from "../../component/StatCard";
+import { StatCard } from "../../components/ui/StatCard";
 
 export default function Stats() {
   return (

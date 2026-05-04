@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import { Hero } from "../../component/Hero";
+import { Hero } from "../../components/ui/Hero";
 import Aside from "./aside";
 import Form from "./form";
 import ContactMap from "./map";
