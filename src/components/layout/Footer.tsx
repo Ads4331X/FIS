@@ -1,5 +1,5 @@
 import { Container, Box, Link } from "@mui/material";
-import FisLogo from "../assets/FIS_logo.png";
+import FisLogo from "../../assets/FIS_logo.png";
 import { NavLink } from "react-router-dom";
 import LocationPinIcon from "@mui/icons-material/LocationPin";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";

@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Box, Container, Link } from "@mui/material";
-import FisLogo from "../assets/FIS_logo.png";
+import FisLogo from "../../assets/FIS_logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import { useState } from "react";
