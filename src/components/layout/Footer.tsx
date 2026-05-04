@@ -6,6 +6,8 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import EmailIcon from "@mui/icons-material/Email";
+import { siteContact } from "../../constants/siteContact";
+import { TikTokIcon } from "../icons/TikTokIcon";
 
 function Footer() {
   const links = [
@@ -89,11 +91,7 @@ function Footer() {
 
             {/* location */}
             <Box
-              onClick={() =>
-                handleMap(
-                  "https://www.google.com/maps?q=Fairyland+International+School",
-                )
-              }
+              onClick={() => handleMap(siteContact.mapOpenUrl)}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -109,12 +107,12 @@ function Footer() {
               }}
             >
               <LocationPinIcon fontSize="small" />
-              Kapan, Jyotinagar
+              {siteContact.addressDisplay}
             </Box>
 
             {/* phone */}
             <Box
-              onClick={() => handleCall("014164344")}
+              onClick={() => handleCall(siteContact.phoneTel)}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -130,12 +128,12 @@ function Footer() {
               }}
             >
               <LocalPhoneIcon fontSize="small" />
-              01-4164344
+              {siteContact.phoneDisplay}
             </Box>
 
             {/* email */}
             <Link
-              href="mailto:fairylandinternationalschool@gmail.com"
+              href={`mailto:${siteContact.email}`}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -150,7 +148,7 @@ function Footer() {
               }}
             >
               <EmailIcon fontSize="small" />
-              fairylandinternationalschool@gmail.com
+              {siteContact.email}
             </Link>
           </Box>
         </Box>
@@ -171,32 +169,16 @@ function Footer() {
             © {new Date().getFullYear()} Fairyland School. All rights reserved.
           </Box>
 
-          {/* socials */}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Link
-              href="https://www.facebook.com/fairyland.schooll/"
-              sx={{ color: "#555" }}
-            >
+          {/* socials — same order as Contact aside */}
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Link href={siteContact.social.facebook} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <FacebookIcon />
             </Link>
-
-            <Link
-              href="https://www.tiktok.com/@fairylandintschool"
-              sx={{ color: "#555" }}
-            >
-              {/* TikTok SVG */}
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 50 50"
-                fill="currentColor"
-              >
-                <path d="M41,4H9C6.243,4,4,6.243,4,9v32c0,2.757,2.243,5,5,5h32c2.757,0,5-2.243,5-5V9C46,6.243,43.757,4,41,4z M37.006,22.323c-0.227,0.021-0.457,0.035-0.69,0.035c-2.623,0-4.928-1.349-6.269-3.388c0,5.349,0,11.435,0,11.537c0,4.709-3.818,8.527-8.527,8.527s-8.527-3.818-8.527-8.527s3.818-8.527,8.527-8.527c0.178,0,0.352,0.016,0.527,0.027v4.202c-0.175-0.021-0.347-0.053-0.527-0.053c-2.404,0-4.352,1.948-4.352,4.352s1.948,4.352,4.352,4.352s4.527-1.894,4.527-4.298c0-0.095,0.042-19.594,0.042-19.594h4.016c0.378,3.591,3.277,6.425,6.901,6.685V22.323z" />
-              </svg>
-            </Link>
-
-            <Link href="https://www.youtube.com/" sx={{ color: "#555" }}>
+            <Link href={siteContact.social.youtube} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
               <YouTubeIcon />
+            </Link>
+            <Link href={siteContact.social.tiktok} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+              <TikTokIcon />
             </Link>
           </Box>
         </Box>
