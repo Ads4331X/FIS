@@ -5,6 +5,7 @@ export type HeroProps = {
   bgImg: string;
   title: ReactNode;
   description: ReactNode;
+  actions?: ReactNode;
   /** Optional ribbon above the title */
   badge?: string;
   blurBackground?: boolean;
@@ -17,6 +18,7 @@ export function Hero({
   bgImg,
   title,
   description,
+  actions,
   badge,
   blurBackground = false,
   centered = false,
@@ -132,6 +134,7 @@ export function Hero({
           >
             {description}
           </Typography>
+          {actions ? <Box sx={{ mt: 3 }}>{actions}</Box> : null}
         </Box>
       </Container>
     </Box>
