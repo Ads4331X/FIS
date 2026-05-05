@@ -111,7 +111,7 @@ export default function ReadyToJoin() {
 
               <Button
                 disableRipple
-                href="/schedule_visit"
+                href="/contact?type=visit"
                 sx={{
                   backgroundColor: "rgba(255,255,255,0.1)",
                   color: "white",

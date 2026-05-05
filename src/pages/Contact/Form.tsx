@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const navy = "#002D5B";
 
@@ -21,6 +21,8 @@ const ENTRIES = {
   message: "entry.733328116",
 } as const;
 
+const VISIT_SUBJECT = "Schedule a Visit";
+
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
@@ -31,15 +33,27 @@ const fieldSx = {
   },
 };
 
-export default function Form() {
+export default function Form({ isVisitRequest = false }: { isVisitRequest?: boolean }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState(isVisitRequest ? VISIT_SUBJECT : "");
   const [message, setMessage] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
+  const [preferredTime, setPreferredTime] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
   const [clientError, setClientError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isVisitRequest) {
+      setSubject((prev) => (prev.trim() ? prev : VISIT_SUBJECT));
+      return;
+    }
+    if (subject === VISIT_SUBJECT) {
+      setSubject("");
+    }
+  }, [isVisitRequest, subject]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -49,6 +63,8 @@ export default function Form() {
     const trimmedEmail = email.trim();
     const trimmedSubject = subject.trim();
     const trimmedMessage = message.trim();
+    const trimmedDate = preferredDate.trim();
+    const trimmedTime = preferredTime.trim();
 
     if (!trimmedName || !trimmedEmail || !trimmedSubject || !trimmedMessage) {
       setClientError("Please fill in all fields.");
@@ -58,14 +74,27 @@ export default function Form() {
       setClientError("Please enter a valid email address.");
       return;
     }
+    if (isVisitRequest && (!trimmedDate || !trimmedTime)) {
+      setClientError("Please provide your preferred date and time.");
+      return;
+    }
 
     setStatus("sending");
     try {
+      const requestType = isVisitRequest ? "visit" : "general";
+      const subjectValue = trimmedSubject || (isVisitRequest ? VISIT_SUBJECT : "");
+      const messageValue = isVisitRequest
+        ? `${trimmedMessage}\n\nPreferred Date: ${trimmedDate}\nPreferred Time: ${trimmedTime}`
+        : trimmedMessage;
+
       const body = new URLSearchParams({
         [ENTRIES.fullName]: trimmedName,
         [ENTRIES.email]: trimmedEmail,
-        [ENTRIES.subject]: trimmedSubject,
-        [ENTRIES.message]: trimmedMessage,
+        [ENTRIES.subject]: subjectValue,
+        [ENTRIES.message]: messageValue,
+        request_type: requestType,
+        preferred_date: trimmedDate,
+        preferred_time: trimmedTime,
       });
 
       await fetch(FORM_ACTION, {
@@ -78,8 +107,10 @@ export default function Form() {
       setStatus("sent");
       setFullName("");
       setEmail("");
-      setSubject("");
+      setSubject(isVisitRequest ? VISIT_SUBJECT : "");
       setMessage("");
+      setPreferredDate("");
+      setPreferredTime("");
     } catch {
       setStatus("error");
     }
@@ -130,6 +161,12 @@ export default function Form() {
           Something went wrong. Please try again or email us directly.
         </Alert>
       )}
+      {isVisitRequest && (
+        <Alert severity="info" sx={{ mb: 2, wordBreak: "break-word" }}>
+          You're scheduling a visit. Please provide your preferred date and
+          time.
+        </Alert>
+      )}
       <Box
         sx={{
           display: "grid",
@@ -164,6 +201,37 @@ export default function Form() {
         onChange={(e) => setSubject(e.target.value)}
         sx={{ ...fieldSx, mb: 2 }}
       />
+      {isVisitRequest && (
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <TextField
+            fullWidth
+            required
+            type="date"
+            label="Preferred Date"
+            value={preferredDate}
+            onChange={(e) => setPreferredDate(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+            sx={fieldSx}
+          />
+          <TextField
+            fullWidth
+            required
+            type="time"
+            label="Preferred Time"
+            value={preferredTime}
+            onChange={(e) => setPreferredTime(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true } }}
+            sx={fieldSx}
+          />
+        </Box>
+      )}
       <TextField
         fullWidth
         multiline

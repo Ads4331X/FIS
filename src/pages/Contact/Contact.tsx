@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import { Hero } from "../../components/ui/Hero";
 import Aside from "./Aside";
 import Form from "./Form";
@@ -6,11 +7,14 @@ import ContactMap from "./Map";
 import Stats from "./Stats";
 
 export default function Contact() {
+  const [searchParams] = useSearchParams();
+  const isVisitRequest = searchParams.get("type")?.toLowerCase() === "visit";
+
   return (
     <Box sx={{ bgcolor: "#F9FAFB", width: "100%", overflowX: "hidden" }}>
       <Hero
         bgImg="/images/school.jpg"
-        title="Connect With Us"
+        title={isVisitRequest ? "Schedule a Visit" : "Connect With Us"}
         description="We are here to help you navigate your educational journey. Reach out to our admissions team or visit our campus in Budhanilkantha."
         centered
         compact
@@ -46,7 +50,7 @@ export default function Contact() {
           }}
         >
           <Box sx={{ gridArea: "form", minWidth: 0 }}>
-            <Form />
+            <Form isVisitRequest={isVisitRequest} />
           </Box>
           <Box sx={{ gridArea: "aside", minWidth: 0 }}>
             <Aside />
