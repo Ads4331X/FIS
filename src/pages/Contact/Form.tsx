@@ -7,18 +7,27 @@ import {
   Typography,
 } from "@mui/material";
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const navy = "#002D5B";
 
 const FORM_ACTION =
   "https://docs.google.com/forms/d/e/1FAIpQLSc_U9Ge3smTuXI_vWwqytB0Ec2JiYSrFP6TD8Ss7-8asphb0A/formResponse";
+const VISIT_FORM_ACTION =
+  "https://docs.google.com/forms/d/e/1FAIpQLScTx6qIH3Qbj8eFwSvOSekbLRjRNHOLLtufTODsF40GHb8jFA/formResponse";
 
 const ENTRIES = {
   fullName: "entry.849957124",
   email: "entry.475501827",
   subject: "entry.1825927369",
   message: "entry.733328116",
+} as const;
+const VISIT_ENTRIES = {
+  fullName: "entry.1356999789",
+  email: "entry.808744274",
+  preferredDate: "entry.308476997",
+  preferredTime: "entry.372919032",
+  message: "entry.67393148",
 } as const;
 
 const VISIT_SUBJECT = "Schedule a Visit";
@@ -36,7 +45,7 @@ const fieldSx = {
 export default function Form({ isVisitRequest = false }: { isVisitRequest?: boolean }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState(isVisitRequest ? VISIT_SUBJECT : "");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
@@ -44,16 +53,6 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
     "idle",
   );
   const [clientError, setClientError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isVisitRequest) {
-      setSubject((prev) => (prev.trim() ? prev : VISIT_SUBJECT));
-      return;
-    }
-    if (subject === VISIT_SUBJECT) {
-      setSubject("");
-    }
-  }, [isVisitRequest, subject]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -66,7 +65,11 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
     const trimmedDate = preferredDate.trim();
     const trimmedTime = preferredTime.trim();
 
-    if (!trimmedName || !trimmedEmail || !trimmedSubject || !trimmedMessage) {
+    if (!trimmedName || !trimmedEmail || !trimmedMessage) {
+      setClientError("Please fill in all fields.");
+      return;
+    }
+    if (!isVisitRequest && !trimmedSubject) {
       setClientError("Please fill in all fields.");
       return;
     }
@@ -81,23 +84,29 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
 
     setStatus("sending");
     try {
-      const requestType = isVisitRequest ? "visit" : "general";
-      const subjectValue = trimmedSubject || (isVisitRequest ? VISIT_SUBJECT : "");
+      const subjectValue = isVisitRequest ? VISIT_SUBJECT : trimmedSubject;
       const messageValue = isVisitRequest
-        ? `${trimmedMessage}\n\nPreferred Date: ${trimmedDate}\nPreferred Time: ${trimmedTime}`
+        ? `Subject: ${VISIT_SUBJECT}\n\n${trimmedMessage}`
         : trimmedMessage;
 
-      const body = new URLSearchParams({
-        [ENTRIES.fullName]: trimmedName,
-        [ENTRIES.email]: trimmedEmail,
-        [ENTRIES.subject]: subjectValue,
-        [ENTRIES.message]: messageValue,
-        request_type: requestType,
-        preferred_date: trimmedDate,
-        preferred_time: trimmedTime,
-      });
+      const body = isVisitRequest
+        ? new URLSearchParams({
+            [VISIT_ENTRIES.fullName]: trimmedName,
+            [VISIT_ENTRIES.email]: trimmedEmail,
+            [VISIT_ENTRIES.preferredDate]: trimmedDate,
+            [VISIT_ENTRIES.preferredTime]: trimmedTime,
+            [VISIT_ENTRIES.message]: messageValue,
+          })
+        : new URLSearchParams({
+            [ENTRIES.fullName]: trimmedName,
+            [ENTRIES.email]: trimmedEmail,
+            [ENTRIES.subject]: subjectValue,
+            [ENTRIES.message]: messageValue,
+          });
 
-      await fetch(FORM_ACTION, {
+      const actionUrl = isVisitRequest ? VISIT_FORM_ACTION : FORM_ACTION;
+
+      await fetch(actionUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -107,7 +116,7 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
       setStatus("sent");
       setFullName("");
       setEmail("");
-      setSubject(isVisitRequest ? VISIT_SUBJECT : "");
+      setSubject("");
       setMessage("");
       setPreferredDate("");
       setPreferredTime("");
@@ -197,8 +206,9 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
         fullWidth
         label="Subject"
         placeholder="Inquiry about Admission"
-        value={subject}
+        value={isVisitRequest ? VISIT_SUBJECT : subject}
         onChange={(e) => setSubject(e.target.value)}
+        slotProps={{ input: { readOnly: isVisitRequest } }}
         sx={{ ...fieldSx, mb: 2 }}
       />
       {isVisitRequest && (

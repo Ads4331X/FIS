@@ -8,7 +8,9 @@ import Stats from "./Stats";
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
-  const isVisitRequest = searchParams.get("type")?.toLowerCase() === "visit";
+  const isVisitRequest =
+    searchParams.get("visit")?.toLowerCase() === "true" ||
+    searchParams.get("type")?.toLowerCase() === "visit";
 
   return (
     <Box sx={{ bgcolor: "#F9FAFB", width: "100%", overflowX: "hidden" }}>
