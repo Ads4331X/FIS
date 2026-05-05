@@ -8,24 +8,9 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import EmailIcon from "@mui/icons-material/Email";
 import { siteContact } from "../../constants/siteContact";
 import { TikTokIcon } from "../icons/TikTokIcon";
+import { footerNavigationLinks } from "../../constants/navigationLinks";
 
 function Footer() {
-  const links = [
-    { label: "About Us", path: "/about_us" },
-    { label: "Academics", path: "/academics" },
-    { label: "Gallery", path: "/gallery" },
-    { label: "Contact", path: "/contact" },
-    { label: "Apply Now", path: "/apply_now" },
-  ];
-
-  const handleCall = (num: string) => {
-    window.location.href = `tel:${num}`;
-  };
-
-  const handleMap = (url: string) => {
-    window.open(url, "_blank");
-  };
-
   return (
     <Box sx={{ background: "#F9FAFB" }}>
       <Container sx={{ py: 6 }}>
@@ -60,9 +45,9 @@ function Footer() {
               Quick Links
             </Box>
 
-            {links.map((item, i) => (
+            {footerNavigationLinks.map((item) => (
               <Link
-                key={i}
+                key={item.path}
                 component={NavLink}
                 to={item.path}
                 sx={{
@@ -90,56 +75,30 @@ function Footer() {
             </Box>
 
             {/* location */}
-            <Box
-              onClick={() => handleMap(siteContact.mapOpenUrl)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                color: "#555",
-                cursor: "pointer",
-                mb: 1,
-
-                "&:hover": {
-                  color: "#000",
-                  textDecoration: "underline",
-                },
-              }}
-            >
+            <Link href={siteContact.mapOpenUrl} target="_blank" rel="noopener noreferrer" sx={{ display: "flex", alignItems: "center", gap: 1, color: "#555", cursor: "pointer", mb: 1, textDecoration: "none", "&:hover": { color: "#000", textDecoration: "underline" } }}>
               <LocationPinIcon fontSize="small" />
               {siteContact.addressDisplay}
-            </Box>
+            </Link>
 
             {/* phone */}
-            <Box
-              onClick={() => handleCall(siteContact.phoneTel)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                color: "#555",
-                cursor: "pointer",
-                mb: 1,
-
-                "&:hover": {
-                  color: "#000",
-                  textDecoration: "underline",
-                },
-              }}
-            >
+            <Link href={`tel:${siteContact.phoneTel}`} sx={{ display: "flex", alignItems: "center", gap: 1, color: "#555", cursor: "pointer", mb: 1, textDecoration: "none", "&:hover": { color: "#000", textDecoration: "underline" } }}>
               <LocalPhoneIcon fontSize="small" />
               {siteContact.phoneDisplay}
-            </Box>
+            </Link>
 
             {/* email */}
             <Link
               href={`mailto:${siteContact.email}`}
               sx={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 gap: 1,
                 color: "#555",
                 textDecoration: "none",
+                fontSize: { xs: "13px", sm: "14px" },
+                maxWidth: { xs: 220, sm: 280, md: "none" },
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
 
                 "&:hover": {
                   color: "#000",
