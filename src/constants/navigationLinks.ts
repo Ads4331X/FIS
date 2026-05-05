@@ -1,0 +1,17 @@
+export type NavigationLink = {
+  label: string;
+  path: string;
+};
+
+export const primaryNavigationLinks: NavigationLink[] = [
+  { label: "Home", path: "/" },
+  { label: "About Us", path: "/about_us" },
+  { label: "Academics", path: "/academics" },
+  { label: "Gallery", path: "/gallery" },
+  { label: "Contact", path: "/contact" },
+  { label: "Apply Now", path: "/apply_now" },
+];
+
+export const footerNavigationLinks: NavigationLink[] = primaryNavigationLinks.filter(
+  (link) => link.path !== "/",
+);
