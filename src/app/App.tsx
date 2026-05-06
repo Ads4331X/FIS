@@ -7,6 +7,8 @@ import Academics from "../pages/Academics/Academics";
 import Admission from "../pages/Admission/Admission";
 import Contact from "../pages/Contact/Contact";
 import Home from "../pages/Home/Home";
+import Gallery from "../pages/Gallery/Gallery";
+import Admin from "../pages/Admin/Admin";
 
 function App() {
   return (
@@ -14,8 +16,10 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/about_us" element={<About />} />
         <Route path="/academics" element={<Academics />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/apply_now" element={<Admission />} />
       </Routes>
