@@ -1,0 +1,93 @@
+import { useState } from "react";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME as string;
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string;
+
+type LoginFormProps = {
+  onLogin: () => void;
+};
+
+export function LoginForm({ onLogin }: LoginFormProps) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      sessionStorage.setItem("fis_admin", "1");
+      onLogin();
+      return;
+    }
+    setError("Invalid username or password.");
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#F5F7FB",
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleLogin}
+        sx={{
+          bgcolor: "white",
+          borderRadius: 4,
+          p: { xs: 3, sm: 5 },
+          boxShadow: "0 8px 40px rgba(0,28,58,0.12)",
+          width: "100%",
+          maxWidth: 420,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+          <AdminPanelSettingsIcon sx={{ color: "#074783", fontSize: 36 }} />
+          <Box>
+            <Typography sx={{ fontWeight: 800, color: "#074783", fontSize: "1.2rem", lineHeight: 1.2 }}>
+              Admin Panel
+            </Typography>
+            <Typography sx={{ color: "#9ca3af", fontSize: "0.8rem" }}>
+              Fairyland Secondary School
+            </Typography>
+          </Box>
+        </Box>
+
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+        <TextField
+          fullWidth
+          label="Username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          sx={{ mb: 2 }}
+          required
+          autoComplete="username"
+        />
+        <TextField
+          fullWidth
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          sx={{ mb: 3 }}
+          required
+          autoComplete="current-password"
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ py: 1.5, bgcolor: "#074783", borderRadius: 2, fontWeight: 700, "&:hover": { bgcolor: "#0a5a9e" } }}
+        >
+          Login
+        </Button>
+      </Box>
+    </Box>
+  );
+}
