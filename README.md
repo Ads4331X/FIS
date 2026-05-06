@@ -1,73 +1,192 @@
-# React + TypeScript + Vite
+# Fairyland Secondary School — Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive school website built with React, TypeScript, and Material UI. Deployed on Vercel with Cloudinary-powered gallery management.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+- **React 19** + **TypeScript 6**
+- **Vite 8** (build tool)
+- **Material UI v9** (component library)
+- **React Router v7** (client-side routing)
+- **Cloudinary** (image hosting & gallery)
+- **Vercel** (hosting + serverless API)
+- **Google Forms** (contact & admission form submissions)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Pages
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Route | Description |
+|---|---|
+| `/` | Home — hero, stats, academic overview, CTA |
+| `/about_us` | About — mission, timeline, schedule visit |
+| `/academics` | Academics — curriculum, vision, results |
+| `/gallery` | Gallery — Cloudinary-powered photo gallery |
+| `/contact` | Contact — form, map, contact info |
+| `/apply_now` | Admission — application form |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+├── api/
+│   └── images.ts              # Vercel serverless function — Cloudinary proxy
+├── src/
+│   ├── app/
+│   │   ├── App.tsx            # Route definitions
+│   │   └── main.tsx           # App entry point
+│   ├── components/
+│   │   ├── icons/             # Custom SVG icons (TikTok, etc.)
+│   │   ├── layout/            # Header, Footer
+│   │   └── ui/                # Reusable components (Hero, Counter, StatCard)
+│   ├── constants/
+│   │   ├── navigationLinks.ts # Nav link definitions
+│   │   └── siteContact.ts     # School contact info (single source of truth)
+│   ├── pages/
+│   │   ├── About/
+│   │   ├── Academics/
+│   │   ├── Admission/
+│   │   ├── Contact/
+│   │   ├── Gallery/
+│   │   └── Home/
+│   ├── services/
+│   │   └── Cloudinary.ts      # Cloudinary fetch, upload, delete helpers
+│   └── styles/
+│       └── global.css
+├── public/
+│   └── images/                # Static site images
+├── vercel.json                # Vercel rewrite rules
+└── vite.config.ts             # Vite config + local Cloudinary dev proxy
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 20+
+- A [Cloudinary](https://cloudinary.com) account
+- A Vercel account (for deployment)
+
+### Installation
+
+```bash
+git clone <repo-url>
+cd fis
+npm install
 ```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# Cloudinary
+VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+> **Note:** `VITE_` prefixed variables are exposed to the frontend. Never put `CLOUDINARY_API_SECRET` in a `VITE_` variable.
+
+### Development
+
+```bash
+npm run dev
+```
+
+Vite includes a local middleware that proxies `/api/images` requests to Cloudinary, so the gallery works in development without needing Vercel CLI.
+
+### Build
+
+```bash
+npm run build
+```
+
+### Preview production build
+
+```bash
+npm run preview
+```
+
+---
+
+## Cloudinary Setup
+
+1. Create a Cloudinary account at [cloudinary.com](https://cloudinary.com).
+2. Create an **unsigned upload preset** in your Cloudinary dashboard (`Settings → Upload`).
+3. Set the upload preset name as `VITE_CLOUDINARY_UPLOAD_PRESET`.
+4. Images are organized into folders:
+
+| Label | Folder |
+|---|---|
+| School | `School` |
+| Events | `School/Events` |
+| Sports | `School/Sports` |
+| Students | `School/Students` |
+| Tour | `School/Tour` |
+
+---
+
+
+
+## Deployment (Vercel)
+
+1. Push the repository to GitHub.
+2. Import the project in [Vercel](https://vercel.com).
+3. Add all environment variables from `.env` to Vercel's project settings.
+4. Deploy. Vercel automatically serves the `api/images.ts` function as a serverless endpoint.
+
+The `vercel.json` config routes all API calls to the serverless function and all other paths to `index.html` for client-side routing:
+
+```json
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)",     "destination": "/index.html" }
+  ]
+}
+```
+
+---
+
+## Contact & Forms
+
+Contact and admission forms submit to **Google Forms** via a `no-cors` fetch. No backend is required. To update the form endpoints, edit the form action URLs and entry field IDs in:
+
+- `src/pages/Contact/Form.tsx`
+- `src/pages/Admission/components/AdmissionFormCard.tsx`
+
+School contact details (address, phone, email, social links, map URLs) are centralized in:
+
+```
+src/constants/siteContact.ts
+```
+
+---
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+
+---
+
+## License
+
+Private project for Fairyland Secondary School. All rights reserved.
+
+---
+
+> **Developer note:** A separate `ADMIN.md` file contains gallery management instructions for the school admin. Keep it out of any public repository — add it to `.gitignore` or share it privately.
