@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME as string;
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string;
-
 type LoginFormProps = {
   onLogin: () => void;
 };
@@ -13,15 +10,38 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      sessionStorage.setItem("fis_admin", "1");
-      onLogin();
-      return;
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.status === 200) {
+        sessionStorage.setItem("fis_admin", "1");
+        onLogin();
+        return;
+      }
+
+      if (response.status === 401) {
+        setError("Invalid username or password.");
+        return;
+      }
+
+      setError("Unable to login. Please try again.");
+    } catch {
+      setError("Unable to login. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setError("Invalid username or password.");
   };
 
   return (
@@ -83,9 +103,17 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ py: 1.5, bgcolor: "#074783", borderRadius: 2, fontWeight: 700, "&:hover": { bgcolor: "#0a5a9e" } }}
+          disabled={isSubmitting}
+          sx={{
+            py: 1.5,
+            bgcolor: "#074783",
+            borderRadius: 2,
+            fontWeight: 700,
+            "&:hover": { bgcolor: "#0a5a9e" },
+            opacity: isSubmitting ? 0.9 : 1,
+          }}
         >
-          Login
+          {isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </Box>
     </Box>

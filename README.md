@@ -85,13 +85,15 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-# Cloudinary
+# Frontend (safe to expose)
 VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 
+# Server-only (never VITE_ prefix)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+ADMIN_USERNAME=your_admin_username
+ADMIN_PASSWORD=your_strong_password
 ```
 
 > **Note:** `VITE_` prefixed variables are exposed to the frontend. Never put `CLOUDINARY_API_SECRET` in a `VITE_` variable.
@@ -121,9 +123,8 @@ npm run preview
 ## Cloudinary Setup
 
 1. Create a Cloudinary account at [cloudinary.com](https://cloudinary.com).
-2. Create an **unsigned upload preset** in your Cloudinary dashboard (`Settings → Upload`).
-3. Set the upload preset name as `VITE_CLOUDINARY_UPLOAD_PRESET`.
-4. Images are organized into folders:
+2. Copy your **cloud name**, **API key**, and **API secret** into the `.env` file (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`).
+3. Images are organized into folders:
 
 | Label | Folder |
 |---|---|

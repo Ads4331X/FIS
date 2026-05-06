@@ -6,14 +6,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const queryPrefix = Array.isArray(req.query.prefix) ? req.query.prefix[0] : req.query.prefix;
   const rawFolder = queryFolder ?? queryPrefix;
   const folder = typeof rawFolder === "string" ? rawFolder.trim().replace(/^\/+|\/+$/g, "") : "";
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY || process.env.VITE_CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET || process.env.VITE_CLOUDINARY_API_SECRET;
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
   if (!cloudName || !apiKey || !apiSecret) {
     res.status(500).json({
       error: {
         message:
-          "Missing Cloudinary env values. Set CLOUDINARY_CLOUD_NAME (or VITE_CLOUDINARY_CLOUD_NAME), CLOUDINARY_API_KEY (or VITE_CLOUDINARY_API_KEY), and CLOUDINARY_API_SECRET (or VITE_CLOUDINARY_API_SECRET).",
+          "Missing Cloudinary env values. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
       },
     });
     return;

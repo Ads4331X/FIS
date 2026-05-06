@@ -1,5 +1,4 @@
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string;
 
 export type GalleryImage = {
   public_id: string;
@@ -88,14 +87,39 @@ export async function uploadImage(
   folder: string,
   onProgress?: (pct: number) => void
 ): Promise<GalleryImage> {
+  const cleanFolder = folder.trim().replace(/^\/+|\/+$/g, "");
+
+  const signResponse = await fetch("/api/sign", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ folder: cleanFolder }),
+  });
+
+  if (!signResponse.ok) {
+    throw new Error("Failed to get upload signature from server.");
+  }
+
+  const { signature, timestamp, apiKey, cloudName } = (await signResponse.json()) as {
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+  };
+
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", UPLOAD_PRESET);
-    formData.append("folder", folder.trim().replace(/^\/+|\/+$/g, ""));
+    if (cleanFolder) {
+      formData.append("folder", cleanFolder);
+    }
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", String(timestamp));
+    formData.append("signature", signature);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
@@ -120,7 +144,6 @@ export async function deleteImage(publicId: string, cloudName: string = CLOUD_NA
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
   const formData = new FormData();
   formData.append("public_id", publicId);
-  formData.append("upload_preset", UPLOAD_PRESET);
   const res = await fetch(url, { method: "POST", body: formData });
   if (!res.ok) throw new Error("Delete failed");
 }
