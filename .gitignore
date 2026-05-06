@@ -21,3 +21,6 @@ Thumbs.db
 .idea/
 .vercel
 .env*.local
+
+# Admin readme
+ADMIN.md
