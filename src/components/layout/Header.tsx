@@ -3,19 +3,13 @@ import { Box, Container, IconButton, Link } from "@mui/material";
 import FisLogo from "../../assets/FIS_logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { primaryNavigationLinks } from "../../constants/navigationLinks";
 
 function Header() {
   const isMobile = useMediaQuery("(max-width:768px)");
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setMenuOpen(false);
-    }
-  }, [isMobile]);
 
   return (
     <Box
@@ -87,8 +81,8 @@ function Header() {
             width: "100%",
             padding: 0,
             overflow: "hidden",
-            maxHeight: menuOpen ? 300 : 0,
-            opacity: menuOpen ? 1 : 0,
+            maxHeight: menuOpen && isMobile ? 300 : 0,
+            opacity: menuOpen && isMobile ? 1 : 0,
             transition: "all 0.4s ease",
           }}
         >
@@ -103,10 +97,10 @@ function Header() {
                 fontWeight: "bold",
                 color: "#1F2937",
                 fontSize: "0.95rem",
-                maxHeight: menuOpen ? 300 : 0,
-                opacity: menuOpen ? 1 : 0,
+                maxHeight: menuOpen && isMobile ? 300 : 0,
+                opacity: menuOpen && isMobile ? 1 : 0,
                 borderBottom: "1px solid #ddd",
-                transform: menuOpen
+                transform: menuOpen && isMobile
                   ? "translateY(0)"
                   : "translateY(-10px)",
                 transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
