@@ -234,9 +234,16 @@ export default defineConfig(({ mode }) => {
               for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
               const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}") as {
                 public_id?: string;
+                publicId?: string;
+                resource_type?: string;
+                resourceType?: string;
               };
 
-              const publicId = body.public_id?.trim();
+              const publicId = (body.public_id ?? body.publicId)?.trim();
+              const requestedType =
+                (body.resource_type ?? body.resourceType)?.trim().toLowerCase() === "raw"
+                  ? "raw"
+                  : "image";
               if (!publicId) {
                 res.statusCode = 400;
                 res.setHeader("Content-Type", "application/json");
@@ -252,36 +259,80 @@ export default defineConfig(({ mode }) => {
                 return;
               }
 
-              const timestamp = Math.round(Date.now() / 1000);
-              const stringToSign = `public_id=${publicId}&timestamp=${timestamp}`;
-              const signature = crypto.createHash("sha1").update(stringToSign + apiSecret).digest("hex");
+              const candidatePublicIds = Array.from(
+                new Set(
+                  publicId.endsWith(".json")
+                    ? [publicId, publicId.replace(/\.json$/i, "")]
+                    : [publicId, `${publicId}.json`],
+                ),
+              );
+              const resourceTypes: Array<"image" | "raw"> = [
+                requestedType,
+                requestedType === "image" ? "raw" : "image",
+              ];
 
-              const form = new URLSearchParams({
-                public_id: publicId,
-                api_key: apiKey,
-                timestamp: String(timestamp),
-                signature,
-              });
+              const destroyAsset = async (candidateId: string, resourceType: "image" | "raw") => {
+                const timestamp = Math.round(Date.now() / 1000);
+                const paramsToSign: Record<string, string> = {
+                  public_id: candidateId,
+                  timestamp: String(timestamp),
+                };
+                const stringToSign = Object.keys(paramsToSign)
+                  .sort()
+                  .map((key) => `${key}=${paramsToSign[key]}`)
+                  .join("&");
+                const signature = crypto.createHash("sha1").update(stringToSign + apiSecret).digest("hex");
 
-              const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`,
-                {
+                const form = new URLSearchParams({
+                  public_id: candidateId,
+                  resource_type: resourceType,
+                  api_key: apiKey,
+                  timestamp: String(timestamp),
+                  signature,
+                });
+
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/destroy`, {
                   method: "POST",
                   headers: { "Content-Type": "application/x-www-form-urlencoded" },
                   body: form.toString(),
-                }
-              );
+                });
+                const data = (await response.json().catch(() => ({}))) as {
+                  result?: string;
+                  error?: { message?: string };
+                };
+                return { result: data.result, message: data.error?.message };
+              };
 
-              const data = await response.json() as { result?: string };
-              if (data.result === "ok") {
+              let sawNotFound = false;
+              let lastError = "Delete failed.";
+
+              for (const type of resourceTypes) {
+                for (const candidateId of candidatePublicIds) {
+                  const out = await destroyAsset(candidateId, type);
+                  if (out.result === "ok") {
+                    res.statusCode = 200;
+                    res.setHeader("Content-Type", "application/json");
+                    res.end(JSON.stringify({ ok: true }));
+                    return;
+                  }
+                  if (out.result === "not found") {
+                    sawNotFound = true;
+                    continue;
+                  }
+                  if (out.message) lastError = out.message;
+                }
+              }
+
+              if (sawNotFound || lastError.trim().toLowerCase().includes("not found")) {
                 res.statusCode = 200;
                 res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ ok: true }));
-              } else {
-                res.statusCode = 400;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ error: { message: data.result ?? "Delete failed." } }));
+                res.end(JSON.stringify({ ok: true, result: "not found" }));
+                return;
               }
+
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: { message: lastError } }));
             } catch (error) {
               res.statusCode = 500;
               res.setHeader("Content-Type", "application/json");

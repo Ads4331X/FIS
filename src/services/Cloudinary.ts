@@ -525,7 +525,17 @@ export async function deleteImage(
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(data?.error?.message ?? "Delete failed.");
+    const message = (data?.error?.message ?? "Delete failed.").trim();
+    const lowered = message.toLowerCase();
+    if (
+      lowered.includes("not found") ||
+      lowered.includes("not_found") ||
+      lowered.includes("can't find resource") ||
+      lowered.includes("does not exist")
+    ) {
+      return;
+    }
+    throw new Error(message);
   }
 }
 

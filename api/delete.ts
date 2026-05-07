@@ -1,52 +1,78 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 type DeleteRequestBody = {
   public_id?: string;
+  publicId?: string;
   resource_type?: string;
+  resourceType?: string;
 };
 
 function normalizeResourceType(value: unknown): "image" | "raw" {
   return typeof value === "string" && value.trim().toLowerCase() === "raw" ? "raw" : "image";
 }
 
-async function deleteCloudinaryAsset(
-  cloudName: string,
-  apiKey: string,
-  apiSecret: string,
-  publicId: string,
-  resourceType: "image" | "raw",
-): Promise<{ deleted: boolean; notFound: boolean; message?: string }> {
-  const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
-  const encodedPublicId = encodeURIComponent(publicId);
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/resources/${resourceType}/upload/${encodedPublicId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Basic ${credentials}`,
-      },
-    }
+function isNotFoundMessage(message: string): boolean {
+  const lowered = message.trim().toLowerCase();
+  return (
+    lowered.includes("not found") ||
+    lowered.includes("not_found") ||
+    lowered.includes("can't find resource") ||
+    lowered.includes("does not exist")
   );
+}
 
-  const rawBody = await response.text().catch(() => "");
-  let data = {} as {
-    result?: string;
-    deleted?: Record<string, string>;
-    error?: { message?: string };
-    message?: string;
-  };
-  if (rawBody) {
+function parseDeleteRequestBody(rawBody: unknown): DeleteRequestBody {
+  if (!rawBody) return {};
+  if (typeof rawBody === "string") {
     try {
-      data = JSON.parse(rawBody) as typeof data;
+      const parsed = JSON.parse(rawBody) as DeleteRequestBody;
+      return parsed ?? {};
     } catch {
-      data = {};
+      return {};
     }
   }
+  if (typeof rawBody === "object") {
+    return rawBody as DeleteRequestBody;
+  }
+  return {};
+}
 
-  if (!response.ok) {
-    const message = data.error?.message ?? data.message ?? rawBody || "Delete failed.";
-    const lowered = message.toLowerCase();
-    if (lowered.includes("not found") || lowered.includes("can't find resource")) {
+async function deleteCloudinaryAsset(
+  publicId: string,
+  resourceType: "image" | "raw",
+): Promise<{
+  deleted: boolean;
+  notFound: boolean;
+  message?: string;
+}> {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
+
+    if (result.result === "ok") {
+      return { deleted: true, notFound: false };
+    }
+
+    if (result.result === "not found") {
+      return { deleted: false, notFound: true };
+    }
+
+    return {
+      deleted: false,
+      notFound: false,
+      message: "Delete failed.",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Delete failed.";
+    if (isNotFoundMessage(message)) {
       return { deleted: false, notFound: true };
     }
     return {
@@ -55,16 +81,6 @@ async function deleteCloudinaryAsset(
       message,
     };
   }
-
-  if (data.result === "ok") return { deleted: true, notFound: false };
-  if (data.result === "not found") return { deleted: false, notFound: true };
-
-  const status = data.deleted?.[publicId];
-  if (status === "deleted") return { deleted: true, notFound: false };
-  if (status === "not_found") return { deleted: false, notFound: true };
-  // Some Cloudinary admin delete responses are 200 with sparse/empty payload.
-  if (response.ok) return { deleted: true, notFound: false };
-  return { deleted: false, notFound: false, message: "Delete failed." };
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -85,9 +101,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const body = (req.body ?? {}) as DeleteRequestBody;
-  const publicId = body.public_id?.trim();
-  const resourceType = normalizeResourceType(body.resource_type);
+  const body = parseDeleteRequestBody(req.body);
+  const publicId = (body.public_id ?? body.publicId)?.trim();
+  const resourceType = normalizeResourceType(body.resource_type ?? body.resourceType);
+
+  console.log("Deleting public_id:", publicId);
 
   if (!publicId) {
     res.status(400).json({ error: { message: "public_id is required." } });
@@ -107,9 +125,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (const type of resourceTypes) {
       for (const candidateId of candidatePublicIds) {
         const result = await deleteCloudinaryAsset(
-          cloudName,
-          apiKey,
-          apiSecret,
           candidateId,
           type,
         );
@@ -136,7 +151,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    res.status(400).json({ error: { message: lastError } });
+    if (isNotFoundMessage(lastError)) {
+      // Some SDK responses can bubble "not found" as a plain message.
+      res.status(200).json({ ok: true, result: "not found" });
+      return;
+    }
+
+    res.status(400).json({
+      error: {
+        message: lastError,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       error: {
