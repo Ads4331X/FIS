@@ -28,10 +28,7 @@ type UploadZoneProps = {
 };
 
 const UPLOAD_FOLDERS = CATEGORIES.filter((category) => category.folder !== "");
-const DEFAULT_UPLOAD_FOLDER =
-  UPLOAD_FOLDERS.find((category) => category.folder === "School")?.folder ??
-  UPLOAD_FOLDERS[0]?.folder ??
-  "";
+const DEFAULT_UPLOAD_FOLDER = UPLOAD_FOLDERS[0]?.folder ?? "";
 
 export function UploadZone({ onUploaded }: UploadZoneProps) {
   const [folder, setFolder] = useState(DEFAULT_UPLOAD_FOLDER);

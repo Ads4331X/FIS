@@ -18,105 +18,74 @@ export type FolderCategory = {
 
 export const CATEGORIES: FolderCategory[] = [
   { label: "All", folder: "" },
-  { label: "School", folder: "School", readFolders: ["School", "Home/School"] },
-  {
-    label: "Events",
-    folder: "School/Events",
-    readFolders: ["School/Events", "Home/School/Events"],
-  },
-  {
-    label: "Sports",
-    folder: "School/Sports",
-    readFolders: ["School/Sports", "Home/School/Sports"],
-  },
-  {
-    label: "Students",
-    folder: "School/Students",
-    readFolders: [
-      "School/Students",
-      "School/Student",
-      "Home/School/Students",
-      "Home/School/Student",
-    ],
-  },
-  { label: "Tour", folder: "School/Tour", readFolders: ["School/Tour", "Home/School/Tour"] },
+  { label: "School", folder: "School" },
+  { label: "Events", folder: "Events" },
+  { label: "Sports", folder: "Sports" },
+  { label: "Students", folder: "Students" },
+  { label: "Tour", folder: "Tour" },
 ];
 
 export const UPLOAD_FOLDERS = CATEGORIES.filter((c) => c.folder !== "");
 
-const GALLERY_FOLDERS = Array.from(
-  new Set(UPLOAD_FOLDERS.flatMap((category) => category.readFolders ?? [category.folder]))
-);
+function normalizeUploadFolder(folder: string): string {
+  return folder.trim().replace(/^\/+|\/+$/g, "");
+}
 
-function getReadFolders(folder: string): string[] {
-  const match = CATEGORIES.find((category) => category.folder === folder);
-  return match ? match.readFolders ?? [match.folder] : [folder];
+function normalizeRootFolder(folder: string): string {
+  return normalizeUploadFolder(folder).split("/").filter(Boolean).pop() ?? "";
 }
 
 export async function fetchImages(folder: string = ""): Promise<GalleryImage[]> {
-  const folders = folder ? getReadFolders(folder) : GALLERY_FOLDERS;
-  const errors: string[] = [];
-
-  const results = await Promise.all(
-    folders.map(async (f) => {
-      try {
-        const res = await fetch(`/api/images?folder=${encodeURIComponent(f)}`);
-        const data = await res.json();
-        if (!res.ok) {
-          errors.push(data?.error?.message || `Failed to load folder: ${f}`);
-          return [];
-        }
-        return (data.resources || []).map((r: GalleryImage) => ({ ...r, folder: f }));
-      } catch (error) {
-        errors.push(error instanceof Error ? error.message : `Failed to load folder: ${f}`);
-        return [];
-      }
-    })
-  );
-
-  const merged = results.flat().sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
-  if (merged.length === 0 && errors.length > 0) {
-    throw new Error(errors[0]);
+  const normalizedFolder = normalizeUploadFolder(folder);
+  const requestedFolder = normalizedFolder === "" ? "/" : normalizedFolder;
+  const res = await fetch("/api/images");
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || "Failed to load images.");
   }
-  return merged;
+
+  return (data.resources || [])
+    .map((r: GalleryImage) => ({ ...r, folder: requestedFolder }))
+    .sort(
+      (a: GalleryImage, b: GalleryImage) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 }
 export async function uploadImage(
   file: File,
   folder: string,
   onProgress?: (pct: number) => void
 ): Promise<GalleryImage> {
-  const cleanFolder = folder.trim().replace(/^\/+|\/+$/g, "");
-
+  const rootFolder = normalizeRootFolder(folder);
   const signResponse = await fetch("/api/sign", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ folder: cleanFolder }),
+    body: JSON.stringify({ folder: rootFolder }),
   });
 
   if (!signResponse.ok) {
     throw new Error("Failed to get upload signature from server.");
   }
 
-  const { signature, timestamp, apiKey, cloudName } = (await signResponse.json()) as {
+  const { signature, timestamp, apiKey, cloudName, folder: signedFolder } = (await signResponse.json()) as {
     signature: string;
     timestamp: number;
     apiKey: string;
     cloudName: string;
+    folder?: string;
   };
 
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("file", file);
-    if (cleanFolder) {
-      formData.append("folder", cleanFolder);
-    }
     formData.append("api_key", apiKey);
     formData.append("timestamp", String(timestamp));
     formData.append("signature", signature);
+    if (signedFolder) {
+      formData.append("folder", signedFolder);
+    }
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`);

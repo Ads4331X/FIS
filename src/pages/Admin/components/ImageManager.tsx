@@ -23,10 +23,7 @@ type ImageManagerProps = {
 };
 
 const UPLOAD_FOLDERS = CATEGORIES.filter((category) => category.folder !== "");
-const DEFAULT_FOLDER =
-  UPLOAD_FOLDERS.find((category) => category.folder === "School")?.folder ??
-  UPLOAD_FOLDERS[0]?.folder ??
-  "";
+const DEFAULT_FOLDER = UPLOAD_FOLDERS[0]?.folder ?? "";
 
 export function ImageManager({ refreshKey }: ImageManagerProps) {
   const [folder, setFolder] = useState(DEFAULT_FOLDER);
