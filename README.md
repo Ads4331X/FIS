@@ -41,7 +41,7 @@ A modern, responsive school website built with React, TypeScript, and Material U
 │   ├── components/
 │   │   ├── icons/             # Custom SVG icons (TikTok, etc.)
 │   │   ├── layout/            # Header, Footer
-│   │   └── ui/                # Reusable components (Hero, Counter, StatCard)
+│   │   └── ui/                # Reusable components (Hero, Counter, StatCard, StatGrid, ProgramCard)
 │   ├── constants/
 │   │   ├── navigationLinks.ts # Nav link definitions
 │   │   └── siteContact.ts     # School contact info (single source of truth)
@@ -162,7 +162,7 @@ The `vercel.json` config routes all API calls to the serverless function and all
 
 Contact and admission forms submit to **Google Forms** via a `no-cors` fetch. No backend is required. To update the form endpoints, edit the form action URLs and entry field IDs in:
 
-- `src/pages/Contact/Form.tsx`
+- `src/pages/Contact/components/Form.tsx`
 - `src/pages/Admission/components/AdmissionFormCard.tsx`
 
 School contact details (address, phone, email, social links, map URLs) are centralized in:
