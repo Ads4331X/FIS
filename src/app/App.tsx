@@ -12,6 +12,12 @@ import Contact from "../pages/Contact/Contact";
 import Home from "../pages/Home/Home";
 import Gallery from "../pages/Gallery/Gallery";
 import Admin from "../pages/Admin/Admin";
+import Overview from "../pages/Admin/pages/Overview/Overview";
+import StudentManagement from "../pages/Admin/pages/StudentManagement/StudentManagement";
+import FacultyManagement from "../pages/Admin/pages/FacultyManagement/FacultyManagement";
+import GalleryManagement from "../pages/Admin/pages/GalleryManagement/GalleryManagement";
+import NoticeBoard from "../pages/Admin/pages/NoticeBoard/NoticeBoard";
+import SystemSettings from "../pages/Admin/pages/SystemSettings/SystemSettings";
 
 function App() {
   const location = useLocation();
@@ -22,11 +28,15 @@ function App() {
       {!isAdminRoute && <Header />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<Navigate to="/admin/gallerymanagement" replace />} />
-        <Route path="/admin/overview" element={<Admin />} />
-        <Route path="/admin/studentmanagement" element={<Admin />} />
-        <Route path="/admin/gallerymanagement" element={<Admin />} />
-        <Route path="/admin/systemsettings" element={<Admin />} />
+        <Route path="/admin" element={<Admin />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<Overview />} />
+          <Route path="studentmanagement" element={<StudentManagement />} />
+          <Route path="facultymanagement" element={<FacultyManagement />} />
+          <Route path="noticeboard" element={<NoticeBoard />} />
+          <Route path="gallerymanagement" element={<GalleryManagement />} />
+          <Route path="systemsettings" element={<SystemSettings />} />
+        </Route>
         <Route path="/about_us" element={<About />} />
         <Route path="/academics" element={<Academics />} />
         <Route path="/gallery" element={<Gallery />} />

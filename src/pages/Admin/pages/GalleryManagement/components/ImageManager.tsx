@@ -18,7 +18,7 @@ import {
   alpha,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { CATEGORIES, deleteImage, fetchImages, getThumbnailUrl, type GalleryImage } from "../../../services/Cloudinary";
+import { CATEGORIES, deleteImage, fetchImages, getThumbnailUrl, type GalleryImage } from "../../../../../services/Cloudinary";
 
 export type AdminGalleryView = "all" | "category";
 

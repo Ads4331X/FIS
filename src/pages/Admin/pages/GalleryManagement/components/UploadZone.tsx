@@ -17,7 +17,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { CATEGORIES, uploadImage } from "../../../services/Cloudinary";
+import { CATEGORIES, uploadImage } from "../../../../../services/Cloudinary";
 
 type UploadFile = {
   file: File;
