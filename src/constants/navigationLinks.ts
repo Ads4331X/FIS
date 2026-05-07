@@ -8,6 +8,7 @@ export const primaryNavigationLinks: NavigationLink[] = [
   { label: "About Us", path: "/about_us" },
   { label: "Academics", path: "/academics" },
   { label: "Gallery", path: "/gallery" },
+  { label: "Notices", path: "/notices" },
   { label: "Contact", path: "/contact" },
   { label: "Apply Now", path: "/apply_now" },
 ];
