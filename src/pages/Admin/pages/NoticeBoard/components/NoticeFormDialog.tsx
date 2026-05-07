@@ -223,26 +223,26 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           resourceType = result.resourceType; // "raw"
           finalImageUrl = result.imageUrl ?? finalImageUrl;
         }
+
+        // If Cloudinary returned a different public_id on update, remove the previous asset id
+        // so we never leave an old notice record behind.
+        if (
+          notice &&
+          previousCloudinaryId &&
+          cloudinaryId &&
+          cloudinaryId !== previousCloudinaryId
+        ) {
+          await deleteImage(previousCloudinaryId, "image");
+          await deleteImage(previousCloudinaryId, "raw");
+        }
       } catch (error) {
         setSubmitError(
           error instanceof Error ? error.message : "Notice save failed.",
         );
-        setUploading(false);
         return;
+      } finally {
+        setUploading(false);
       }
-      setUploading(false);
-    }
-
-    // If Cloudinary returned a different public_id on update, remove the previous asset id
-    // so we never leave an old notice record behind.
-    if (
-      notice &&
-      previousCloudinaryId &&
-      cloudinaryId &&
-      cloudinaryId !== previousCloudinaryId
-    ) {
-      await deleteImage(previousCloudinaryId, "image");
-      await deleteImage(previousCloudinaryId, "raw");
     }
 
     // Blob preview URLs are temporary — don't persist them for drafts
