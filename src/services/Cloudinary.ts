@@ -376,6 +376,88 @@ export async function uploadNoticeFile(
   });
 }
 
+export async function uploadNoticeImageUrl(metadata: {
+  title: string;
+  category: string;
+  description?: string;
+  createdAt?: string;
+  imageUrl: string;
+  publicId?: string;
+}): Promise<NoticeItem> {
+  const folder = "notices";
+  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const sourceImageUrl = metadata.imageUrl.trim();
+  if (!sourceImageUrl) {
+    throw new Error("Image URL is required to upload notice image.");
+  }
+
+  const contextPayload = {
+    title: metadata.title.trim(),
+    category: metadata.category.trim(),
+    description: (metadata.description ?? "").trim(),
+    createdAt: metadata.createdAt ?? new Date().toISOString(),
+  };
+
+  const signRes = await fetch("/api/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+  });
+
+  if (!signRes.ok) {
+    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    throw new Error(err?.error?.message ?? "Failed to get upload signature.");
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
+    (await signRes.json()) as {
+      signature: string;
+      timestamp: number;
+      apiKey: string;
+      cloudName: string;
+      folder?: string;
+      public_id?: string;
+      context?: string;
+    };
+
+  if (!signature || !timestamp || !apiKey || !cloudName) {
+    throw new Error("Cloudinary upload signature was incomplete.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", sourceImageUrl);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+  if (signedFolder) formData.append("folder", signedFolder);
+  if (public_id) formData.append("public_id", public_id);
+  if (context) formData.append("context", context);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const body = (await res.json().catch(() => ({}))) as NoticeAsset & {
+    error?: { message?: string };
+  };
+  if (!res.ok) {
+    throw new Error(body?.error?.message ?? "Notice upload failed.");
+  }
+
+  const contextValues = getNoticeContextValues(body);
+  return {
+    id: body.public_id,
+    title: contextValues.title || contextPayload.title,
+    category: contextValues.category || contextPayload.category,
+    description: contextValues.description || contextPayload.description || undefined,
+    imageUrl: body.secure_url,
+    createdAt: contextValues.createdAt || body.created_at,
+    resourceType: body.resource_type || "image",
+    format: body.format,
+  };
+}
+
 export async function uploadNoticeRecord(metadata: {
   title: string;
   category: string;

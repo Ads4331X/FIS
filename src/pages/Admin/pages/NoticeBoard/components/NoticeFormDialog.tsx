@@ -25,7 +25,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import LinkIcon from "@mui/icons-material/Link";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
-import { uploadNoticeFile, uploadNoticeRecord } from "../../../../../services/Cloudinary";
+import { deleteImage, uploadNoticeFile, uploadNoticeImageUrl, uploadNoticeRecord } from "../../../../../services/Cloudinary";
 import {
   NOTICE_CATEGORIES,
   NOTICE_STATUSES,
@@ -163,7 +163,28 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           cloudinaryId = result.id;
           resourceType = result.resourceType; // "image"
           finalImageUrl = result.imageUrl;
+        } else if (
+          imageMode === "url" &&
+          finalImageUrl &&
+          notice?.resourceType === "image"
+        ) {
+          // Keep existing image-based notices on the image pipeline when edited.
+          const result = await uploadNoticeImageUrl({
+            title,
+            category,
+            description,
+            createdAt,
+            imageUrl: finalImageUrl,
+            publicId: notice?.cloudinaryId ?? notice?.id,
+          });
+          cloudinaryId = result.id;
+          resourceType = result.resourceType; // "image"
+          finalImageUrl = result.imageUrl;
         } else {
+          // When converting an image notice to "no image", remove the old image asset first.
+          if (imageMode === "none" && notice?.resourceType === "image" && notice?.cloudinaryId) {
+            await deleteImage(notice.cloudinaryId, "image");
+          }
           // Upload metadata record — resourceType will be "raw"
           const result = await uploadNoticeRecord({
             title,
