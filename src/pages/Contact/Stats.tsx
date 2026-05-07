@@ -8,19 +8,16 @@ export default function Stats() {
   return (
     <Box
       sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, minmax(0, 1fr))",
+          md: "repeat(3, minmax(0, 1fr))",
+        },
         gap: { xs: 2, md: 3 },
         py: { xs: 4, md: 6 },
         width: "100%",
-        maxWidth: "100%",
-        minWidth: 0,
-        boxSizing: "border-box",
-        "& > *": {
-          flex: { xs: "1 1 100%", sm: "1 1 200px" },
-          maxWidth: { xs: "100%", sm: "260px" },
-        },
+        alignItems: "stretch",
       }}
     >
       <StatCard

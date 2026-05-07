@@ -1,6 +1,9 @@
 import { useRef, useEffect } from "react";
 import { CountUp } from "countup.js";
 import { Box } from "@mui/material";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import { StatCard } from "./StatCard";
 
 export function Counter() {
@@ -41,27 +44,35 @@ export function Counter() {
     <Box
       ref={ref}
       sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: 4,
-        py: 6,
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, minmax(0, 1fr))",
+          md: "repeat(3, minmax(0, 1fr))",
+        },
+        gap: { xs: 2, md: 3 },
+        py: { xs: 4, md: 6 },
+        width: "100%",
+        alignItems: "stretch",
       }}
     >
       <StatCard
-        variant="legacy"
+        tone="paper"
+        icon={<GroupsOutlinedIcon sx={{ fontSize: 40 }} />}
         label="Years of Legacy"
         value={<Box ref={r1}>0</Box>}
       />
 
       <StatCard
-        variant="pass"
+        tone="paper"
+        icon={<WorkspacePremiumOutlinedIcon sx={{ fontSize: 40 }} />}
         label="Board Pass Rate"
         value={<Box ref={r2}>0</Box>}
       />
 
       <StatCard
-        variant="eca"
+        tone="paper"
+        icon={<EmojiEventsOutlinedIcon sx={{ fontSize: 40 }} />}
         label="ECA Activities"
         value={<Box ref={r3}>0</Box>}
       />

@@ -1,4 +1,5 @@
 import { Box, Container } from "@mui/material";
+import { StatCard } from "../../components/ui/StatCard";
 
 const resultItems = [
   { label: "SEE Pass Rate", value: "100%" },
@@ -39,38 +40,17 @@ export function ResultsSection({ sectionId }: { sectionId?: string }) {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
-            gap: 2,
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+              md: "repeat(3, minmax(0, 1fr))",
+            },
+            gap: { xs: 2, md: 3 },
+            alignItems: "stretch",
           }}
         >
           {resultItems.map((item) => (
-            <Box
-              key={item.label}
-              sx={{
-                backgroundColor: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 3,
-                p: { xs: 2.25, md: 2.75 },
-                textAlign: "center",
-                boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
-              }}
-            >
-              <Box sx={{ color: "#0b2f57", fontSize: { xs: "1.6rem", md: "1.9rem" }, fontWeight: 800 }}>
-                {item.value}
-              </Box>
-              <Box
-                sx={{
-                  color: "#64748b",
-                  mt: 0.75,
-                  fontWeight: 600,
-                  fontSize: { xs: "0.86rem", md: "0.92rem" },
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                }}
-              >
-                {item.label}
-              </Box>
-            </Box>
+            <StatCard key={item.label} tone="paper" value={item.value} label={item.label} />
           ))}
         </Box>
       </Container>
