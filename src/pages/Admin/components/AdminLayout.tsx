@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -29,11 +29,16 @@ export default function AdminLayout() {
       window.sessionStorage.getItem("fis_admin") === "1",
   );
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const isMdUp = useMediaQuery("(min-width:900px)");
   const [mode, setMode] = useState<AdminColorMode>(() => getStoredAdminMode());
 
   const theme = useMemo(() => buildAdminTheme(mode), [mode]);
   const activeSection = findAdminSection(location.pathname);
+
+  useEffect(() => {
+    setSearchQuery("");
+  }, [location.pathname]);
 
   const handleLogout = () => {
     window.sessionStorage.removeItem("fis_admin");
@@ -91,14 +96,16 @@ export default function AdminLayout() {
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <AdminTopBar
               searchPlaceholder={`Search ${activeSection.label.toLowerCase()}…`}
+              searchValue={searchQuery}
               showMenuButton={!isMdUp}
               mode={mode}
               onOpenMobileNav={() => setMobileOpen(true)}
+              onSearchChange={setSearchQuery}
               onToggleMode={handleToggleMode}
               onLogout={handleLogout}
             />
             <Container maxWidth="xl" sx={{ py: { xs: 2.5, md: 4 } }}>
-              <Outlet />
+              <Outlet context={{ searchQuery, setSearchQuery }} />
             </Container>
           </Box>
         </Box>

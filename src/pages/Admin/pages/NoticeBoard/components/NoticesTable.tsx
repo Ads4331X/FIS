@@ -50,6 +50,7 @@ type NoticesTableProps = {
   notices: Notice[];
   pageSize?: number;
   searchQuery?: string;
+  onClearSearch?: () => void;
   statsFilter?: NoticeStatFilter;
   onEdit: (notice: Notice) => void;
   onDelete: (notice: Notice) => void;
@@ -62,6 +63,7 @@ export function NoticesTable({
   notices,
   pageSize = DEFAULT_PAGE_SIZE,
   searchQuery = "",
+  onClearSearch,
   statsFilter = "all",
   onEdit,
   onDelete,
@@ -131,6 +133,7 @@ export function NoticesTable({
     setCategoryFilter([]);
     setStatusFilter([]);
     setPage(1);
+    onClearSearch?.();
   };
 
   const statsFilterLabel =

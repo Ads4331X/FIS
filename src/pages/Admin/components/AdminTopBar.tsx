@@ -19,18 +19,22 @@ import type { AdminColorMode } from "../theme/adminTheme";
 
 type AdminTopBarProps = {
   searchPlaceholder: string;
+  searchValue: string;
   showMenuButton: boolean;
   mode: AdminColorMode;
   onOpenMobileNav: () => void;
+  onSearchChange: (value: string) => void;
   onToggleMode: () => void;
   onLogout: () => void;
 };
 
 export function AdminTopBar({
   searchPlaceholder,
+  searchValue,
   showMenuButton,
   mode,
   onOpenMobileNav,
+  onSearchChange,
   onToggleMode,
   onLogout,
 }: AdminTopBarProps) {
@@ -87,6 +91,8 @@ export function AdminTopBar({
             <SearchIcon fontSize="small" />
             <InputBase
               placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(event) => onSearchChange(event.target.value)}
               sx={{ flex: 1, fontSize: 14 }}
               inputProps={{ "aria-label": searchPlaceholder }}
             />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Button, Snackbar, Alert, Typography, alpha, useMediaQuery } from "@mui/material";
+import { useOutletContext } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import { AdminPageHeader } from "../../components/AdminPageHeader";
 import { findAdminSection } from "../../config/sections";
@@ -32,6 +33,10 @@ type Toast = {
 };
 
 export default function NoticeBoard() {
+  const { searchQuery, setSearchQuery } = useOutletContext<{
+    searchQuery: string;
+    setSearchQuery: (value: string) => void;
+  }>();
   const section = findAdminSection("/admin/noticeboard");
   const isMdUp = useMediaQuery("(min-width:900px)");
 
@@ -280,6 +285,8 @@ export default function NoticeBoard() {
 
       <NoticesTable
         notices={notices}
+        searchQuery={searchQuery}
+        onClearSearch={() => setSearchQuery("")}
         statsFilter={statsFilter}
         onEdit={handleOpenEdit}
         onDelete={setDeletingNotice}

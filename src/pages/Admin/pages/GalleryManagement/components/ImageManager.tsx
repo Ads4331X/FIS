@@ -31,6 +31,7 @@ export type AdminGalleryStats = {
 type ImageManagerProps = {
   refreshKey: number;
   viewMode: AdminGalleryView;
+  searchQuery?: string;
   onStatsChange?: (stats: AdminGalleryStats) => void;
 };
 
@@ -39,7 +40,12 @@ const ALL_CATEGORY_VALUE = "__all__";
 const DEFAULT_FOLDER = ALL_CATEGORY_VALUE;
 const PAGE_SIZE = 12;
 
-export function ImageManager({ refreshKey, viewMode, onStatsChange }: ImageManagerProps) {
+export function ImageManager({
+  refreshKey,
+  viewMode,
+  searchQuery = "",
+  onStatsChange,
+}: ImageManagerProps) {
   const [folder, setFolder] = useState(DEFAULT_FOLDER);
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -64,14 +70,24 @@ export function ImageManager({ refreshKey, viewMode, onStatsChange }: ImageManag
     return [selectedCategory.folder, ...(selectedCategory.legacyPrefixes ?? [])];
   }, [folder, selectedCategory]);
 
+  const visibleImagesBySearch = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return images;
+    return images.filter((image) => {
+      const filename = image.public_id.split("/").pop() ?? "";
+      const haystack = `${image.display_name ?? ""} ${image.public_id} ${filename}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [images, searchQuery]);
+
   const sortedImages = useMemo(() => {
-    const list = [...images];
+    const list = [...visibleImagesBySearch];
     list.sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
     return list;
-  }, [images, viewMode]);
+  }, [visibleImagesBySearch, viewMode]);
 
   const totalLoadedPages = Math.max(1, Math.ceil(sortedImages.length / PAGE_SIZE));
   const visibleImages = sortedImages.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -229,9 +245,9 @@ export function ImageManager({ refreshKey, viewMode, onStatsChange }: ImageManag
 
       {loading ? (
         <LinearProgress sx={{ borderRadius: 999 }} />
-      ) : images.length === 0 ? (
+      ) : sortedImages.length === 0 ? (
         <Typography sx={{ color: "text.secondary", textAlign: "center", py: 4 }}>
-          No images in this folder yet.
+          {searchQuery.trim() ? "No images match your search." : "No images in this folder yet."}
         </Typography>
       ) : (
         <>

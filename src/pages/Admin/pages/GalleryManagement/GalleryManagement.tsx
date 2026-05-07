@@ -15,6 +15,7 @@ import { AdminStatCard } from "../../components/AdminStatCard";
 import { findAdminSection } from "../../config/sections";
 import { ImageManager, type AdminGalleryStats, type AdminGalleryView } from "./components/ImageManager";
 import { UploadZone } from "./components/UploadZone";
+import { useOutletContext } from "react-router-dom";
 
 function formatBytes(bytes: number): string {
   if (!bytes || bytes <= 0) return "0 MB";
@@ -30,6 +31,7 @@ const TAB_VIEWS: { label: string; view: AdminGalleryView }[] = [
 ];
 
 export default function GalleryManagement() {
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
   const section = findAdminSection("/admin/gallerymanagement");
   const isMdUp = useMediaQuery("(min-width:900px)");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -150,6 +152,7 @@ export default function GalleryManagement() {
         <ImageManager
           refreshKey={refreshKey}
           viewMode={activeView}
+          searchQuery={searchQuery}
           onStatsChange={setStats}
         />
       </Box>
