@@ -46,7 +46,11 @@ export function ImageManager({ refreshKey }: ImageManagerProps) {
       setLoading(true);
       setLoadMsg("");
       try {
-        const fetchedImages = await fetchImages(folder);
+        const category = UPLOAD_FOLDERS.find((c) => c.folder === folder);
+        const prefixes = category
+          ? [category.folder, ...(category.legacyPrefixes ?? [])]
+          : [folder];
+        const fetchedImages = await fetchImages(prefixes);
         if (active) setImages(fetchedImages);
       } catch (e) {
         if (!active) return;

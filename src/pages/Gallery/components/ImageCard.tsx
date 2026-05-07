@@ -78,7 +78,7 @@ export function ImageCard({ image, onClick }: ImageCardProps) {
           backdropFilter: "blur(4px)",
         }}
       >
-        {image.folder.split("/").pop()}
+        {image.folder?.split("/").pop() ?? ""}
       </Box>
     </Box>
   );

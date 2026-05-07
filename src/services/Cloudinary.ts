@@ -12,8 +12,10 @@ export type GalleryImage = {
 
 export type FolderCategory = {
   label: string;
-  /** The Cloudinary folder path used as a prefix. Empty string = fetch all. */
+  /** Canonical Cloudinary folder path for uploads (sanitized + lowercase). Empty string = fetch all. */
   folder: string;
+  /** Optional legacy prefixes to include when listing existing images. */
+  legacyPrefixes?: string[];
 };
 
 /**
@@ -25,24 +27,39 @@ export type FolderCategory = {
  */
 export const CATEGORIES: FolderCategory[] = [
   { label: "All",      folder: "" },
-  { label: "School",   folder: "School" },
-  { label: "Events",   folder: "School/Events" },
-  { label: "Sports",   folder: "School/Sports" },
-  { label: "Students", folder: "School/Students" },
-  { label: "Tour",     folder: "School/Tour" },
+  // Top-level folders (NOT nested under /school)
+  { label: "School",   folder: "school", legacyPrefixes: ["School"] },
+  { label: "Events",   folder: "events", legacyPrefixes: ["School/Events"] },
+  { label: "Sports",   folder: "sports", legacyPrefixes: ["School/Sports"] },
+  { label: "Students", folder: "students", legacyPrefixes: ["School/Students"] },
+  { label: "Tour",     folder: "tour", legacyPrefixes: ["School/Tour"] },
 ];
 
 export const UPLOAD_FOLDERS = CATEGORIES.filter((c) => c.folder !== "");
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function normalizeFolder(folder: string): string {
-  return folder.trim().replace(/^\/+|\/+$/g, "");
+function sanitizeFolderSegment(segment: string): string {
+  return segment
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, "");
 }
 
-/** Strip any nested path and return only the root folder name for uploads. */
-function rootFolderOnly(folder: string): string {
-  return normalizeFolder(folder).split("/").filter(Boolean)[0] ?? "";
+export function sanitizeFolderPath(folder: string): string {
+  const normalized = folder.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  const parts = normalized.split("/").map(sanitizeFolderSegment).filter(Boolean);
+  return parts.join("/");
+}
+
+function toPrefixes(folderOrPrefixes: string | string[]): string[] {
+  const raw = Array.isArray(folderOrPrefixes) ? folderOrPrefixes : [folderOrPrefixes];
+  const prefixes = raw.map(sanitizeFolderPath).filter(Boolean);
+  // stable unique
+  return Array.from(new Set(prefixes));
 }
 
 function encodePublicId(publicId: string): string {
@@ -55,9 +72,12 @@ function encodePublicId(publicId: string): string {
  * Fetch images from Cloudinary via our serverless proxy.
  * Passes the folder as a prefix so only matching images are returned.
  */
-export async function fetchImages(folder: string = ""): Promise<GalleryImage[]> {
-  const prefix = normalizeFolder(folder);
-  const url = prefix ? `/api/images?prefix=${encodeURIComponent(prefix)}` : "/api/images";
+export async function fetchImages(folder: string | string[] = ""): Promise<GalleryImage[]> {
+  const prefixes = toPrefixes(folder);
+  const url =
+    prefixes.length === 0
+      ? "/api/images"
+      : `/api/images?prefix=${prefixes.map((p) => encodeURIComponent(p)).join("&prefix=")}`;
 
   const res = await fetch(url);
   const data = await res.json();
@@ -80,12 +100,12 @@ export async function uploadImage(
   folder: string,
   onProgress?: (pct: number) => void
 ): Promise<GalleryImage> {
-  const rootFolder = rootFolderOnly(folder);
+  const sanitizedFolder = sanitizeFolderPath(folder);
 
   const signRes = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder: rootFolder }),
+    body: JSON.stringify({ folder: sanitizedFolder }),
   });
 
   if (!signRes.ok) {

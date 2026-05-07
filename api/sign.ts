@@ -1,14 +1,23 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 
-function normalizeRootFolder(input: unknown): string {
-  if (typeof input !== "string") return "";
-  return input
+function sanitizeFolderSegment(segment: string): string {
+  // lowercase, keep alnum, dash, underscore; collapse whitespace to dash
+  const cleaned = segment
     .trim()
-    .replace(/^\/+|\/+$/g, "")
-    .split("/")
-    .filter(Boolean)
-    .pop() ?? "";
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, "");
+  return cleaned;
+}
+
+function sanitizeFolderPath(input: unknown): string {
+  if (typeof input !== "string") return "";
+  const normalized = input.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  const parts = normalized.split("/").map(sanitizeFolderSegment).filter(Boolean);
+  return parts.join("/");
 }
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
@@ -34,12 +43,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const timestamp = Math.round(Date.now() / 1000);
-    const folder = normalizeRootFolder(req.body?.folder);
+    const folder = sanitizeFolderPath(req.body?.folder);
 
-    // Force uploads to a single root folder (no nested paths).
-    const stringToSign = folder
-      ? `folder=${folder}&timestamp=${timestamp}`
-      : `timestamp=${timestamp}`;
+    const stringToSign = folder ? `folder=${folder}&timestamp=${timestamp}` : `timestamp=${timestamp}`;
 
     const signature = crypto
       .createHash("sha1")

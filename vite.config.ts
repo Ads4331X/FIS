@@ -83,6 +83,47 @@ export default defineConfig(({ mode }) => {
             }
           });
 
+          // ── /api/sign ────────────────────────────────────────────────────
+          server.middlewares.use("/api/sign", async (req, res) => {
+            try {
+              if (req.method !== "POST") {
+                res.statusCode = 405;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ error: { message: "Method not allowed" } }));
+                return;
+              }
+
+              const chunks: Buffer[] = [];
+              for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+              const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}") as {
+                folder?: string;
+              };
+
+              const { CLOUDINARY_CLOUD_NAME: cloudName, CLOUDINARY_API_KEY: apiKey, CLOUDINARY_API_SECRET: apiSecret } = env;
+              if (!cloudName || !apiKey || !apiSecret) {
+                res.statusCode = 500;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ error: { message: "Missing Cloudinary env vars." } }));
+                return;
+              }
+
+              const timestamp = Math.round(Date.now() / 1000);
+              const folder = (body.folder ?? "").trim().replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).pop() ?? "";
+              const stringToSign = folder
+                ? `folder=${folder}&timestamp=${timestamp}`
+                : `timestamp=${timestamp}`;
+              const signature = crypto.createHash("sha1").update(stringToSign + apiSecret).digest("hex");
+
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ signature, timestamp, apiKey, cloudName, folder }));
+            } catch (error) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: { message: error instanceof Error ? error.message : "Failed to generate signature." } }));
+            }
+          });
+
           // ── /api/delete ──────────────────────────────────────────────────
           server.middlewares.use("/api/delete", async (req, res) => {
             try {
