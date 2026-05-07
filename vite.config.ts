@@ -102,6 +102,15 @@ export default defineConfig(({ mode }) => {
               for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
               const body = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}") as {
                 folder?: string;
+                public_id?: string;
+                resource_type?: string;
+                context?: {
+                  title?: string;
+                  category?: string;
+                  description?: string;
+                  createdAt?: string;
+                  imageUrl?: string;
+                };
               };
 
               const { CLOUDINARY_CLOUD_NAME: cloudName, CLOUDINARY_API_KEY: apiKey, CLOUDINARY_API_SECRET: apiSecret } = env;
@@ -113,19 +122,98 @@ export default defineConfig(({ mode }) => {
               }
 
               const timestamp = Math.round(Date.now() / 1000);
-              const folder = (body.folder ?? "").trim().replace(/^\/+|\/+$/g, "").split("/").filter(Boolean).pop() ?? "";
-              const stringToSign = folder
-                ? `folder=${folder}&timestamp=${timestamp}`
-                : `timestamp=${timestamp}`;
+              const folder = (body.folder ?? "").trim().replace(/^\/+|\/+$/g, "");
+              const publicId = (body.public_id ?? "").trim().replace(/^\/+|\/+$/g, "");
+              const resourceType = (body.resource_type ?? "").trim();
+
+              const contextEntries: Array<[string, string]> = [
+                ["title", (body.context?.title ?? "").trim()],
+                ["category", (body.context?.category ?? "").trim()],
+                ["description", (body.context?.description ?? "").trim()],
+                ["createdAt", (body.context?.createdAt ?? "").trim()],
+                ["imageUrl", (body.context?.imageUrl ?? "").trim()],
+              ].filter(([, value]) => value.length > 0);
+              const context = contextEntries
+                .map(([k, v]) => `${k}=${v.replace(/[|=]/g, " ")}`)
+                .join("|");
+
+              const paramsToSign: Record<string, string> = {
+                timestamp: String(timestamp),
+              };
+              if (folder) paramsToSign.folder = folder;
+              if (publicId) paramsToSign.public_id = publicId;
+              if (context) paramsToSign.context = context;
+              if (resourceType) paramsToSign.resource_type = resourceType;
+
+              const stringToSign = Object.keys(paramsToSign)
+                .sort()
+                .map((key) => `${key}=${paramsToSign[key]}`)
+                .join("&");
               const signature = crypto.createHash("sha1").update(stringToSign + apiSecret).digest("hex");
 
               res.statusCode = 200;
               res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ signature, timestamp, apiKey, cloudName, folder }));
+              res.end(
+                JSON.stringify({
+                  signature,
+                  timestamp,
+                  apiKey,
+                  cloudName,
+                  folder,
+                  public_id: publicId,
+                  context,
+                  resource_type: resourceType || undefined,
+                })
+              );
             } catch (error) {
               res.statusCode = 500;
               res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify({ error: { message: error instanceof Error ? error.message : "Failed to generate signature." } }));
+            }
+          });
+
+          // ── /api/notices ─────────────────────────────────────────────────
+          server.middlewares.use("/api/notices", async (req, res) => {
+            try {
+              const url = new URL(req.url ?? "", "http://localhost");
+              const nextCursor = url.searchParams.get("next_cursor") ?? "";
+
+              const { CLOUDINARY_CLOUD_NAME: cloudName, CLOUDINARY_API_KEY: apiKey, CLOUDINARY_API_SECRET: apiSecret } = env;
+
+              if (!cloudName || !apiKey || !apiSecret) {
+                res.statusCode = 500;
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ error: { message: "Missing Cloudinary env values." } }));
+                return;
+              }
+
+              const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
+              const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/resources/search`;
+              const body: Record<string, unknown> = {
+                expression: 'asset_folder:"notices" AND type:"upload"',
+                max_results: Number(PAGE_SIZE),
+                sort_by: [{ created_at: "desc" }],
+                with_field: ["context"],
+              };
+              if (nextCursor) body.next_cursor = nextCursor;
+
+              const response = await fetch(cloudinaryUrl, {
+                method: "POST",
+                headers: {
+                  Authorization: `Basic ${credentials}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+              });
+              const data = await response.json();
+
+              res.statusCode = response.status;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(data));
+            } catch (error) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: { message: error instanceof Error ? error.message : "Failed to fetch notices." } }));
             }
           });
 

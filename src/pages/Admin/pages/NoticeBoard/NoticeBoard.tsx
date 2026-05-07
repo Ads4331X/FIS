@@ -4,6 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { AdminPageHeader } from "../../components/AdminPageHeader";
 import { findAdminSection } from "../../config/sections";
 import { NoticeStats } from "./components/NoticeStats";
+import type { NoticeStatFilter } from "./components/NoticeStats";
 import { NoticesTable } from "./components/NoticesTable";
 import { NoticePreview } from "./components/NoticePreview";
 import { SystemActivity } from "./components/SystemActivity";
@@ -11,6 +12,7 @@ import { NoticeFormDialog } from "./components/NoticeFormDialog";
 import { DeleteConfirmDialog } from "./components/DeleteConfirmDialog";
 import { NoticeDetailDialog } from "./components/NoticeDetailDialog";
 import { ActivityLogDialog } from "./components/ActivityLogDialog";
+import { deleteImage, fetchNotices } from "../../../../services/Cloudinary";
 import {
   appendActivity,
   generateNoticeId,
@@ -40,6 +42,7 @@ export default function NoticeBoard() {
   const [detailNotice, setDetailNotice] = useState<Notice | null>(null);
   const [logOpen, setLogOpen] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [statsFilter, setStatsFilter] = useState<NoticeStatFilter>("all");
 
   useEffect(() => {
     saveNotices(notices);
@@ -48,6 +51,47 @@ export default function NoticeBoard() {
   useEffect(() => {
     saveActivity(activity);
   }, [activity]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadCloudNotices = async () => {
+      try {
+        const allCloudNotices = [];
+        let cursor: string | undefined;
+        do {
+          const { notices: cloudNotices, nextCursor } = await fetchNotices(cursor);
+          allCloudNotices.push(...cloudNotices);
+          cursor = nextCursor ?? undefined;
+        } while (cursor);
+
+        if (!active) return;
+
+        setNotices((prev) => {
+          const drafts = prev.filter((notice) => notice.status === "draft");
+          const publishedFromCloud: Notice[] = allCloudNotices.map((notice) => ({
+            id: notice.id,
+            cloudinaryId: notice.id,
+            title: notice.title,
+            description: notice.description ?? "",
+            category: notice.category,
+            status: "published",
+            postedAt: notice.createdAt,
+            imageUrl: notice.imageUrl,
+            resourceType: notice.resourceType,
+          }));
+          return [...drafts, ...publishedFromCloud];
+        });
+      } catch {
+        // Keep local notices if cloud fetch fails.
+      }
+    };
+
+    loadCloudNotices();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const featuredNotice = useMemo(() => {
     const candidate = previewNotice
@@ -77,16 +121,21 @@ export default function NoticeBoard() {
   const handleSave = (
     payload: Omit<Notice, "id" | "postedAt"> & { id?: string; postedAt?: string },
   ) => {
-    if (payload.id) {
-      const existing = notices.find((n) => n.id === payload.id);
+    const existing = payload.id ? notices.find((n) => n.id === payload.id) : undefined;
+
+    if (payload.id && existing) {
+      const nextStatus = existing.status === "published" ? "published" : payload.status;
       const next: Notice = {
         id: payload.id,
         title: payload.title,
         description: payload.description,
         category: payload.category,
-        status: payload.status,
+        status: nextStatus,
         postedAt: payload.postedAt ?? new Date().toISOString(),
         imageUrl: payload.imageUrl,
+        // FIX: always carry cloudinaryId and resourceType forward
+        cloudinaryId: payload.cloudinaryId ?? existing.cloudinaryId,
+        resourceType: payload.resourceType ?? existing.resourceType,
       };
       setNotices((prev) => prev.map((notice) => (notice.id === next.id ? next : notice)));
       const isNewlyPublished =
@@ -95,7 +144,7 @@ export default function NoticeBoard() {
         appendActivity(prev, {
           type: isNewlyPublished ? "published" : "updated",
           title: isNewlyPublished ? "Notice Published" : "Notice Updated",
-          detail: `“${next.title}” was ${isNewlyPublished ? "published" : "updated"}`,
+          detail: `"${next.title}" was ${isNewlyPublished ? "published" : "updated"}`,
         }),
       );
       setToast({
@@ -104,20 +153,24 @@ export default function NoticeBoard() {
       });
     } else {
       const next: Notice = {
-        id: generateNoticeId(),
+        // Local id for React state; cloudinaryId is the real Cloudinary public_id
+        id: payload.id ?? generateNoticeId(),
         title: payload.title,
         description: payload.description,
         category: payload.category,
         status: payload.status,
         postedAt: new Date().toISOString(),
         imageUrl: payload.imageUrl,
+        // FIX: save cloudinaryId and resourceType returned from upload
+        cloudinaryId: payload.cloudinaryId,
+        resourceType: payload.resourceType,
       };
       setNotices((prev) => [next, ...prev]);
       setActivity((prev) =>
         appendActivity(prev, {
           type: next.status === "published" ? "published" : "created",
           title: next.status === "published" ? "Notice Published" : "Draft Created",
-          detail: `“${next.title}”`,
+          detail: `"${next.title}"`,
         }),
       );
       setToast({
@@ -132,15 +185,34 @@ export default function NoticeBoard() {
     setEditingNotice(null);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deletingNotice) return;
     const removed = deletingNotice;
+
+    // FIX: use cloudinaryId (real Cloudinary public_id) not the local id.
+    // Only call Cloudinary if this notice was actually uploaded there.
+    if (removed.cloudinaryId) {
+      const resourceType = removed.resourceType ?? "raw";
+      try {
+        await deleteImage(removed.cloudinaryId, resourceType);
+      } catch (error) {
+        setToast({
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to delete notice from Cloudinary.",
+          severity: "error",
+        });
+        return;
+      }
+    }
+
     setNotices((prev) => prev.filter((notice) => notice.id !== removed.id));
     setActivity((prev) =>
       appendActivity(prev, {
         type: "removed",
         title: removed.status === "draft" ? "Draft Removed" : "Notice Removed",
-        detail: `“${removed.title}” was deleted`,
+        detail: `"${removed.title}" was deleted`,
       }),
     );
     if (previewNotice?.id === removed.id) {
@@ -165,7 +237,10 @@ export default function NoticeBoard() {
         title="Notice Management"
         subtitle={
           <>
-            <Typography component="span" sx={{ fontWeight: 800, color: "text.primary", display: "block", mb: 0.5 }}>
+            <Typography
+              component="span"
+              sx={{ fontWeight: 800, color: "text.primary", display: "block", mb: 0.5 }}
+            >
               Live Board Overview
             </Typography>
             {section.subtitle}
@@ -193,10 +268,15 @@ export default function NoticeBoard() {
         }
       />
 
-      <NoticeStats notices={notices} />
+      <NoticeStats
+        notices={notices}
+        activeFilter={statsFilter}
+        onFilterChange={setStatsFilter}
+      />
 
       <NoticesTable
         notices={notices}
+        statsFilter={statsFilter}
         onEdit={handleOpenEdit}
         onDelete={setDeletingNotice}
         onPreview={setPreviewNotice}

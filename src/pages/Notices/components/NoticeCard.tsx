@@ -1,45 +1,61 @@
-import { Box, Card, CardContent, CardMedia, Chip, Typography } from "@mui/material";
-import type { GalleryImage } from "../../../services/Cloudinary";
+import { useMemo, useState } from "react";
+import { Box, Button, Card, CardContent, CardMedia, Chip, Typography } from "@mui/material";
+import type { NoticeItem } from "../../../services/Cloudinary";
 
 type NoticeCardProps = {
-  notice: GalleryImage;
+  notice: NoticeItem;
 };
 
-function formatTitle(input: string): string {
-  return input
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
 export function NoticeCard({ notice }: NoticeCardProps) {
-  const rawName = notice.display_name || notice.public_id.split("/").pop() || "Notice";
-  const title = formatTitle(rawName);
-  const postedDate = new Date(notice.created_at).toLocaleDateString(undefined, {
+  const postedDate = new Date(notice.createdAt).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "2-digit",
   });
+  const hasImage = Boolean(notice.imageUrl);
+  const [expanded, setExpanded] = useState(false);
+  const description = notice.description?.trim() ?? "";
+  const descriptionLimit = 220;
+  const shouldClamp = description.length > descriptionLimit;
+  const shownDescription = useMemo(() => {
+    if (!shouldClamp || expanded) return description;
+    return `${description.slice(0, descriptionLimit).trimEnd()}...`;
+  }, [description, expanded, shouldClamp]);
 
   return (
-    <Card sx={{ borderRadius: 3, overflow: "hidden", height: "100%" }}>
-      <CardMedia
-        component="img"
-        image={notice.secure_url}
-        alt={title}
-        sx={{ aspectRatio: "16 / 9", objectFit: "cover" }}
-      />
+    <Card sx={{ borderRadius: 3, overflow: "hidden", width: "100%" }}>
+      {hasImage && (
+        <CardMedia
+          component="img"
+          image={notice.imageUrl}
+          alt={notice.title}
+          sx={{ aspectRatio: "16 / 9", objectFit: "cover" }}
+        />
+      )}
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-          <Chip label="Notice" size="small" color="primary" />
+          <Chip label={notice.category} size="small" color="primary" />
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             {postedDate}
           </Typography>
         </Box>
         <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.35 }}>
-          {title}
+          {notice.title}
         </Typography>
+        {description && (
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 1 }}>
+            {shownDescription}
+          </Typography>
+        )}
+        {shouldClamp && (
+          <Button
+            size="small"
+            onClick={() => setExpanded((prev) => !prev)}
+            sx={{ mt: 1, px: 0, minWidth: 0, textTransform: "none" }}
+          >
+            {expanded ? "Read less" : "Read more"}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

@@ -18,6 +18,10 @@ type AdminStatCardProps = {
   filled?: boolean;
   /** Optional small badge shown next to the value. */
   badge?: ReactNode;
+  /** Optional click handler for interactive stats. */
+  onClick?: () => void;
+  /** Optional active state when card is selected as filter. */
+  active?: boolean;
 };
 
 export function AdminStatCard({
@@ -28,10 +32,27 @@ export function AdminStatCard({
   accent = "primary",
   filled = false,
   badge,
+  onClick,
+  active = false,
 }: AdminStatCardProps) {
+  const interactive = Boolean(onClick);
+
   if (filled) {
     return (
       <Card
+        onClick={onClick}
+        role={interactive ? "button" : undefined}
+        tabIndex={interactive ? 0 : undefined}
+        onKeyDown={
+          interactive
+            ? (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onClick?.();
+                }
+              }
+            : undefined
+        }
         sx={(t) => ({
           borderRadius: 3,
           p: 2.25,
@@ -43,10 +64,17 @@ export function AdminStatCard({
           )} 100%)`,
           boxShadow: `0 18px 40px ${alpha(t.palette[accent].main, 0.35)}`,
           transition: "transform 220ms ease, box-shadow 220ms ease",
+          cursor: interactive ? "pointer" : "default",
           "&:hover": {
             transform: "translateY(-2px)",
             boxShadow: `0 22px 50px ${alpha(t.palette[accent].main, 0.42)}`,
           },
+          "&:focus-visible": interactive
+            ? {
+                outline: `2px solid ${alpha(t.palette.common.white, 0.9)}`,
+                outlineOffset: 2,
+              }
+            : undefined,
         })}
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
@@ -78,6 +106,19 @@ export function AdminStatCard({
   return (
     <Card
       variant="outlined"
+      onClick={onClick}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        interactive
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
       sx={(t) => ({
         borderRadius: 3,
         p: 2.25,
@@ -88,12 +129,18 @@ export function AdminStatCard({
             ? alpha(t.palette.background.paper, 0.92)
             : t.palette.background.paper,
         borderColor: alpha(t.palette.divider, 0.8),
+        borderWidth: active ? 2 : 1,
+        borderStyle: "solid",
         boxShadow:
           t.palette.mode === "dark"
             ? "0 10px 30px rgba(0,0,0,0.35)"
             : "0 14px 40px rgba(15,23,42,0.10)",
+        cursor: interactive ? "pointer" : "default",
         transition:
           "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+        ...(active && {
+          borderColor: alpha(t.palette[accent].main, 0.65),
+        }),
         "&:hover": {
           transform: "translateY(-2px)",
           borderColor: alpha(t.palette[accent].main, 0.35),
@@ -102,6 +149,12 @@ export function AdminStatCard({
               ? "0 14px 44px rgba(0,0,0,0.5)"
               : "0 18px 48px rgba(15,23,42,0.14)",
         },
+        "&:focus-visible": interactive
+          ? {
+              outline: `2px solid ${alpha(t.palette[accent].main, 0.45)}`,
+              outlineOffset: 2,
+            }
+          : undefined,
         "&::before": {
           content: '""',
           position: "absolute",

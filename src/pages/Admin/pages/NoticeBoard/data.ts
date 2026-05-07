@@ -11,17 +11,17 @@ export type NoticeCategory = (typeof NOTICE_CATEGORIES)[number];
 export const NOTICE_STATUSES = ["published", "draft"] as const;
 
 export type NoticeStatus = (typeof NOTICE_STATUSES)[number];
-
 export type Notice = {
   id: string;
+  cloudinaryId?: string; // ← add this — the actual Cloudinary public_id
   title: string;
-  description: string;
-  category: NoticeCategory;
-  status: NoticeStatus;
+  description?: string;
+  category: string;
+  status: "draft" | "published";
   postedAt: string;
   imageUrl?: string;
+  resourceType?: string;
 };
-
 export type NoticeActivityType =
   | "created"
   | "updated"

@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { Box, Button, Container, Typography } from "@mui/material";
-import { fetchImages, type GalleryImage } from "../../services/Cloudinary";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { Box, Button, Container, Pagination, Typography } from "@mui/material";
+import { fetchNotices, type NoticeItem } from "../../services/Cloudinary";
 import { NoticeHero } from "./components/NoticeHero";
 import { NoticeGrid } from "./components/NoticeGrid";
 
-const NOTICE_FOLDER = "notices";
-
 export default function Notices() {
-  const [notices, setNotices] = useState<GalleryImage[]>([]);
+  const PAGE_SIZE = 6;
+  const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -20,10 +20,11 @@ export default function Notices() {
       setLoading(true);
       setError("");
       try {
-        const { images, nextCursor: cursor } = await fetchImages(NOTICE_FOLDER);
+        const { notices: loadedNotices, nextCursor: cursor } = await fetchNotices();
         if (!active) return;
-        setNotices(images);
+        setNotices(loadedNotices);
         setNextCursor(cursor);
+        setPage(1);
       } catch (err) {
         if (!active) return;
         setError(err instanceof Error ? err.message : "Could not load notices.");
@@ -43,14 +44,21 @@ export default function Notices() {
     setLoadingMore(true);
     setError("");
     try {
-      const { images, nextCursor: cursor } = await fetchImages(NOTICE_FOLDER, nextCursor);
-      setNotices((prev) => [...prev, ...images]);
+      const { notices: loadedNotices, nextCursor: cursor } = await fetchNotices(nextCursor);
+      setNotices((prev) => [...prev, ...loadedNotices]);
       setNextCursor(cursor);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load more notices.");
     } finally {
       setLoadingMore(false);
     }
+  };
+
+  const pageCount = Math.max(1, Math.ceil(notices.length / PAGE_SIZE));
+  const paginatedNotices = notices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handlePageChange = (_: ChangeEvent<unknown>, value: number) => {
+    setPage(value);
   };
 
   return (
@@ -62,7 +70,12 @@ export default function Notices() {
             {error}
           </Typography>
         )}
-        <NoticeGrid loading={loading} notices={notices} />
+        <NoticeGrid loading={loading} notices={paginatedNotices} />
+        {!loading && notices.length > PAGE_SIZE && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Pagination count={pageCount} page={page} onChange={handlePageChange} color="primary" />
+          </Box>
+        )}
         {!loading && nextCursor && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <Button variant="outlined" onClick={handleLoadMore} disabled={loadingMore}>

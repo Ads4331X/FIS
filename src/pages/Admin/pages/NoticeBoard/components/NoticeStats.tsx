@@ -1,14 +1,18 @@
-import { Box, Chip, alpha } from "@mui/material";
+import { Box } from "@mui/material";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import MailOutlineIcon from "@mui/icons-material/MailOutlined";
 import { AdminStatCard } from "../../../components/AdminStatCard";
 import type { Notice } from "../data";
 
+export type NoticeStatFilter = "all" | "active-events" | "pending-drafts";
+
 type NoticeStatsProps = {
   notices: Notice[];
+  activeFilter: NoticeStatFilter;
+  onFilterChange: (filter: NoticeStatFilter) => void;
 };
 
-export function NoticeStats({ notices }: NoticeStatsProps) {
+export function NoticeStats({ notices, activeFilter, onFilterChange }: NoticeStatsProps) {
   const total = notices.length;
   const totalDisplay = total < 100 ? total.toString().padStart(3, "0") : String(total);
   const activeEvents = notices.filter(
@@ -33,30 +37,24 @@ export function NoticeStats({ notices }: NoticeStatsProps) {
         title="Total Notices"
         value={totalDisplay}
         accent="primary"
-        badge={
-          <Chip
-            size="small"
-            label="+12%"
-            sx={(t) => ({
-              fontWeight: 800,
-              bgcolor: alpha(t.palette.success.main, t.palette.mode === "dark" ? 0.22 : 0.14),
-              color: t.palette.success.main,
-              border: `1px solid ${alpha(t.palette.success.main, 0.3)}`,
-            })}
-          />
-        }
+        active={activeFilter === "all"}
+        onClick={() => onFilterChange("all")}
       />
       <AdminStatCard
         title="Active Events"
         value={String(activeEvents).padStart(2, "0")}
         accent="secondary"
         icon={<EventOutlinedIcon fontSize="small" />}
+        active={activeFilter === "active-events"}
+        onClick={() => onFilterChange("active-events")}
       />
       <AdminStatCard
         title="Pending Drafts"
         value={String(drafts).padStart(2, "0")}
         accent="warning"
         icon={<MailOutlineIcon fontSize="small" />}
+        active={activeFilter === "pending-drafts"}
+        onClick={() => onFilterChange("pending-drafts")}
       />
       <AdminStatCard
         title="Next Academic Term"

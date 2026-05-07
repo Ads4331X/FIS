@@ -9,6 +9,84 @@ export type GalleryImage = {
   width: number;
   height: number;
   bytes?: number;
+  resource_type?: string;
+  format?: string;
+};
+
+export type NoticeAsset = {
+  public_id: string;
+  secure_url: string;
+  created_at: string;
+  resource_type: string;
+  format?: string;
+  context?: {
+    custom?:
+      | {
+          title?: string;
+          category?: string;
+          description?: string;
+          createdAt?: string;
+          imageUrl?: string;
+        }
+      | string;
+    title?: string;
+    category?: string;
+    description?: string;
+    createdAt?: string;
+    imageUrl?: string;
+  };
+};
+
+type NoticeContextValues = {
+  title?: string;
+  category?: string;
+  description?: string;
+  createdAt?: string;
+  imageUrl?: string;
+};
+
+function parseCloudinaryContextString(contextString: string): NoticeContextValues {
+  return contextString.split("|").reduce<NoticeContextValues>((acc, entry) => {
+    const [rawKey, ...rawValueParts] = entry.split("=");
+    const key = rawKey?.trim();
+    const value = rawValueParts.join("=").trim();
+    if (!key || !value) return acc;
+    if (key === "title") acc.title = value;
+    if (key === "category") acc.category = value;
+    if (key === "description") acc.description = value;
+    if (key === "createdAt") acc.createdAt = value;
+    if (key === "imageUrl") acc.imageUrl = value;
+    return acc;
+  }, {});
+}
+
+function getNoticeContextValues(asset: NoticeAsset): NoticeContextValues {
+  const context = asset.context ?? {};
+  const custom = context.custom;
+  if (typeof custom === "string") {
+    return parseCloudinaryContextString(custom);
+  }
+  if (custom && typeof custom === "object") {
+    return custom;
+  }
+  return {
+    title: context.title,
+    category: context.category,
+    description: context.description,
+    createdAt: context.createdAt,
+    imageUrl: context.imageUrl,
+  };
+}
+
+export type NoticeItem = {
+  id: string;
+  title: string;
+  category: string;
+  description?: string;
+  imageUrl?: string;
+  createdAt: string;
+  resourceType: string;
+  format?: string;
 };
 
 export type FolderCategory = {
@@ -67,10 +145,36 @@ function encodePublicId(publicId: string): string {
   return encodeURIComponent(publicId).replace(/%2F/g, "/");
 }
 
+function titleFromPublicId(publicId: string): string {
+  const filename = publicId.split("/").pop() || "Notice";
+  const normalized = filename
+    .replace(/\.[^.]+$/, "")
+    .replace(/[-_]\d{13,}$/, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized || /^\d+$/.test(normalized)) {
+    return "Notice";
+  }
+
+  return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function slugFromTitle(title: string): string {
+  const slug = sanitizeFolderPath(title);
+  return slug || `notice-${Date.now()}`;
+}
+
 // ─── API calls ──────────────────────────────────────────────────────────────
 
 export type PaginatedImagesResult = {
   images: GalleryImage[];
+  nextCursor: string | null;
+};
+
+export type PaginatedNoticesResult = {
+  notices: NoticeItem[];
   nextCursor: string | null;
 };
 
@@ -182,14 +286,241 @@ export async function uploadImage(
   });
 }
 
+export async function uploadNoticeFile(
+  file: File,
+  metadata: {
+    title: string;
+    category: string;
+    description?: string;
+    createdAt?: string;
+    publicId?: string;
+  },
+  onProgress?: (pct: number) => void
+): Promise<NoticeItem> {
+  const folder = "notices";
+  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const contextPayload = {
+    title: metadata.title.trim(),
+    category: metadata.category.trim(),
+    description: (metadata.description ?? "").trim(),
+    createdAt: metadata.createdAt ?? new Date().toISOString(),
+  };
+
+  const signRes = await fetch("/api/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+  });
+
+  if (!signRes.ok) {
+    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    throw new Error(err?.error?.message ?? "Failed to get upload signature.");
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
+    (await signRes.json()) as {
+      signature: string;
+      timestamp: number;
+      apiKey: string;
+      cloudName: string;
+      folder?: string;
+      public_id?: string;
+      context?: string;
+    };
+
+  if (!signature || !timestamp || !apiKey || !cloudName) {
+    throw new Error("Cloudinary upload signature was incomplete.");
+  }
+
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", String(timestamp));
+    formData.append("signature", signature);
+    if (signedFolder) formData.append("folder", signedFolder);
+    if (public_id) formData.append("public_id", public_id);
+    if (context) formData.append("context", context);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      const body = JSON.parse(xhr.responseText || "{}") as NoticeAsset & {
+        error?: { message?: string };
+      };
+      if (xhr.status === 200) {
+        const custom = body.context?.custom ?? {};
+        resolve({
+          id: body.public_id,
+          title: custom.title || contextPayload.title,
+          category: custom.category || contextPayload.category,
+          description: custom.description || contextPayload.description || undefined,
+          imageUrl: body.secure_url,
+          createdAt: custom.createdAt || body.created_at,
+          resourceType: body.resource_type || "image",
+          format: body.format,
+        });
+      } else {
+        reject(new Error(body?.error?.message ?? "Notice upload failed."));
+      }
+    };
+
+    xhr.onerror = () => reject(new Error("Notice upload failed — network error."));
+    xhr.send(formData);
+  });
+}
+
+export async function uploadNoticeRecord(metadata: {
+  title: string;
+  category: string;
+  description?: string;
+  createdAt?: string;
+  imageUrl?: string;
+  publicId?: string;
+}): Promise<NoticeItem> {
+  const folder = "notices";
+  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const contextPayload = {
+    title: metadata.title.trim(),
+    category: metadata.category.trim(),
+    description: (metadata.description ?? "").trim(),
+    createdAt: metadata.createdAt ?? new Date().toISOString(),
+    imageUrl: (metadata.imageUrl ?? "").trim(),
+  };
+
+  const signRes = await fetch("/api/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+  });
+
+  if (!signRes.ok) {
+    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    throw new Error(err?.error?.message ?? "Failed to get notice signature.");
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
+    (await signRes.json()) as {
+      signature: string;
+      timestamp: number;
+      apiKey: string;
+      cloudName: string;
+      folder?: string;
+      public_id?: string;
+      context?: string;
+    };
+
+  if (!signature || !timestamp || !apiKey || !cloudName) {
+    throw new Error("Cloudinary notice signature was incomplete.");
+  }
+
+  const json = JSON.stringify(contextPayload, null, 2);
+  const file = new File([json], `${publicId}.json`, { type: "application/json" });
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+  if (signedFolder) formData.append("folder", signedFolder);
+  if (public_id) formData.append("public_id", public_id);
+  if (context) formData.append("context", context);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/raw/upload`, {
+    method: "POST",
+    body: formData,
+  });
+  const body = (await res.json().catch(() => ({}))) as NoticeAsset & {
+    error?: { message?: string };
+  };
+
+  if (!res.ok) {
+    throw new Error(body?.error?.message ?? "Notice save failed.");
+  }
+
+  const custom = body.context?.custom ?? {};
+  return {
+    id: body.public_id,
+    title: custom.title || contextPayload.title,
+    category: custom.category || contextPayload.category,
+    description: custom.description || contextPayload.description || undefined,
+    imageUrl: custom.imageUrl || contextPayload.imageUrl || undefined,
+    createdAt: custom.createdAt || body.created_at,
+    resourceType: body.resource_type || "raw",
+    format: body.format,
+  };
+}
+
+export async function fetchNotices(nextCursor?: string): Promise<PaginatedNoticesResult> {
+  const search = new URLSearchParams();
+  if (nextCursor) search.set("next_cursor", nextCursor);
+  const query = search.toString();
+  const url = query ? `/api/notices?${query}` : "/api/notices";
+
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message ?? "Failed to load notices.");
+  }
+
+  const resources = (Array.isArray(data.resources) ? data.resources : []) as NoticeAsset[];
+  const notices = resources
+    .map((asset) => {
+      const contextValues = getNoticeContextValues(asset);
+      const title = contextValues.title?.trim() || titleFromPublicId(asset.public_id);
+      const category = contextValues.category?.trim() || "General";
+      return {
+        id: asset.public_id,
+        title,
+        category,
+        description: contextValues.description?.trim() || undefined,
+        imageUrl:
+          contextValues.imageUrl?.trim() ||
+          (asset.resource_type === "image" ? asset.secure_url : undefined),
+        createdAt: contextValues.createdAt?.trim() || asset.created_at,
+        resourceType: asset.resource_type || "image",
+        format: asset.format,
+      } as NoticeItem;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const cursor =
+    typeof data.next_cursor === "string" && data.next_cursor.trim().length > 0
+      ? (data.next_cursor as string)
+      : null;
+
+  return { notices, nextCursor: cursor };
+}
+
 /**
- * Delete an image via our serverless endpoint (keeps the API secret server-side).
+ * Delete an asset from Cloudinary via our serverless endpoint.
+ *
+ * @param publicId    - The Cloudinary public_id of the asset (no file extension).
+ * @param resourceType - The resource type: "image" | "raw" | "video".
+ *                       Pass notice.resourceType for notices, "image" for gallery images.
+ *                       Defaults to "image" if omitted.
+ *
+ * FIX: Previously this tried to infer resource_type from the publicId extension,
+ * but Cloudinary public_ids never include extensions, so it always fell back to
+ * "image" — causing a 400 for raw assets (e.g. notice JSON files).
  */
-export async function deleteImage(publicId: string): Promise<void> {
+export async function deleteImage(
+  publicId: string,
+  resourceType: string = "image"
+): Promise<void> {
+  const normalizedPublicId =
+    resourceType.trim().toLowerCase() === "raw"
+      ? publicId.replace(/\.[^.\/]+$/i, "")
+      : publicId;
   const res = await fetch("/api/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ public_id: publicId }),
+    body: JSON.stringify({ public_id: normalizedPublicId, resource_type: resourceType }),
   });
 
   if (!res.ok) {

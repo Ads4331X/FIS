@@ -42,6 +42,7 @@ import {
   type NoticeStatus,
 } from "../data";
 import { getCategoryColors, getStatusColor } from "../categoryStyles";
+import type { NoticeStatFilter } from "./NoticeStats";
 
 type SortDirection = "asc" | "desc";
 
@@ -49,6 +50,7 @@ type NoticesTableProps = {
   notices: Notice[];
   pageSize?: number;
   searchQuery?: string;
+  statsFilter?: NoticeStatFilter;
   onEdit: (notice: Notice) => void;
   onDelete: (notice: Notice) => void;
   onPreview?: (notice: Notice) => void;
@@ -60,6 +62,7 @@ export function NoticesTable({
   notices,
   pageSize = DEFAULT_PAGE_SIZE,
   searchQuery = "",
+  statsFilter = "all",
   onEdit,
   onDelete,
   onPreview,
@@ -74,6 +77,12 @@ export function NoticesTable({
   const filteredNotices = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return notices.filter((notice) => {
+      if (statsFilter === "active-events") {
+        if (notice.status !== "published" || notice.category !== "Event") return false;
+      }
+      if (statsFilter === "pending-drafts") {
+        if (notice.status !== "draft") return false;
+      }
       if (q) {
         const haystack = `${notice.title} ${notice.description} ${notice.category}`.toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -86,7 +95,7 @@ export function NoticesTable({
       }
       return true;
     });
-  }, [notices, searchQuery, categoryFilter, statusFilter]);
+  }, [notices, searchQuery, categoryFilter, statusFilter, statsFilter]);
 
   const sortedNotices = useMemo(() => {
     const list = [...filteredNotices];
@@ -124,6 +133,13 @@ export function NoticesTable({
     setPage(1);
   };
 
+  const statsFilterLabel =
+    statsFilter === "active-events"
+      ? "Active Events"
+      : statsFilter === "pending-drafts"
+        ? "Pending Drafts"
+        : "All Notices";
+
   const showingStart = sortedNotices.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
   const showingEnd = Math.min(safePage * pageSize, sortedNotices.length);
 
@@ -154,7 +170,7 @@ export function NoticesTable({
             Current Notices
           </Typography>
           <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", mt: 0.25 }}>
-            All notices across categories and publish states.
+            Showing {statsFilterLabel} across categories and publish states.
           </Typography>
         </Box>
 
