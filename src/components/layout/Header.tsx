@@ -8,8 +8,11 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { primaryNavigationLinks } from "../../constants/navigationLinks";
 
 function Header() {
-  const isMobile = useMediaQuery("(max-width:768px)");
+  const isMobile = useMediaQuery("(max-width:820px)");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const applyNowLink = primaryNavigationLinks.find((link) => link.path === "/apply_now");
+  const centeredNavLinks = primaryNavigationLinks.filter((link) => link.path !== "/apply_now");
 
   return (
     <Box
@@ -33,57 +36,134 @@ function Header() {
           minHeight: { xs: 52, sm: 58, md: 64 },
         }}
       >
-        {/* logo */}
-        <Box sx={{ width: { xs: 46, sm: 52, md: 58 }, height: { xs: 46, sm: 52, md: 58 } }}>
-          <Link to={"/"} component={NavLink}>
+        {/* Logo */}
+        <Box
+          sx={{
+            width: { xs: 46, sm: 52, md: 58 },
+            height: { xs: 46, sm: 52, md: 58 },
+            display: "flex",
+            alignItems: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Link to="/" component={NavLink}>
             <img src={FisLogo} alt="logo" style={{ width: "100%" }} />
           </Link>
         </Box>
 
-        <Box component="nav" sx={{ display: "flex", gap: { sm: 1, md: 1.5, lg: 2 }, alignItems: "center" }}>
-          {/* Hamburger icon */}
-          {isMobile && (
-            <IconButton aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((prev) => !prev)} size="small">
-              {menuOpen ? <MenuOpenIcon sx={{ fontSize: 30 }} /> : <MenuIcon sx={{ fontSize: 30 }} />}
-            </IconButton>
-          )}
+        {/* Desktop Nav Links — centered absolutely */}
+        {!isMobile && (
+          <Box
+            component="nav"
+            sx={{
+              display: "flex",
+              gap: { sm: 0.5, md: 1, lg: 2 },
+              alignItems: "center",
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
+            {centeredNavLinks.map((item) => (
+              <Link
+                key={item.path}
+                component={NavLink}
+                to={item.path}
+                sx={{
+                  color: "#555",
+                  fontSize: { sm: "0.82rem", md: "0.88rem", lg: "0.95rem" },
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: { sm: "5px 5px", md: "5px 6px", lg: "6px 8px" },
+                  borderBottom: "2px solid transparent",
+                  transition: "all 0.3s ease",
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    color: "#074783",
+                    borderBottom: "2px solid #074783",
+                  },
+                  "&.active": {
+                    color: "#074783",
+                    borderBottom: "2px solid #eb2525",
+                  },
+                }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </Box>
+        )}
 
-          {primaryNavigationLinks.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              style={({ isActive }) => ({
-                color: isActive ? "#074783" : "#555",
-                fontSize: "0.95rem",
-                fontWeight: "bold",
-                display: isMobile ? "none" : "flex",
+        {/* Right side: Apply Now (desktop) or Hamburger (mobile) */}
+        <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          {/* Apply Now — always visible on desktop (>820px) */}
+          {!isMobile && applyNowLink && (
+            <Link
+              component={NavLink}
+              to={applyNowLink.path}
+              sx={{
                 textDecoration: "none",
-                justifyContent: "center",
+                display: "flex",
                 alignItems: "center",
-                padding: "4px 6px",
-                borderBottom: isActive
-                  ? "2px solid #eb2525"
-                  : "2px solid transparent",
+                justifyContent: "center",
+                fontSize: { sm: "0.82rem", md: "0.88rem", lg: "0.95rem" },
+                fontWeight: "bold",
+                padding: { sm: "6px 10px", md: "7px 12px", lg: "8px 14px" },
+                borderRadius: "999px",
+                border: "1px solid #074783",
+                color: "#074783",
+                backgroundColor: "transparent",
                 transition: "all 0.3s ease",
                 whiteSpace: "nowrap",
-              })}
+                "&:hover": {
+                  color: "#ffffff",
+                  backgroundColor: "#074783",
+                },
+                "&.active": {
+                  color: "#ffffff",
+                  backgroundColor: "#074783",
+                },
+              }}
             >
-              {item.label}
-            </NavLink>
-          ))}
+              {applyNowLink.label}
+            </Link>
+          )}
+
+          {/* Hamburger — mobile only */}
+          {isMobile && (
+            <IconButton
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMenuOpen((prev) => !prev)}
+              size="small"
+              sx={{
+                width: 40,
+                height: 40,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {menuOpen ? (
+                <MenuOpenIcon sx={{ fontSize: 30 }} />
+              ) : (
+                <MenuIcon sx={{ fontSize: 30 }} />
+              )}
+            </IconButton>
+          )}
         </Box>
       </Container>
 
+      {/* Mobile Dropdown Menu */}
       {isMobile && (
         <Box
           sx={{
-            marginTop: 1,
             width: "100%",
-            padding: 0,
             overflow: "hidden",
-            maxHeight: menuOpen && isMobile ? 300 : 0,
-            opacity: menuOpen && isMobile ? 1 : 0,
-            transition: "all 0.4s ease",
+            maxHeight: menuOpen ? 400 : 0,
+            opacity: menuOpen ? 1 : 0,
+            transition: "max-height 0.4s ease, opacity 0.3s ease",
           }}
         >
           {primaryNavigationLinks.map((item) => (
@@ -97,16 +177,11 @@ function Header() {
                 fontWeight: "bold",
                 color: "#1F2937",
                 fontSize: "0.95rem",
-                maxHeight: menuOpen && isMobile ? 300 : 0,
-                opacity: menuOpen && isMobile ? 1 : 0,
                 borderBottom: "1px solid #ddd",
-                transform: menuOpen && isMobile
-                  ? "translateY(0)"
-                  : "translateY(-10px)",
-                transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-
-                padding: "8px 0",
-                "&.active": { color: "#0d6efd" },
+                padding: "10px 16px",
+                transform: menuOpen ? "translateY(0)" : "translateY(-10px)",
+                transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                "&.active": { color: "#074783" },
               }}
               onClick={() => setMenuOpen(false)}
             >
