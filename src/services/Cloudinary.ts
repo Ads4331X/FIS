@@ -8,6 +8,7 @@ export type GalleryImage = {
   created_at: string;
   width: number;
   height: number;
+  bytes?: number;
 };
 
 export type FolderCategory = {
