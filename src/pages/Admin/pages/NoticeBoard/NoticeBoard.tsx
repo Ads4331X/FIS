@@ -45,6 +45,7 @@ export default function NoticeBoard() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
   const [deletingNotice, setDeletingNotice] = useState<Notice | null>(null);
+  const [isDeletingNotice, setIsDeletingNotice] = useState(false);
   const [previewNotice, setPreviewNotice] = useState<Notice | null>(null);
   const [detailNotice, setDetailNotice] = useState<Notice | null>(null);
   const [logOpen, setLogOpen] = useState(false);
@@ -195,43 +196,48 @@ export default function NoticeBoard() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deletingNotice) return;
+    if (!deletingNotice || isDeletingNotice) return;
+    setIsDeletingNotice(true);
     const removed = deletingNotice;
 
-    // FIX: use cloudinaryId (real Cloudinary public_id) not the local id.
-    // Only call Cloudinary if this notice was actually uploaded there.
-    if (removed.cloudinaryId) {
-      const resourceType = removed.resourceType ?? "raw";
-      try {
-        await deleteImage(removed.cloudinaryId, resourceType);
-      } catch (error) {
-        setToast({
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to delete notice from Cloudinary.",
-          severity: "error",
-        });
-        return;
+    try {
+      // FIX: use cloudinaryId (real Cloudinary public_id) not the local id.
+      // Only call Cloudinary if this notice was actually uploaded there.
+      if (removed.cloudinaryId) {
+        const resourceType = removed.resourceType ?? "raw";
+        try {
+          await deleteImage(removed.cloudinaryId, resourceType);
+        } catch (error) {
+          setToast({
+            message:
+              error instanceof Error
+                ? error.message
+                : "Failed to delete notice from Cloudinary.",
+            severity: "error",
+          });
+          return;
+        }
       }
-    }
 
-    setNotices((prev) => prev.filter((notice) => notice.id !== removed.id));
-    setActivity((prev) =>
-      appendActivity(prev, {
-        type: "removed",
-        title: removed.status === "draft" ? "Draft Removed" : "Notice Removed",
-        detail: `"${removed.title}" was deleted`,
-      }),
-    );
-    if (previewNotice?.id === removed.id) {
-      setPreviewNotice(null);
+      setNotices((prev) => prev.filter((notice) => notice.id !== removed.id));
+      setActivity((prev) =>
+        appendActivity(prev, {
+          type: "removed",
+          title: removed.status === "draft" ? "Draft Removed" : "Notice Removed",
+          detail: `"${removed.title}" was deleted`,
+        }),
+      );
+      if (previewNotice?.id === removed.id) {
+        setPreviewNotice(null);
+      }
+      if (detailNotice?.id === removed.id) {
+        setDetailNotice(null);
+      }
+      setDeletingNotice(null);
+      setToast({ message: "Notice deleted.", severity: "info" });
+    } finally {
+      setIsDeletingNotice(false);
     }
-    if (detailNotice?.id === removed.id) {
-      setDetailNotice(null);
-    }
-    setDeletingNotice(null);
-    setToast({ message: "Notice deleted.", severity: "info" });
   };
 
   const handleClearActivity = () => {
@@ -290,7 +296,6 @@ export default function NoticeBoard() {
         statsFilter={statsFilter}
         onEdit={handleOpenEdit}
         onDelete={setDeletingNotice}
-        onPreview={setPreviewNotice}
       />
 
       <Box
@@ -322,7 +327,11 @@ export default function NoticeBoard() {
       <DeleteConfirmDialog
         open={Boolean(deletingNotice)}
         noticeTitle={deletingNotice?.title ?? null}
-        onCancel={() => setDeletingNotice(null)}
+        loading={isDeletingNotice}
+        onCancel={() => {
+          if (isDeletingNotice) return;
+          setDeletingNotice(null);
+        }}
         onConfirm={handleConfirmDelete}
       />
 

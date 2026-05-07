@@ -1,7 +1,5 @@
 import {
-  Avatar,
   Box,
-  Chip,
   Container,
   Divider,
   IconButton,
@@ -10,8 +8,6 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -100,26 +96,6 @@ export function AdminTopBar({
 
           <IconButton
             size="small"
-            sx={{
-              transition: "transform 200ms ease",
-              "&:hover": { transform: "translateY(-1px)" },
-            }}
-            aria-label="Notifications"
-          >
-            <NotificationsNoneIcon />
-          </IconButton>
-          <IconButton
-            size="small"
-            sx={{
-              transition: "transform 200ms ease",
-              "&:hover": { transform: "translateY(-1px)" },
-            }}
-            aria-label="Help"
-          >
-            <HelpOutlineOutlinedIcon />
-          </IconButton>
-          <IconButton
-            size="small"
             onClick={onToggleMode}
             sx={{
               transition: "transform 200ms ease",
@@ -134,31 +110,7 @@ export function AdminTopBar({
             )}
           </IconButton>
 
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ mx: 0.5, opacity: 0.7, display: { xs: "none", sm: "block" } }}
-          />
-
-          <Chip
-            icon={
-              <Avatar sx={{ width: 22, height: 22, fontSize: 12 }}>A</Avatar>
-            }
-            label="Admin"
-            variant="outlined"
-            sx={(t) => ({
-              borderRadius: 999,
-              pl: 0.5,
-              pr: 0.75,
-              height: 36,
-              borderColor: alpha(t.palette.divider, 0.9),
-              bgcolor: alpha(
-                t.palette.background.paper,
-                t.palette.mode === "dark" ? 0.50 : 0.70,
-              ),
-              display: { xs: "none", sm: "inline-flex" },
-            })}
-          />
+          <Divider orientation="vertical" flexItem sx={{ mx: 0.5, opacity: 0.7 }} />
 
           <IconButton
             size="small"

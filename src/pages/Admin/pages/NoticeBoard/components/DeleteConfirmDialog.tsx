@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,6 +15,7 @@ type DeleteConfirmDialogProps = {
   open: boolean;
   title?: string;
   noticeTitle: string | null;
+  loading?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -22,13 +24,14 @@ export function DeleteConfirmDialog({
   open,
   title = "Delete Notice?",
   noticeTitle,
+  loading = false,
   onCancel,
   onConfirm,
 }: DeleteConfirmDialogProps) {
   return (
     <Dialog
       open={open}
-      onClose={onCancel}
+      onClose={loading ? undefined : onCancel}
       maxWidth="xs"
       fullWidth
       slotProps={{ paper: { sx: { borderRadius: 3 } } }}
@@ -71,16 +74,20 @@ export function DeleteConfirmDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onCancel} sx={{ fontWeight: 800 }}>
+        <Button onClick={onCancel} sx={{ fontWeight: 800 }} disabled={loading}>
           Cancel
         </Button>
         <Button
           onClick={onConfirm}
           variant="contained"
           color="error"
+          disabled={loading}
+          startIcon={
+            loading ? <CircularProgress size={16} color="inherit" /> : undefined
+          }
           sx={{ borderRadius: 2, fontWeight: 800 }}
         >
-          Delete
+          {loading ? "Deleting..." : "Delete"}
         </Button>
       </DialogActions>
     </Dialog>

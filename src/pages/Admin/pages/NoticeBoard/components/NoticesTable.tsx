@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -32,7 +32,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import {
   NOTICE_CATEGORIES,
   NOTICE_STATUSES,
@@ -54,7 +53,6 @@ type NoticesTableProps = {
   statsFilter?: NoticeStatFilter;
   onEdit: (notice: Notice) => void;
   onDelete: (notice: Notice) => void;
-  onPreview?: (notice: Notice) => void;
 };
 
 const DEFAULT_PAGE_SIZE = 4;
@@ -67,7 +65,6 @@ export function NoticesTable({
   statsFilter = "all",
   onEdit,
   onDelete,
-  onPreview,
 }: NoticesTableProps) {
   const isSmDown = useMediaQuery("(max-width:600px)");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -75,10 +72,22 @@ export function NoticesTable({
   const [statusFilter, setStatusFilter] = useState<NoticeStatus[]>([]);
   const [filterAnchor, setFilterAnchor] = useState<HTMLElement | null>(null);
   const [page, setPage] = useState(1);
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
+  const indexedNotices = useMemo(
+    () =>
+      notices.map((notice) => ({
+        notice,
+        postedAtMs: new Date(notice.postedAt).getTime(),
+        haystack: `${notice.title} ${notice.description} ${notice.category}`.toLowerCase(),
+      })),
+    [notices],
+  );
 
   const filteredNotices = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return notices.filter((notice) => {
+    const q = deferredSearchQuery.trim().toLowerCase();
+    return indexedNotices
+      .filter(({ notice, haystack }) => {
       if (statsFilter === "active-events") {
         if (notice.status !== "published" || notice.category !== "Event") return false;
       }
@@ -86,7 +95,6 @@ export function NoticesTable({
         if (notice.status !== "draft") return false;
       }
       if (q) {
-        const haystack = `${notice.title} ${notice.description} ${notice.category}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       if (categoryFilter.length > 0 && !categoryFilter.includes(notice.category)) {
@@ -96,13 +104,20 @@ export function NoticesTable({
         return false;
       }
       return true;
-    });
-  }, [notices, searchQuery, categoryFilter, statusFilter, statsFilter]);
+      })
+      .map(({ notice, postedAtMs }) => ({ ...notice, postedAtMs }));
+  }, [
+    indexedNotices,
+    deferredSearchQuery,
+    categoryFilter,
+    statusFilter,
+    statsFilter,
+  ]);
 
   const sortedNotices = useMemo(() => {
     const list = [...filteredNotices];
     list.sort((a, b) => {
-      const diff = new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime();
+      const diff = a.postedAtMs - b.postedAtMs;
       return sortDirection === "asc" ? diff : -diff;
     });
     return list;
@@ -228,7 +243,6 @@ export function NoticesTable({
               notice={notice}
               onEdit={onEdit}
               onDelete={onDelete}
-              onPreview={onPreview}
             />
           ))}
         </Stack>
@@ -265,7 +279,6 @@ export function NoticesTable({
                   notice={notice}
                   onEdit={onEdit}
                   onDelete={onDelete}
-                  onPreview={onPreview}
                 />
               ))}
             </TableBody>
@@ -384,10 +397,9 @@ type NoticeRowProps = {
   notice: Notice;
   onEdit: (notice: Notice) => void;
   onDelete: (notice: Notice) => void;
-  onPreview?: (notice: Notice) => void;
 };
 
-function NoticeTableRow({ notice, onEdit, onDelete, onPreview }: NoticeRowProps) {
+function NoticeTableRow({ notice, onEdit, onDelete }: NoticeRowProps) {
   return (
     <TableRow
       hover
@@ -424,13 +436,6 @@ function NoticeTableRow({ notice, onEdit, onDelete, onPreview }: NoticeRowProps)
       </TableCell>
       <TableCell align="right">
         <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
-          {onPreview && (
-            <Tooltip title="Preview">
-              <IconButton size="small" onClick={() => onPreview(notice)} aria-label="Preview notice">
-                <VisibilityOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
           <Tooltip title="Edit">
             <IconButton
               size="small"
@@ -463,7 +468,7 @@ function NoticeTableRow({ notice, onEdit, onDelete, onPreview }: NoticeRowProps)
   );
 }
 
-function NoticeMobileRow({ notice, onEdit, onDelete, onPreview }: NoticeRowProps) {
+function NoticeMobileRow({ notice, onEdit, onDelete }: NoticeRowProps) {
   return (
     <Box
       sx={(t) => ({
@@ -503,11 +508,6 @@ function NoticeMobileRow({ notice, onEdit, onDelete, onPreview }: NoticeRowProps
           </Typography>
         </Stack>
         <Stack direction="row" spacing={0.25}>
-          {onPreview && (
-            <IconButton size="small" onClick={() => onPreview(notice)} aria-label="Preview notice">
-              <VisibilityOutlinedIcon fontSize="small" />
-            </IconButton>
-          )}
           <IconButton
             size="small"
             onClick={() => onEdit(notice)}

@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, Typography, alpha } from "@mui/material";
+import { Avatar, Box, Button, Typography, alpha } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ADMIN_SECTIONS, type AdminSection } from "../config/sections";
 
@@ -109,38 +109,6 @@ export function AdminSidebar({ activeKey, onNavigate }: AdminSidebarProps) {
       </Box>
 
       <Box sx={{ flex: 1 }} />
-
-      <Card
-        variant="outlined"
-        sx={(t) => ({
-          p: 2,
-          borderRadius: 3,
-          bgcolor: alpha(
-            t.palette.primary.main,
-            t.palette.mode === "dark" ? 0.10 : 0.06,
-          ),
-          borderColor: alpha(t.palette.primary.main, 0.16),
-        })}
-      >
-        <Typography
-          sx={{ fontWeight: 900, fontSize: 13.5, letterSpacing: "-0.01em" }}
-        >
-          Generate Report
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: 12,
-            color: "text.secondary",
-            mt: 0.5,
-            mb: 1.5,
-          }}
-        >
-          Export a quick summary of recent activity.
-        </Typography>
-        <Button fullWidth variant="contained" sx={{ borderRadius: 2 }}>
-          Generate
-        </Button>
-      </Card>
     </Box>
   );
 }
