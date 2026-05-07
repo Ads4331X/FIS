@@ -142,6 +142,7 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
     const shouldSyncToCloudinary = finalStatus === "published";
 
     // FIX: track cloudinaryId and resourceType from the upload result
+    const previousCloudinaryId = notice?.cloudinaryId ?? notice?.id;
     let cloudinaryId: string | undefined = notice?.cloudinaryId;
     let resourceType: string | undefined = notice?.resourceType;
     let finalImageUrl = imageMode === "none" ? undefined : imageUrl.trim() || undefined;
@@ -152,6 +153,10 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
         const createdAt = notice?.postedAt ?? new Date().toISOString();
 
         if (imageMode === "upload" && selectedFile) {
+          // If the existing notice is a raw record, remove it before switching to image.
+          if (notice?.resourceType === "raw" && notice?.cloudinaryId) {
+            await deleteImage(notice.cloudinaryId, "raw");
+          }
           // Upload image file — resourceType will be "image"
           const result = await uploadNoticeFile(selectedFile, {
             title,
@@ -180,9 +185,29 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           cloudinaryId = result.id;
           resourceType = result.resourceType; // "image"
           finalImageUrl = result.imageUrl;
+        } else if (
+          imageMode === "url" &&
+          finalImageUrl &&
+          notice?.resourceType === "raw"
+        ) {
+          // Switching raw -> image via URL should replace the old raw asset.
+          if (notice.cloudinaryId) {
+            await deleteImage(notice.cloudinaryId, "raw");
+          }
+          const result = await uploadNoticeImageUrl({
+            title,
+            category,
+            description,
+            createdAt,
+            imageUrl: finalImageUrl,
+            publicId: notice?.cloudinaryId ?? notice?.id,
+          });
+          cloudinaryId = result.id;
+          resourceType = result.resourceType; // "image"
+          finalImageUrl = result.imageUrl;
         } else {
-          // When converting an image notice to "no image", remove the old image asset first.
-          if (imageMode === "none" && notice?.resourceType === "image" && notice?.cloudinaryId) {
+          // When converting an image notice to a raw record, remove the old image asset first.
+          if (notice?.resourceType === "image" && notice?.cloudinaryId) {
             await deleteImage(notice.cloudinaryId, "image");
           }
           // Upload metadata record — resourceType will be "raw"
@@ -206,6 +231,18 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
         return;
       }
       setUploading(false);
+    }
+
+    // If Cloudinary returned a different public_id on update, remove the previous asset id
+    // so we never leave an old notice record behind.
+    if (
+      notice &&
+      previousCloudinaryId &&
+      cloudinaryId &&
+      cloudinaryId !== previousCloudinaryId
+    ) {
+      await deleteImage(previousCloudinaryId, "image");
+      await deleteImage(previousCloudinaryId, "raw");
     }
 
     // Blob preview URLs are temporary — don't persist them for drafts

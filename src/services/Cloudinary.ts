@@ -551,25 +551,54 @@ export async function fetchNotices(nextCursor?: string): Promise<PaginatedNotice
   }
 
   const resources = (Array.isArray(data.resources) ? data.resources : []) as NoticeAsset[];
-  const notices = resources
-    .map((asset) => {
-      const contextValues = getNoticeContextValues(asset);
-      const title = contextValues.title?.trim() || titleFromPublicId(asset.public_id);
-      const category = contextValues.category?.trim() || "General";
-      return {
-        id: asset.public_id,
-        title,
-        category,
-        description: contextValues.description?.trim() || undefined,
-        imageUrl:
-          contextValues.imageUrl?.trim() ||
-          (asset.resource_type === "image" ? asset.secure_url : undefined),
-        createdAt: contextValues.createdAt?.trim() || asset.created_at,
-        resourceType: asset.resource_type || "image",
-        format: asset.format,
-      } as NoticeItem;
-    })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const mappedNotices = resources.map((asset) => {
+    const contextValues = getNoticeContextValues(asset);
+    const title = contextValues.title?.trim() || titleFromPublicId(asset.public_id);
+    const category = contextValues.category?.trim() || "General";
+    return {
+      id: asset.public_id,
+      title,
+      category,
+      description: contextValues.description?.trim() || undefined,
+      imageUrl:
+        contextValues.imageUrl?.trim() ||
+        (asset.resource_type === "image" ? asset.secure_url : undefined),
+      createdAt: contextValues.createdAt?.trim() || asset.created_at,
+      resourceType: asset.resource_type || "image",
+      format: asset.format,
+    } as NoticeItem;
+  });
+
+  // Cloudinary can contain both raw/image variants for the same public_id.
+  // Keep only one notice per id so edits never appear as duplicates.
+  const dedupedById = new Map<string, NoticeItem>();
+  for (const notice of mappedNotices) {
+    const existing = dedupedById.get(notice.id);
+    if (!existing) {
+      dedupedById.set(notice.id, notice);
+      continue;
+    }
+
+    const noticeTime = new Date(notice.createdAt).getTime();
+    const existingTime = new Date(existing.createdAt).getTime();
+    if (noticeTime > existingTime) {
+      dedupedById.set(notice.id, notice);
+      continue;
+    }
+
+    // Tie-breaker: prefer image variant if timestamps are equal.
+    if (
+      noticeTime === existingTime &&
+      notice.resourceType === "image" &&
+      existing.resourceType !== "image"
+    ) {
+      dedupedById.set(notice.id, notice);
+    }
+  }
+
+  const notices = Array.from(dedupedById.values()).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   const cursor =
     typeof data.next_cursor === "string" && data.next_cursor.trim().length > 0
