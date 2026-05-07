@@ -11,6 +11,7 @@ import Admission from "../pages/Admission/Admission";
 import Contact from "../pages/Contact/Contact";
 import Home from "../pages/Home/Home";
 import Gallery from "../pages/Gallery/Gallery";
+import Notices from "../pages/Notices/Notices";
 import Admin from "../pages/Admin/Admin";
 import Overview from "../pages/Admin/pages/Overview/Overview";
 import StudentManagement from "../pages/Admin/pages/StudentManagement/StudentManagement";
@@ -40,6 +41,7 @@ function App() {
         <Route path="/about_us" element={<About />} />
         <Route path="/academics" element={<Academics />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/notices" element={<Notices />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/apply_now" element={<Admission />} />
       </Routes>
