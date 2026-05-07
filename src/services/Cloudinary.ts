@@ -355,14 +355,14 @@ export async function uploadNoticeFile(
         error?: { message?: string };
       };
       if (xhr.status === 200) {
-        const custom = body.context?.custom ?? {};
+        const contextValues = getNoticeContextValues(body);
         resolve({
           id: body.public_id,
-          title: custom.title || contextPayload.title,
-          category: custom.category || contextPayload.category,
-          description: custom.description || contextPayload.description || undefined,
+          title: contextValues.title || contextPayload.title,
+          category: contextValues.category || contextPayload.category,
+          description: contextValues.description || contextPayload.description || undefined,
           imageUrl: body.secure_url,
-          createdAt: custom.createdAt || body.created_at,
+          createdAt: contextValues.createdAt || body.created_at,
           resourceType: body.resource_type || "image",
           format: body.format,
         });
@@ -443,14 +443,14 @@ export async function uploadNoticeRecord(metadata: {
     throw new Error(body?.error?.message ?? "Notice save failed.");
   }
 
-  const custom = body.context?.custom ?? {};
+  const contextValues = getNoticeContextValues(body);
   return {
     id: body.public_id,
-    title: custom.title || contextPayload.title,
-    category: custom.category || contextPayload.category,
-    description: custom.description || contextPayload.description || undefined,
-    imageUrl: custom.imageUrl || contextPayload.imageUrl || undefined,
-    createdAt: custom.createdAt || body.created_at,
+    title: contextValues.title || contextPayload.title,
+    category: contextValues.category || contextPayload.category,
+    description: contextValues.description || contextPayload.description || undefined,
+    imageUrl: contextValues.imageUrl || contextPayload.imageUrl || undefined,
+    createdAt: contextValues.createdAt || body.created_at,
     resourceType: body.resource_type || "raw",
     format: body.format,
   };

@@ -16,8 +16,8 @@ export type Notice = {
   cloudinaryId?: string; // ← add this — the actual Cloudinary public_id
   title: string;
   description?: string;
-  category: string;
-  status: "draft" | "published";
+  category: NoticeCategory;
+  status: NoticeStatus;
   postedAt: string;
   imageUrl?: string;
   resourceType?: string;

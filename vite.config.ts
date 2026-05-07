@@ -126,13 +126,16 @@ export default defineConfig(({ mode }) => {
               const publicId = (body.public_id ?? "").trim().replace(/^\/+|\/+$/g, "");
               const resourceType = (body.resource_type ?? "").trim();
 
-              const contextEntries: Array<[string, string]> = [
+              const contextPairs: Array<[string, string]> = [
                 ["title", (body.context?.title ?? "").trim()],
                 ["category", (body.context?.category ?? "").trim()],
                 ["description", (body.context?.description ?? "").trim()],
                 ["createdAt", (body.context?.createdAt ?? "").trim()],
                 ["imageUrl", (body.context?.imageUrl ?? "").trim()],
-              ].filter(([, value]) => value.length > 0);
+              ];
+              const contextEntries = contextPairs.filter(
+                (pair): pair is [string, string] => pair[1].length > 0,
+              );
               const context = contextEntries
                 .map(([k, v]) => `${k}=${v.replace(/[|=]/g, " ")}`)
                 .join("|");

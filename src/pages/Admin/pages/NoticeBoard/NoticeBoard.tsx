@@ -18,11 +18,13 @@ import {
   generateNoticeId,
   loadActivity,
   loadNotices,
+  NOTICE_CATEGORIES,
   saveActivity,
   saveNotices,
   type Notice,
   type NoticeActivity,
 } from "./data";
+import type { NoticeItem } from "../../../../services/Cloudinary";
 
 type Toast = {
   message: string;
@@ -57,7 +59,7 @@ export default function NoticeBoard() {
 
     const loadCloudNotices = async () => {
       try {
-        const allCloudNotices = [];
+        const allCloudNotices: NoticeItem[] = [];
         let cursor: string | undefined;
         do {
           const { notices: cloudNotices, nextCursor } = await fetchNotices(cursor);
@@ -70,11 +72,13 @@ export default function NoticeBoard() {
         setNotices((prev) => {
           const drafts = prev.filter((notice) => notice.status === "draft");
           const publishedFromCloud: Notice[] = allCloudNotices.map((notice) => ({
+            category: NOTICE_CATEGORIES.includes(notice.category as Notice["category"])
+              ? (notice.category as Notice["category"])
+              : "General",
             id: notice.id,
             cloudinaryId: notice.id,
             title: notice.title,
             description: notice.description ?? "",
-            category: notice.category,
             status: "published",
             postedAt: notice.createdAt,
             imageUrl: notice.imageUrl,
