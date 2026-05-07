@@ -11,27 +11,31 @@ type GalleryGridProps = {
 
 const gridStyles = {
   display: "grid",
-  gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)", md: "repeat(6, 1fr)" },
-  gap: { xs: 1.5, sm: 2 },
+  gridTemplateColumns: {
+    xs: "repeat(2, minmax(0, 1fr))",
+    sm: "repeat(3, minmax(0, 1fr))",
+    md: "repeat(4, minmax(0, 1fr))",
+    lg: "repeat(5, minmax(0, 1fr))",
+  },
+  gap: { xs: 1.5, sm: 2, md: 2.5 },
   gridAutoFlow: "dense",
-  gridAutoRows: { xs: 120, sm: 140, md: 160 },
+  gridAutoRows: { xs: 140, sm: 160, md: 190 },
+  alignItems: "stretch",
 };
 
 function getItemSx(index: number) {
-  if (index === 0) {
+  // subtle variation for a modern, masonry-like feel
+  const isEmphasized = index % 7 === 0;
+
+  if (isEmphasized) {
     return {
-      gridColumn: { xs: "span 2", sm: "span 4", md: "span 4" },
+      gridColumn: { xs: "span 2", sm: "span 2", md: "span 2" },
       gridRow: { xs: "span 2", sm: "span 2", md: "span 2" },
     };
   }
-  if (index === 1) {
-    return {
-      gridColumn: { xs: "span 2", sm: "span 2", md: "span 2" },
-      gridRow: { xs: "span 2", sm: "span 1", md: "span 2" },
-    };
-  }
+
   return {
-    gridColumn: { xs: "span 1", sm: "span 2", md: "span 2" },
+    gridColumn: { xs: "span 1", sm: "span 1", md: "span 1" },
     gridRow: { xs: "span 1", sm: "span 1", md: "span 1" },
   };
 }
