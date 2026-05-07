@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import { StatCard } from "../../components/ui/StatCard";
+import { StatGrid } from "../../../components/ui/StatGrid";
 
 const resultItems = [
   { label: "SEE Pass Rate", value: "100%" },
@@ -37,22 +37,7 @@ export function ResultsSection({ sectionId }: { sectionId?: string }) {
           Consistent outcomes from disciplined teaching, guided practice, and focused board preparation.
         </Box>
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, minmax(0, 1fr))",
-              md: "repeat(3, minmax(0, 1fr))",
-            },
-            gap: { xs: 2, md: 3 },
-            alignItems: "stretch",
-          }}
-        >
-          {resultItems.map((item) => (
-            <StatCard key={item.label} tone="paper" value={item.value} label={item.label} />
-          ))}
-        </Box>
+        <StatGrid items={resultItems} sx={{ py: 0 }} />
       </Container>
     </Box>
   );

@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { Hero } from "../../components/ui/Hero";
+import { Hero } from "../../../components/ui/Hero";
 
 type AcademicsHeroProps = {
   onExploreCurriculum?: () => void;

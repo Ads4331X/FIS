@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { siteContact } from "../../constants/siteContact";
+import { siteContact } from "../../../constants/siteContact";
 
 type ContactMapProps = {
   embedUrl?: string;

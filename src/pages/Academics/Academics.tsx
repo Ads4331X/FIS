@@ -1,10 +1,10 @@
 import { Box, Container, Typography } from "@mui/material";
 import { useRef, type RefObject } from "react";
-import { AcademicsHero } from "./AcademicsHero";
-import Form from "../Contact/Form";
-import { AcademicJourneySection } from "./AcademicJourneySection";
-import { OurVisionSection } from "./OurVisionSection";
-import { ResultsSection } from "./ResultsSection";
+import { AcademicsHero } from "./components/AcademicsHero";
+import Form from "../Contact/components/Form";
+import { AcademicJourneySection } from "./components/AcademicJourneySection";
+import { OurVisionSection } from "./components/OurVisionSection";
+import { ResultsSection } from "./components/ResultsSection";
 
 export default function Academics() {
   const journeySectionRef = useRef<HTMLElement | null>(null);

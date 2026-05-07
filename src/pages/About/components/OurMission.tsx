@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/material";
-import { Counter } from "../../components/ui/Counter";
+import { Counter } from "../../../components/ui/Counter";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 
 export function OurMission() {

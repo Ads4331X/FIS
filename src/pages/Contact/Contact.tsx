@@ -1,10 +1,31 @@
 import { Box } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import { Hero } from "../../components/ui/Hero";
-import Aside from "./Aside";
-import Form from "./Form";
-import ContactMap from "./Map";
-import Stats from "./Stats";
+import { StatGrid } from "../../components/ui/StatGrid";
+import Aside from "./components/Aside";
+import Form from "./components/Form";
+import ContactMap from "./components/Map";
+
+const contactStats = [
+  {
+    icon: <GroupsOutlinedIcon sx={{ fontSize: 40 }} />,
+    value: "15:1",
+    label: "Student–Teacher Ratio",
+  },
+  {
+    icon: <WorkspacePremiumOutlinedIcon sx={{ fontSize: 40 }} />,
+    value: "100%",
+    label: "Board Examination Results",
+  },
+  {
+    icon: <EmojiEventsOutlinedIcon sx={{ fontSize: 40 }} />,
+    value: "25+",
+    label: "Extra-curricular Clubs",
+  },
+];
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
@@ -41,10 +62,7 @@ export default function Contact() {
             display: "grid",
             gap: { xs: 2, md: 3 },
             alignItems: "start",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "1.1fr 1fr",
-            },
+            gridTemplateColumns: { xs: "1fr", md: "1.1fr 1fr" },
             gridTemplateAreas: {
               xs: `"form" "aside" "map"`,
               md: `"form aside" "map  map"`,
@@ -62,7 +80,7 @@ export default function Contact() {
           </Box>
         </Box>
 
-        <Stats />
+        <StatGrid items={contactStats} />
       </Box>
     </Box>
   );

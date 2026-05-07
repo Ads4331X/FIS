@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
-import { AboutHero } from "./AboutHero";
-import { OurMission } from "./OurMission";
-import { EducationalJourney } from "./EducationalJourney";
-import { ScheduleVisit } from "./ScheduleVisit";
+import { AboutHero } from "./components/AboutHero";
+import { OurMission } from "./components/OurMission";
+import { EducationalJourney } from "./components/EducationalJourney";
+import { ScheduleVisit } from "./components/ScheduleVisit";
 export default function About() {
   return (
     <Box>
