@@ -56,6 +56,14 @@ function Footer() {
                   fontSize: "15px",
                   mb: 0.5,
                   textDecoration: "none",
+                  transition: "all 0.2s ease",
+
+                  "&.active": {
+                    color: "#074783",
+                    fontWeight: 700,
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                  },
 
                   "&:hover": {
                     color: "#000",
