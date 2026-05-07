@@ -6,6 +6,9 @@ import crypto from "node:crypto";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
+  // Keep this in sync with PAGE_SIZE in api/images.ts
+  const PAGE_SIZE = "24";
+
   return {
     plugins: [
       react(),
@@ -17,6 +20,7 @@ export default defineConfig(({ mode }) => {
             try {
               const url = new URL(req.url ?? "", "http://localhost");
               const prefix = (url.searchParams.get("prefix") ?? "").trim().replace(/^\/+|\/+$/g, "");
+              const nextCursor = url.searchParams.get("next_cursor") ?? "";
 
               const { CLOUDINARY_CLOUD_NAME: cloudName, CLOUDINARY_API_KEY: apiKey, CLOUDINARY_API_SECRET: apiSecret } = env;
 
@@ -28,8 +32,9 @@ export default defineConfig(({ mode }) => {
               }
 
               const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
-              const search = new URLSearchParams({ type: "upload", max_results: "500" });
+              const search = new URLSearchParams({ type: "upload", max_results: PAGE_SIZE });
               if (prefix) search.set("prefix", prefix);
+              if (nextCursor) search.set("next_cursor", nextCursor);
 
               const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?${search.toString()}`;
               const response = await fetch(cloudinaryUrl, {

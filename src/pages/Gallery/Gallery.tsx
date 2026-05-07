@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Container, Typography } from "@mui/material";
 import { fetchImages, type GalleryImage } from "../../services/Cloudinary";
 import { CategoryFilter } from "./components/CategoryFilter";
 import { GalleryGrid } from "./components/GalleryGrid";
@@ -9,11 +9,14 @@ import { GalleryCta } from "./components/GalleryCta";
 export default function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState("");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const loadTimerRef = useRef<number | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (loadTimerRef.current !== null) {
@@ -21,19 +24,27 @@ export default function Gallery() {
     }
 
     let active = true;
+    const requestId = ++requestIdRef.current;
+
+    // Reset state immediately on category change
+    setImages([]);
+    setNextCursor(null);
+
     loadTimerRef.current = window.setTimeout(async () => {
       if (!active) return;
       setLoading(true);
       setError("");
       try {
-        const imgs = await fetchImages(activeCategory);
-        if (active) setImages(imgs);
+        const { images: imgs, nextCursor: cursor } = await fetchImages(activeCategory);
+        if (!active || requestId !== requestIdRef.current) return;
+        setImages(imgs);
+        setNextCursor(cursor);
       } catch (e) {
-        if (!active) return;
+        if (!active || requestId !== requestIdRef.current) return;
         setImages([]);
         setError(e instanceof Error ? e.message : "Could not load images.");
       } finally {
-        if (active) setLoading(false);
+        if (active && requestId === requestIdRef.current) setLoading(false);
       }
     }, 0);
 
@@ -44,6 +55,31 @@ export default function Gallery() {
       }
     };
   }, [activeCategory]);
+
+  const handleLoadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+
+    const requestId = ++requestIdRef.current;
+    setLoadingMore(true);
+    setError("");
+
+    try {
+      const { images: moreImages, nextCursor: newCursor } = await fetchImages(
+        activeCategory,
+        nextCursor
+      );
+      if (requestId !== requestIdRef.current) return;
+      setImages((prev) => [...prev, ...moreImages]);
+      setNextCursor(newCursor);
+    } catch (e) {
+      if (requestId !== requestIdRef.current) return;
+      setError(e instanceof Error ? e.message : "Could not load more images.");
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoadingMore(false);
+      }
+    }
+  };
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
@@ -119,6 +155,32 @@ export default function Gallery() {
           images={images}
           onImageClick={openLightbox}
         />
+
+        {/* Load More */}
+        {!loading && images.length > 0 && nextCursor && (
+          <Box sx={{ mt: 3, textAlign: "center" }}>
+            <Button
+              variant="outlined"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              sx={{
+                minWidth: 160,
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              {loadingMore ? (
+                <>
+                  <CircularProgress size={18} sx={{ mr: 1 }} />
+                  Loading…
+                </>
+              ) : (
+                "Load More"
+              )}
+            </Button>
+          </Box>
+        )}
       </Container>
 
       <GalleryCta />

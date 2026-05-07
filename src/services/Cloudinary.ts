@@ -68,16 +68,31 @@ function encodePublicId(publicId: string): string {
 
 // ─── API calls ──────────────────────────────────────────────────────────────
 
+export type PaginatedImagesResult = {
+  images: GalleryImage[];
+  nextCursor: string | null;
+};
+
 /**
  * Fetch images from Cloudinary via our serverless proxy.
  * Passes the folder as a prefix so only matching images are returned.
  */
-export async function fetchImages(folder: string | string[] = ""): Promise<GalleryImage[]> {
+export async function fetchImages(
+  folder: string | string[] = "",
+  nextCursor?: string
+): Promise<PaginatedImagesResult> {
   const prefixes = toPrefixes(folder);
-  const url =
-    prefixes.length === 0
-      ? "/api/images"
-      : `/api/images?prefix=${prefixes.map((p) => encodeURIComponent(p)).join("&prefix=")}`;
+
+  const search = new URLSearchParams();
+  for (const p of prefixes) {
+    search.append("prefix", p);
+  }
+  if (nextCursor) {
+    search.set("next_cursor", nextCursor);
+  }
+
+  const query = search.toString();
+  const url = query ? `/api/images?${query}` : "/api/images";
 
   const res = await fetch(url);
   const data = await res.json();
@@ -86,9 +101,19 @@ export async function fetchImages(folder: string | string[] = ""): Promise<Galle
     throw new Error(data?.error?.message ?? "Failed to load images.");
   }
 
-  return ((data.resources ?? []) as GalleryImage[]).sort(
+  const resources = ((data.resources ?? []) as GalleryImage[]).sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
+
+  const cursor =
+    typeof data.next_cursor === "string" && data.next_cursor.trim().length > 0
+      ? (data.next_cursor as string)
+      : null;
+
+  return {
+    images: resources,
+    nextCursor: cursor,
+  };
 }
 
 /**

@@ -50,7 +50,7 @@ export function ImageManager({ refreshKey }: ImageManagerProps) {
         const prefixes = category
           ? [category.folder, ...(category.legacyPrefixes ?? [])]
           : [folder];
-        const fetchedImages = await fetchImages(prefixes);
+        const { images: fetchedImages } = await fetchImages(prefixes);
         if (active) setImages(fetchedImages);
       } catch (e) {
         if (!active) return;

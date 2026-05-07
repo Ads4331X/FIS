@@ -1,5 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+// Keep page size in one place so it is easy to tune later.
+// NOTE: The Vite dev proxy in vite.config.ts must be updated
+// to use the same value.
+const PAGE_SIZE = 24;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -33,11 +38,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : [];
   const uniquePrefixes = Array.from(new Set(prefixes.filter(Boolean)));
 
+  // Optional pagination cursor from client.
+  const nextCursorRaw = req.query.next_cursor;
+  const nextCursor =
+    typeof nextCursorRaw === "string"
+      ? nextCursorRaw
+      : Array.isArray(nextCursorRaw)
+        ? nextCursorRaw[0]
+        : undefined;
+
   const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
 
-  const fetchForPrefix = async (prefix: string) => {
-    const search = new URLSearchParams({ type: "upload", max_results: "500" });
+  const fetchForPrefix = async (prefix: string, cursor?: string) => {
+    const search = new URLSearchParams({
+      type: "upload",
+      max_results: String(PAGE_SIZE),
+    });
     if (prefix) search.set("prefix", prefix);
+    if (cursor) search.set("next_cursor", cursor);
+
     const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?${search.toString()}`;
     const response = await fetch(url, {
       headers: { Authorization: `Basic ${credentials}` },
@@ -46,13 +65,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return { status: response.status, data };
   };
 
+  // Single prefix (or "all images") – allow Cloudinary pagination to work as-is.
   if (uniquePrefixes.length <= 1) {
-    const { status, data } = await fetchForPrefix(uniquePrefixes[0] ?? "");
+    const { status, data } = await fetchForPrefix(uniquePrefixes[0] ?? "", nextCursor);
     res.status(status).json(data);
     return;
   }
 
-  const results = await Promise.all(uniquePrefixes.map(fetchForPrefix));
+  // Multiple prefixes – fetch one page per prefix and merge resources.
+  // Pagination via next_cursor is not supported for this merged view.
+  const results = await Promise.all(uniquePrefixes.map((p) => fetchForPrefix(p)));
   const firstNon200 = results.find((r) => r.status >= 400);
   if (firstNon200) {
     res.status(firstNon200.status).json(firstNon200.data);
@@ -71,6 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   res.status(200).json({
     ...results[0].data,
+    next_cursor: undefined,
     resources: Array.from(resourcesMap.values()),
   });
 }

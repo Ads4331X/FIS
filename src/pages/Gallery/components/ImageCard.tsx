@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, Skeleton } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import { getThumbnailUrl, type GalleryImage } from "../../../services/Cloudinary";
@@ -11,9 +11,46 @@ type ImageCardProps = {
 export function ImageCard({ image, onClick }: ImageCardProps) {
   const [loaded, setLoaded] = useState(false);
   const [hovered, setHovered] = useState(false);
+   const [shouldLoad, setShouldLoad] = useState(false);
+   const cardRef = useRef<HTMLDivElement | null>(null);
+
+   useEffect(() => {
+     // Fallback: if IntersectionObserver is not available, load immediately.
+     if (typeof window === "undefined" || !(window as any).IntersectionObserver) {
+       setShouldLoad(true);
+       return;
+     }
+
+     const element = cardRef.current;
+     if (!element) return;
+
+     const observer = new IntersectionObserver(
+       (entries) => {
+         for (const entry of entries) {
+           if (entry.isIntersecting) {
+             setShouldLoad(true);
+             observer.disconnect();
+             break;
+           }
+         }
+       },
+       {
+         root: null,
+         rootMargin: "200px",
+         threshold: 0.01,
+       }
+     );
+
+     observer.observe(element);
+
+     return () => {
+       observer.disconnect();
+     };
+   }, []);
 
   return (
     <Box
+      ref={cardRef}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -44,20 +81,22 @@ export function ImageCard({ image, onClick }: ImageCardProps) {
             }}
           />
         )}
-        <Box
-          component="img"
-          src={getThumbnailUrl(image.public_id)}
-          alt={image.display_name || "Gallery image"}
-          onLoad={() => setLoaded(true)}
-          sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: loaded ? "block" : "none",
-            transition: "transform 0.4s ease",
-            transform: hovered ? "scale(1.06)" : "scale(1)",
-          }}
-        />
+        {shouldLoad && (
+          <Box
+            component="img"
+            src={getThumbnailUrl(image.public_id)}
+            alt={image.display_name || "Gallery image"}
+            onLoad={() => setLoaded(true)}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: loaded ? "block" : "none",
+              transition: "transform 0.4s ease",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+            }}
+          />
+        )}
       </Box>
       <Box
         sx={{
