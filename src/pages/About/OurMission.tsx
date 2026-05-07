@@ -7,7 +7,7 @@ export function OurMission() {
     <Box sx={{ backgroundColor: "#F9FAFB" }}>
       <Container
         maxWidth="xl"
-        sx={{ padding: { xs: "20px 10px", md: "40px 20px" } }}
+        sx={{ px: { xs: 2, sm: 2.5, md: 3 }, py: { xs: 3, md: 5 } }}
       >
         <Box
           sx={{
@@ -124,11 +124,7 @@ export function OurMission() {
           </Box>
         </Box>
         {/* counter */}
-        <Box
-          sx={{
-            padding: "40px",
-          }}
-        >
+        <Box sx={{ mt: { xs: 1, md: 2 } }}>
           <Counter />
         </Box>
       </Container>

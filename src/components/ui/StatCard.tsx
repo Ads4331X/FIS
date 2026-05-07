@@ -17,6 +17,7 @@ export function StatCard({
   const navy = "#002D5B";
   const sharedCardSx = {
     width: "100%",
+    height: "100%",
     minWidth: 0,
     p: { xs: 3, md: 3.5 },
     borderRadius: 3,

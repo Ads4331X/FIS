@@ -51,6 +51,7 @@ export function Counter() {
           md: "repeat(3, minmax(0, 1fr))",
         },
         gap: { xs: 2, md: 3 },
+        gridAutoRows: "1fr",
         py: { xs: 4, md: 6 },
         width: "100%",
         alignItems: "stretch",
