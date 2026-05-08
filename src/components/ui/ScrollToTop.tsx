@@ -1,10 +1,16 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Fab, Fade, useMediaQuery, useScrollTrigger, useTheme } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useLocation } from "react-router-dom";
 
 function ScrollToTop() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname]);
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
