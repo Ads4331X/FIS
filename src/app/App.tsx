@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Navigate } from "react-router-dom";
@@ -19,6 +20,25 @@ import NoticeBoard from "../pages/Admin/pages/NoticeBoard/NoticeBoard";
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    const pageTitles: Record<string, string> = {
+      "/": "Home",
+      "/about_us": "About Us",
+      "/academics": "Academics",
+      "/gallery": "Gallery",
+      "/notices": "Notices",
+      "/contact": "Contact",
+      "/apply_now": "Admission",
+      "/admin": "Admin",
+      "/admin/noticeboard": "Admin - Notice Board",
+      "/admin/gallerymanagement": "Admin - Gallery Management",
+    };
+
+    const currentPageTitle =
+      pageTitles[location.pathname] ?? "Fairyland International School";
+    document.title = `${currentPageTitle} | Fairyland International School`;
+  }, [location.pathname]);
 
   return (
     <Box>

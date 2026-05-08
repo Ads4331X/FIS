@@ -8,7 +8,7 @@ import App from "./App.tsx";
 
 const theme = createTheme({
   typography: {
-    fontFamily: '"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif',
+    fontFamily: '"Merriweather", Georgia, "Times New Roman", serif',
   },
 });
 

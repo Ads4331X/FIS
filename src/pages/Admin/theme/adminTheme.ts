@@ -31,8 +31,7 @@ export function buildAdminTheme(mode: AdminColorMode) {
     },
     shape: { borderRadius: 12 },
     typography: {
-      fontFamily:
-        'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif',
+      fontFamily: '"Merriweather", Georgia, "Times New Roman", serif',
     },
     components: {
       MuiButton: {
