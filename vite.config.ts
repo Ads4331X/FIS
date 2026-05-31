@@ -95,8 +95,8 @@ export default defineConfig(({ mode }) => {
                   )
                   .digest("hex");
 
-            const encodeBase64Url = (value: string) =>
-              Buffer.from(value)
+            const encodeBase64Url = (value: string | Buffer) =>
+              (Buffer.isBuffer(value) ? value : Buffer.from(value))
                 .toString("base64")
                 .replace(/=/g, "")
                 .replace(/\+/g, "-")
