@@ -1,12 +1,38 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// Keep page size in one place so it is easy to tune later.
-// NOTE: The Vite dev proxy in vite.config.ts must be updated
-// to use the same value.
 const PAGE_SIZE = 24;
 
+function normalizeOrigin(origin: unknown): string {
+  return typeof origin === "string" ? origin.trim() : "";
+}
+
+function isOriginAllowed(origin: string, host: string): boolean {
+  const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const sameOriginHosts = host ? [`http://${host}`, `https://${host}`] : [];
+
+  return sameOriginHosts.includes(origin) || allowedOrigins.includes(origin);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = normalizeOrigin(req.headers.origin);
+  const host = typeof req.headers.host === "string" ? req.headers.host : "";
+
+  if (origin && isOriginAllowed(origin, host)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -24,7 +50,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const sanitizePrefix = (input: unknown): string => {
     if (typeof input !== "string") return "";
-    return input.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+    return input
+      .trim()
+      .replace(/\\/g, "/")
+      .replace(/^\/+|\/+$/g, "");
   };
 
   // Accept optional ?prefix= query param for folder filtering.
@@ -67,14 +96,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Single prefix (or "all images") – allow Cloudinary pagination to work as-is.
   if (uniquePrefixes.length <= 1) {
-    const { status, data } = await fetchForPrefix(uniquePrefixes[0] ?? "", nextCursor);
+    const { status, data } = await fetchForPrefix(
+      uniquePrefixes[0] ?? "",
+      nextCursor,
+    );
     res.status(status).json(data);
     return;
   }
 
   // Multiple prefixes – fetch one page per prefix and merge resources.
   // Pagination via next_cursor is not supported for this merged view.
-  const results = await Promise.all(uniquePrefixes.map((p) => fetchForPrefix(p)));
+  const results = await Promise.all(
+    uniquePrefixes.map((p) => fetchForPrefix(p)),
+  );
   const firstNon200 = results.find((r) => r.status >= 400);
   if (firstNon200) {
     res.status(firstNon200.status).json(firstNon200.data);

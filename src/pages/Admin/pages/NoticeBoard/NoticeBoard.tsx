@@ -18,10 +18,8 @@ import {
   appendActivity,
   generateNoticeId,
   loadActivity,
-  loadNotices,
   NOTICE_CATEGORIES,
   saveActivity,
-  saveNotices,
   type Notice,
   type NoticeActivity,
 } from "./data";
@@ -40,7 +38,7 @@ export default function NoticeBoard() {
   const section = findAdminSection("/admin/noticeboard");
   const isMdUp = useMediaQuery("(min-width:900px)");
 
-  const [notices, setNotices] = useState<Notice[]>(() => loadNotices());
+  const [notices, setNotices] = useState<Notice[]>([]);
   const [activity, setActivity] = useState<NoticeActivity[]>(() => loadActivity());
   const [formOpen, setFormOpen] = useState(false);
   const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
@@ -51,10 +49,6 @@ export default function NoticeBoard() {
   const [logOpen, setLogOpen] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [statsFilter, setStatsFilter] = useState<NoticeStatFilter>("all");
-
-  useEffect(() => {
-    saveNotices(notices);
-  }, [notices]);
 
   useEffect(() => {
     saveActivity(activity);

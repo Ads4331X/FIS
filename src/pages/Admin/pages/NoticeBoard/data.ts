@@ -13,7 +13,7 @@ export const NOTICE_STATUSES = ["published", "draft"] as const;
 export type NoticeStatus = (typeof NOTICE_STATUSES)[number];
 export type Notice = {
   id: string;
-  cloudinaryId?: string; // ← add this — the actual Cloudinary public_id
+  cloudinaryId?: string;
   title: string;
   description?: string;
   category: NoticeCategory;
@@ -36,61 +36,12 @@ export type NoticeActivity = {
   timestamp: string;
 };
 
-const NOTICES_STORAGE_KEY = "fis_admin_notices_v1";
-const ACTIVITY_STORAGE_KEY = "fis_admin_notice_activity_v1";
 const ACTIVITY_LIMIT = 25;
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function daysAgo(days: number): string {
   return new Date(Date.now() - days * MS_PER_DAY).toISOString();
 }
-
-const SEED_NOTICES: Notice[] = [
-  {
-    id: "ntc-gala-2024",
-    title: "Fairyland Gala Night 2024",
-    description:
-      "Join us for an evening of celebration, performance, and community spirit. All parents and alumni are invited to witness our students' creative showcases and annual highlights.",
-    category: "Event",
-    status: "published",
-    postedAt: daysAgo(2),
-    imageUrl:
-      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1280&q=80",
-  },
-  {
-    id: "ntc-science-fair-2024",
-    title: "Annual Science Fair 2024",
-    description: "Exhibition details and registration link.",
-    category: "Event",
-    status: "published",
-    postedAt: daysAgo(13),
-  },
-  {
-    id: "ntc-football",
-    title: "Inter-School Football Championship",
-    description: "Schedule for the upcoming finals in the city stadium.",
-    category: "Sports",
-    status: "published",
-    postedAt: daysAgo(15),
-  },
-  {
-    id: "ntc-library-closure",
-    title: "Library Maintenance Closure",
-    description: "Temporary closure for system upgrades.",
-    category: "Maintenance",
-    status: "draft",
-    postedAt: daysAgo(12),
-  },
-  {
-    id: "ntc-final-exams",
-    title: "Semester Final Exams Timetable",
-    description: "Download the PDF for all grade levels.",
-    category: "Academic",
-    status: "published",
-    postedAt: daysAgo(17),
-  },
-];
 
 const SEED_ACTIVITY: NoticeActivity[] = [
   {
@@ -116,51 +67,12 @@ const SEED_ACTIVITY: NoticeActivity[] = [
   },
 ];
 
-function safeParse<T>(value: string | null, fallback: T): T {
-  if (!value) return fallback;
-  try {
-    const parsed = JSON.parse(value) as T;
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function isBrowser(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
-}
-
-export function loadNotices(): Notice[] {
-  if (!isBrowser()) return SEED_NOTICES;
-  const stored = window.localStorage.getItem(NOTICES_STORAGE_KEY);
-  if (stored === null) {
-    window.localStorage.setItem(NOTICES_STORAGE_KEY, JSON.stringify(SEED_NOTICES));
-    return SEED_NOTICES;
-  }
-  return safeParse<Notice[]>(stored, SEED_NOTICES);
-}
-
-export function saveNotices(notices: Notice[]) {
-  if (!isBrowser()) return;
-  window.localStorage.setItem(NOTICES_STORAGE_KEY, JSON.stringify(notices));
-}
-
 export function loadActivity(): NoticeActivity[] {
-  if (!isBrowser()) return SEED_ACTIVITY;
-  const stored = window.localStorage.getItem(ACTIVITY_STORAGE_KEY);
-  if (stored === null) {
-    window.localStorage.setItem(
-      ACTIVITY_STORAGE_KEY,
-      JSON.stringify(SEED_ACTIVITY),
-    );
-    return SEED_ACTIVITY;
-  }
-  return safeParse<NoticeActivity[]>(stored, SEED_ACTIVITY);
+  return SEED_ACTIVITY;
 }
 
-export function saveActivity(activity: NoticeActivity[]) {
-  if (!isBrowser()) return;
-  window.localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(activity));
+export function saveActivity(_activity: NoticeActivity[]) {
+  return;
 }
 
 export function appendActivity(

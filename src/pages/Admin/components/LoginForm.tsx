@@ -19,6 +19,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     try {
       const response = await fetch("/api/auth", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
         },
@@ -26,7 +27,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       });
 
       if (response.status === 200) {
-        sessionStorage.setItem("fis_admin", "1");
         onLogin();
         return;
       }
@@ -69,7 +69,14 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
           <AdminPanelSettingsIcon sx={{ color: "#074783", fontSize: 36 }} />
           <Box>
-            <Typography sx={{ fontWeight: 800, color: "#074783", fontSize: "1.2rem", lineHeight: 1.2 }}>
+            <Typography
+              sx={{
+                fontWeight: 800,
+                color: "#074783",
+                fontSize: "1.2rem",
+                lineHeight: 1.2,
+              }}
+            >
               Admin Panel
             </Typography>
             <Typography sx={{ color: "#9ca3af", fontSize: "0.8rem" }}>
@@ -78,7 +85,11 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           </Box>
         </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         <TextField
           fullWidth

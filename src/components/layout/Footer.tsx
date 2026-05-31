@@ -83,13 +83,39 @@ function Footer() {
             </Box>
 
             {/* location */}
-            <Link href={siteContact.mapOpenUrl} target="_blank" rel="noopener noreferrer" sx={{ display: "flex", alignItems: "center", gap: 1, color: "#555", cursor: "pointer", mb: 1, textDecoration: "none", "&:hover": { color: "#000", textDecoration: "underline" } }}>
+            <Link
+              href={siteContact.mapOpenUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                color: "#555",
+                cursor: "pointer",
+                mb: 1,
+                textDecoration: "none",
+                "&:hover": { color: "#000", textDecoration: "underline" },
+              }}
+            >
               <LocationPinIcon fontSize="small" />
               {siteContact.addressDisplay}
             </Link>
 
             {/* phone */}
-            <Link href={`tel:${siteContact.phoneTel}`} sx={{ display: "flex", alignItems: "center", gap: 1, color: "#555", cursor: "pointer", mb: 1, textDecoration: "none", "&:hover": { color: "#000", textDecoration: "underline" } }}>
+            <Link
+              href={`tel:${siteContact.phoneTel}`}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                color: "#555",
+                cursor: "pointer",
+                mb: 1,
+                textDecoration: "none",
+                "&:hover": { color: "#000", textDecoration: "underline" },
+              }}
+            >
               <LocalPhoneIcon fontSize="small" />
               {siteContact.phoneDisplay}
             </Link>
@@ -138,13 +164,31 @@ function Footer() {
 
           {/* socials — same order as Contact aside */}
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <Link href={siteContact.social.facebook} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <Link
+              href={siteContact.social.facebook}
+              sx={{ color: "#555" }}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
               <FacebookIcon />
             </Link>
-            <Link href={siteContact.social.youtube} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+            <Link
+              href={siteContact.social.youtube}
+              sx={{ color: "#555" }}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
               <YouTubeIcon />
             </Link>
-            <Link href={siteContact.social.tiktok} sx={{ color: "#555" }} target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+            <Link
+              href={siteContact.social.tiktok}
+              sx={{ color: "#555" }}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok"
+            >
               <TikTokIcon />
             </Link>
           </Box>

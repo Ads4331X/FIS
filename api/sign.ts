@@ -69,6 +69,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const maxUploadSize = Number(process.env.MAX_UPLOAD_SIZE_BYTES ?? "15728640");
 
     if (!cloudName || !apiKey || !apiSecret) {
       return res.status(500).json({
@@ -77,6 +78,29 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
             "Missing Cloudinary env vars (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)",
         },
       });
+    }
+
+    const fileSizeRaw = req.body?.file_size ?? req.body?.fileSize;
+    const fileSize =
+      typeof fileSizeRaw === "number"
+        ? fileSizeRaw
+        : typeof fileSizeRaw === "string" && fileSizeRaw.trim()
+        ? Number(fileSizeRaw)
+        : undefined;
+
+    if (fileSize !== undefined) {
+      if (Number.isNaN(fileSize) || fileSize < 0) {
+        return res.status(400).json({
+          error: { message: "file_size must be a valid non-negative number." },
+        });
+      }
+      if (fileSize > maxUploadSize) {
+        return res.status(413).json({
+          error: {
+            message: `Upload file is too large. Maximum allowed size is ${maxUploadSize.toLocaleString()} bytes.`,
+          },
+        });
+      }
     }
 
     const timestamp = Math.round(Date.now() / 1000);

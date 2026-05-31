@@ -16,6 +16,7 @@ import Notices from "../pages/Notices/Notices";
 import Admin from "../pages/Admin/Admin";
 import GalleryManagement from "../pages/Admin/pages/GalleryManagement/GalleryManagement";
 import NoticeBoard from "../pages/Admin/pages/NoticeBoard/NoticeBoard";
+import Settings from "../pages/Admin/pages/Settings/Settings";
 
 function App() {
   const location = useLocation();
@@ -33,6 +34,7 @@ function App() {
       "/admin": "Admin",
       "/admin/noticeboard": "Admin - Notice Board",
       "/admin/gallerymanagement": "Admin - Gallery Management",
+      "/admin/settings": "Admin - Settings",
     };
 
     const currentPageTitle =
@@ -49,6 +51,7 @@ function App() {
           <Route index element={<Navigate to="noticeboard" replace />} />
           <Route path="noticeboard" element={<NoticeBoard />} />
           <Route path="gallerymanagement" element={<GalleryManagement />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="noticeboard" replace />} />
         </Route>
         <Route path="/about_us" element={<About />} />

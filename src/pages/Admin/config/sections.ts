@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { createElement } from "react";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 export type AdminSection = {
   key: string;
@@ -24,7 +25,16 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     label: "Gallery Management",
     path: "/admin/gallerymanagement",
     icon: createElement(PhotoLibraryOutlinedIcon, { fontSize: "small" }),
-    subtitle: "Organize and curate the digital memories of Fairyland Secondary.",
+    subtitle:
+      "Organize and curate the digital memories of Fairyland Secondary.",
+  },
+  {
+    key: "settings",
+    label: "Admin Settings",
+    path: "/admin/settings",
+    icon: createElement(SettingsOutlinedIcon, { fontSize: "small" }),
+    subtitle:
+      "Manage admin access and view deployment authentication settings.",
   },
 ];
 

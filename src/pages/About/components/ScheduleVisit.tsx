@@ -186,7 +186,7 @@ export function ScheduleVisit() {
 
             <Button
               disableRipple
-              href="#"
+              href="/contact"
               endIcon={<DownloadOutlinedIcon />}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.08)",

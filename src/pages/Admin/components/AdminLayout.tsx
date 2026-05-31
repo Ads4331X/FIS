@@ -6,6 +6,7 @@ import {
   Drawer,
   ThemeProvider,
   alpha,
+  Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Outlet, useLocation } from "react-router-dom";
@@ -24,10 +25,8 @@ const SIDEBAR_WIDTH = 280;
 
 export default function AdminLayout() {
   const location = useLocation();
-  const [loggedIn, setLoggedIn] = useState(
-    typeof window !== "undefined" &&
-      window.sessionStorage.getItem("fis_admin") === "1",
-  );
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const isMdUp = useMediaQuery("(min-width:900px)");
@@ -37,11 +36,36 @@ export default function AdminLayout() {
   const activeSection = findAdminSection(location.pathname);
 
   useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const response = await fetch("/api/auth", {
+          method: "GET",
+          credentials: "same-origin",
+        });
+        setLoggedIn(response.ok);
+      } catch {
+        setLoggedIn(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+
+    verifyAuth();
+  }, []);
+
+  useEffect(() => {
     setSearchQuery("");
   }, [location.pathname]);
 
-  const handleLogout = () => {
-    window.sessionStorage.removeItem("fis_admin");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth", {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+    } catch {
+      // ignore; user is still logged out locally
+    }
     setLoggedIn(false);
   };
 
@@ -50,6 +74,25 @@ export default function AdminLayout() {
     setMode(next);
     setStoredAdminMode(next);
   };
+
+  if (!authChecked) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "#F5F7FB",
+          }}
+        >
+          <Typography variant="h6">Checking session…</Typography>
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   if (!loggedIn) {
     return (

@@ -3,6 +3,10 @@ import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 
+const HERO_BADGE_TEXT =
+  import.meta.env.VITE_HOME_HERO_BADGE?.trim() ||
+  "Ranked #1 In Academic Progress 2023";
+
 export default function HomeHero() {
   return (
     <Container
@@ -190,10 +194,7 @@ export default function HomeHero() {
             maxWidth: "200px",
           }}
         >
-          Ranked #1{" "}
-          <Box component="span" sx={{ color: "#6B7280", fontWeight: 400 }}>
-            In Academic Progress 2023
-          </Box>
+          {HERO_BADGE_TEXT}
         </Box>
       </Box>
     </Container>

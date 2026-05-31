@@ -45,7 +45,9 @@ type NoticeContextValues = {
   imageUrl?: string;
 };
 
-function parseCloudinaryContextString(contextString: string): NoticeContextValues {
+function parseCloudinaryContextString(
+  contextString: string,
+): NoticeContextValues {
   return contextString.split("|").reduce<NoticeContextValues>((acc, entry) => {
     const [rawKey, ...rawValueParts] = entry.split("=");
     const key = rawKey?.trim();
@@ -93,25 +95,19 @@ export type FolderCategory = {
   label: string;
   /** Canonical Cloudinary folder path for uploads (sanitized + lowercase). Empty string = fetch all. */
   folder: string;
-  /** Optional legacy prefixes to include when listing existing images. */
-  legacyPrefixes?: string[];
 };
 
 /**
  * IMPORTANT: These folder names must exactly match what you have in Cloudinary.
  * Log into cloudinary.com → Media Library to verify the actual folder names.
- *
- * If your folders are nested under "School/" (e.g. "School/Events"),
- * use those full paths here. If they're top-level, use the short names.
  */
 export const CATEGORIES: FolderCategory[] = [
-  { label: "All",      folder: "" },
-  // Top-level folders (NOT nested under /school)
-  { label: "School",   folder: "school", legacyPrefixes: ["School"] },
-  { label: "Events",   folder: "events", legacyPrefixes: ["School/Events"] },
-  { label: "Sports",   folder: "sports", legacyPrefixes: ["School/Sports"] },
-  { label: "Students", folder: "students", legacyPrefixes: ["School/Students"] },
-  { label: "Tour",     folder: "tour", legacyPrefixes: ["School/Tour"] },
+  { label: "All", folder: "" },
+  { label: "School", folder: "school" },
+  { label: "Events", folder: "events" },
+  { label: "Sports", folder: "sports" },
+  { label: "Students", folder: "students" },
+  { label: "Tour", folder: "tour" },
 ];
 
 export const UPLOAD_FOLDERS = CATEGORIES.filter((c) => c.folder !== "");
@@ -129,13 +125,21 @@ function sanitizeFolderSegment(segment: string): string {
 }
 
 export function sanitizeFolderPath(folder: string): string {
-  const normalized = folder.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
-  const parts = normalized.split("/").map(sanitizeFolderSegment).filter(Boolean);
+  const normalized = folder
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\/+|\/+$/g, "");
+  const parts = normalized
+    .split("/")
+    .map(sanitizeFolderSegment)
+    .filter(Boolean);
   return parts.join("/");
 }
 
 function toPrefixes(folderOrPrefixes: string | string[]): string[] {
-  const raw = Array.isArray(folderOrPrefixes) ? folderOrPrefixes : [folderOrPrefixes];
+  const raw = Array.isArray(folderOrPrefixes)
+    ? folderOrPrefixes
+    : [folderOrPrefixes];
   const prefixes = raw.map(sanitizeFolderPath).filter(Boolean);
   // stable unique
   return Array.from(new Set(prefixes));
@@ -184,7 +188,7 @@ export type PaginatedNoticesResult = {
  */
 export async function fetchImages(
   folder: string | string[] = "",
-  nextCursor?: string
+  nextCursor?: string,
 ): Promise<PaginatedImagesResult> {
   const prefixes = toPrefixes(folder);
 
@@ -207,7 +211,8 @@ export async function fetchImages(
   }
 
   const resources = ((data.resources ?? []) as GalleryImage[]).sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
   const cursor =
@@ -228,7 +233,7 @@ export async function fetchImages(
 export async function uploadImage(
   file: File,
   folder: string,
-  onProgress?: (pct: number) => void
+  onProgress?: (pct: number) => void,
 ): Promise<GalleryImage> {
   const sanitizedFolder = sanitizeFolderPath(folder);
 
@@ -239,18 +244,25 @@ export async function uploadImage(
   });
 
   if (!signRes.ok) {
-    const err = await signRes.json().catch(() => ({})) as { error?: { message?: string } };
+    const err = (await signRes.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
     throw new Error(err?.error?.message ?? "Failed to get upload signature.");
   }
 
-  const { signature, timestamp, apiKey, cloudName, folder: signedFolder } =
-    (await signRes.json()) as {
-      signature: string;
-      timestamp: number;
-      apiKey: string;
-      cloudName: string;
-      folder?: string;
-    };
+  const {
+    signature,
+    timestamp,
+    apiKey,
+    cloudName,
+    folder: signedFolder,
+  } = (await signRes.json()) as {
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+    folder?: string;
+  };
 
   return new Promise((resolve, reject) => {
     const formData = new FormData();
@@ -263,7 +275,7 @@ export async function uploadImage(
     const xhr = new XMLHttpRequest();
     xhr.open(
       "POST",
-      `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`
+      `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`,
     );
 
     xhr.upload.onprogress = (e) => {
@@ -276,7 +288,9 @@ export async function uploadImage(
       if (xhr.status === 200) {
         resolve(JSON.parse(xhr.responseText) as GalleryImage);
       } else {
-        const body = JSON.parse(xhr.responseText || "{}") as { error?: { message?: string } };
+        const body = JSON.parse(xhr.responseText || "{}") as {
+          error?: { message?: string };
+        };
         reject(new Error(body?.error?.message ?? "Upload failed."));
       }
     };
@@ -295,10 +309,12 @@ export async function uploadNoticeFile(
     createdAt?: string;
     publicId?: string;
   },
-  onProgress?: (pct: number) => void
+  onProgress?: (pct: number) => void,
 ): Promise<NoticeItem> {
   const folder = "notices";
-  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const publicId =
+    metadata.publicId?.trim() ||
+    `${slugFromTitle(metadata.title)}-${Date.now()}`;
   const contextPayload = {
     title: metadata.title.trim(),
     category: metadata.category.trim(),
@@ -309,24 +325,37 @@ export async function uploadNoticeFile(
   const signRes = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+    body: JSON.stringify({
+      folder,
+      public_id: publicId,
+      context: contextPayload,
+    }),
   });
 
   if (!signRes.ok) {
-    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    const err = (await signRes.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
     throw new Error(err?.error?.message ?? "Failed to get upload signature.");
   }
 
-  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
-    (await signRes.json()) as {
-      signature: string;
-      timestamp: number;
-      apiKey: string;
-      cloudName: string;
-      folder?: string;
-      public_id?: string;
-      context?: string;
-    };
+  const {
+    signature,
+    timestamp,
+    apiKey,
+    cloudName,
+    folder: signedFolder,
+    public_id,
+    context,
+  } = (await signRes.json()) as {
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+    folder?: string;
+    public_id?: string;
+    context?: string;
+  };
 
   if (!signature || !timestamp || !apiKey || !cloudName) {
     throw new Error("Cloudinary upload signature was incomplete.");
@@ -343,7 +372,10 @@ export async function uploadNoticeFile(
     if (context) formData.append("context", context);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`);
+    xhr.open(
+      "POST",
+      `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`,
+    );
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
         onProgress(Math.round((e.loaded / e.total) * 100));
@@ -360,7 +392,10 @@ export async function uploadNoticeFile(
           id: body.public_id,
           title: contextValues.title || contextPayload.title,
           category: contextValues.category || contextPayload.category,
-          description: contextValues.description || contextPayload.description || undefined,
+          description:
+            contextValues.description ||
+            contextPayload.description ||
+            undefined,
           imageUrl: body.secure_url,
           createdAt: contextValues.createdAt || body.created_at,
           resourceType: body.resource_type || "image",
@@ -371,7 +406,8 @@ export async function uploadNoticeFile(
       }
     };
 
-    xhr.onerror = () => reject(new Error("Notice upload failed — network error."));
+    xhr.onerror = () =>
+      reject(new Error("Notice upload failed — network error."));
     xhr.send(formData);
   });
 }
@@ -385,7 +421,9 @@ export async function uploadNoticeImageUrl(metadata: {
   publicId?: string;
 }): Promise<NoticeItem> {
   const folder = "notices";
-  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const publicId =
+    metadata.publicId?.trim() ||
+    `${slugFromTitle(metadata.title)}-${Date.now()}`;
   const sourceImageUrl = metadata.imageUrl.trim();
   if (!sourceImageUrl) {
     throw new Error("Image URL is required to upload notice image.");
@@ -401,24 +439,37 @@ export async function uploadNoticeImageUrl(metadata: {
   const signRes = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+    body: JSON.stringify({
+      folder,
+      public_id: publicId,
+      context: contextPayload,
+    }),
   });
 
   if (!signRes.ok) {
-    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    const err = (await signRes.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
     throw new Error(err?.error?.message ?? "Failed to get upload signature.");
   }
 
-  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
-    (await signRes.json()) as {
-      signature: string;
-      timestamp: number;
-      apiKey: string;
-      cloudName: string;
-      folder?: string;
-      public_id?: string;
-      context?: string;
-    };
+  const {
+    signature,
+    timestamp,
+    apiKey,
+    cloudName,
+    folder: signedFolder,
+    public_id,
+    context,
+  } = (await signRes.json()) as {
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+    folder?: string;
+    public_id?: string;
+    context?: string;
+  };
 
   if (!signature || !timestamp || !apiKey || !cloudName) {
     throw new Error("Cloudinary upload signature was incomplete.");
@@ -433,10 +484,13 @@ export async function uploadNoticeImageUrl(metadata: {
   if (public_id) formData.append("public_id", public_id);
   if (context) formData.append("context", context);
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/image/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
 
   const body = (await res.json().catch(() => ({}))) as NoticeAsset & {
     error?: { message?: string };
@@ -450,7 +504,8 @@ export async function uploadNoticeImageUrl(metadata: {
     id: body.public_id,
     title: contextValues.title || contextPayload.title,
     category: contextValues.category || contextPayload.category,
-    description: contextValues.description || contextPayload.description || undefined,
+    description:
+      contextValues.description || contextPayload.description || undefined,
     imageUrl: body.secure_url,
     createdAt: contextValues.createdAt || body.created_at,
     resourceType: body.resource_type || "image",
@@ -467,7 +522,9 @@ export async function uploadNoticeRecord(metadata: {
   publicId?: string;
 }): Promise<NoticeItem> {
   const folder = "notices";
-  const publicId = metadata.publicId?.trim() || `${slugFromTitle(metadata.title)}-${Date.now()}`;
+  const publicId =
+    metadata.publicId?.trim() ||
+    `${slugFromTitle(metadata.title)}-${Date.now()}`;
   const contextPayload = {
     title: metadata.title.trim(),
     category: metadata.category.trim(),
@@ -479,31 +536,46 @@ export async function uploadNoticeRecord(metadata: {
   const signRes = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ folder, public_id: publicId, context: contextPayload }),
+    body: JSON.stringify({
+      folder,
+      public_id: publicId,
+      context: contextPayload,
+    }),
   });
 
   if (!signRes.ok) {
-    const err = (await signRes.json().catch(() => ({}))) as { error?: { message?: string } };
+    const err = (await signRes.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
     throw new Error(err?.error?.message ?? "Failed to get notice signature.");
   }
 
-  const { signature, timestamp, apiKey, cloudName, folder: signedFolder, public_id, context } =
-    (await signRes.json()) as {
-      signature: string;
-      timestamp: number;
-      apiKey: string;
-      cloudName: string;
-      folder?: string;
-      public_id?: string;
-      context?: string;
-    };
+  const {
+    signature,
+    timestamp,
+    apiKey,
+    cloudName,
+    folder: signedFolder,
+    public_id,
+    context,
+  } = (await signRes.json()) as {
+    signature: string;
+    timestamp: number;
+    apiKey: string;
+    cloudName: string;
+    folder?: string;
+    public_id?: string;
+    context?: string;
+  };
 
   if (!signature || !timestamp || !apiKey || !cloudName) {
     throw new Error("Cloudinary notice signature was incomplete.");
   }
 
   const json = JSON.stringify(contextPayload, null, 2);
-  const file = new File([json], `${publicId}.json`, { type: "application/json" });
+  const file = new File([json], `${publicId}.json`, {
+    type: "application/json",
+  });
   const formData = new FormData();
   formData.append("file", file);
   formData.append("api_key", apiKey);
@@ -513,10 +585,13 @@ export async function uploadNoticeRecord(metadata: {
   if (public_id) formData.append("public_id", public_id);
   if (context) formData.append("context", context);
 
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/raw/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName || CLOUD_NAME}/raw/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
   const body = (await res.json().catch(() => ({}))) as NoticeAsset & {
     error?: { message?: string };
   };
@@ -530,7 +605,8 @@ export async function uploadNoticeRecord(metadata: {
     id: body.public_id,
     title: contextValues.title || contextPayload.title,
     category: contextValues.category || contextPayload.category,
-    description: contextValues.description || contextPayload.description || undefined,
+    description:
+      contextValues.description || contextPayload.description || undefined,
     imageUrl: contextValues.imageUrl || contextPayload.imageUrl || undefined,
     createdAt: contextValues.createdAt || body.created_at,
     resourceType: body.resource_type || "raw",
@@ -538,7 +614,9 @@ export async function uploadNoticeRecord(metadata: {
   };
 }
 
-export async function fetchNotices(nextCursor?: string): Promise<PaginatedNoticesResult> {
+export async function fetchNotices(
+  nextCursor?: string,
+): Promise<PaginatedNoticesResult> {
   const search = new URLSearchParams();
   if (nextCursor) search.set("next_cursor", nextCursor);
   const query = search.toString();
@@ -550,10 +628,13 @@ export async function fetchNotices(nextCursor?: string): Promise<PaginatedNotice
     throw new Error(data?.error?.message ?? "Failed to load notices.");
   }
 
-  const resources = (Array.isArray(data.resources) ? data.resources : []) as NoticeAsset[];
+  const resources = (
+    Array.isArray(data.resources) ? data.resources : []
+  ) as NoticeAsset[];
   const mappedNotices = resources.map((asset) => {
     const contextValues = getNoticeContextValues(asset);
-    const title = contextValues.title?.trim() || titleFromPublicId(asset.public_id);
+    const title =
+      contextValues.title?.trim() || titleFromPublicId(asset.public_id);
     const category = contextValues.category?.trim() || "General";
     return {
       id: asset.public_id,
@@ -597,7 +678,7 @@ export async function fetchNotices(nextCursor?: string): Promise<PaginatedNotice
   }
 
   const notices = Array.from(dedupedById.values()).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   const cursor =
@@ -622,7 +703,7 @@ export async function fetchNotices(nextCursor?: string): Promise<PaginatedNotice
  */
 export async function deleteImage(
   publicId: string,
-  resourceType: string = "image"
+  resourceType: string = "image",
 ): Promise<void> {
   const normalizedPublicId =
     resourceType.trim().toLowerCase() === "raw"
@@ -631,11 +712,16 @@ export async function deleteImage(
   const res = await fetch("/api/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ public_id: normalizedPublicId, resource_type: resourceType }),
+    body: JSON.stringify({
+      public_id: normalizedPublicId,
+      resource_type: resourceType,
+    }),
   });
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
     const message = (data?.error?.message ?? "Delete failed.").trim();
     const lowered = message.toLowerCase();
     if (
