@@ -134,12 +134,11 @@ export default defineConfig(({ mode }) => {
                   .update(`${header}.${body}`)
                   .digest(),
               );
-              if (
-                !crypto.timingSafeEqual(
-                  Buffer.from(signature),
-                  Buffer.from(expected),
-                )
-              ) {
+              // FIX: wrap in Uint8Array to satisfy NodeJS.ArrayBufferView constraint
+              const sigBuf = new Uint8Array(Buffer.from(signature));
+              const expBuf = new Uint8Array(Buffer.from(expected));
+              if (sigBuf.length !== expBuf.length) return null;
+              if (!crypto.timingSafeEqual(sigBuf, expBuf)) {
                 return null;
               }
               try {
@@ -285,10 +284,13 @@ export default defineConfig(({ mode }) => {
                 const hash = crypto
                   .scryptSync(password, user.salt, 64)
                   .toString("hex");
-                return crypto.timingSafeEqual(
-                  Buffer.from(hash),
-                  Buffer.from(user.passwordHash),
+                // FIX: decode hex strings to bytes before comparing
+                const hashBuf = new Uint8Array(Buffer.from(hash, "hex"));
+                const storedBuf = new Uint8Array(
+                  Buffer.from(user.passwordHash, "hex"),
                 );
+                if (hashBuf.length !== storedBuf.length) return false;
+                return crypto.timingSafeEqual(hashBuf, storedBuf);
               } catch {
                 return false;
               }
