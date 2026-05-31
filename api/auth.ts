@@ -230,7 +230,7 @@ function parseAdminUsersEnv(): UserRecord | null {
     const raw = process.env.ADMIN_USERS?.trim();
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parse d) || parsed.length === 0) return null;
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
 
     return normalizeUserEntry(parsed[0]) ?? null;
   } catch {
