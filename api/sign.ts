@@ -15,8 +15,14 @@ function sanitizeFolderSegment(segment: string): string {
 
 function sanitizeFolderPath(input: unknown): string {
   if (typeof input !== "string") return "";
-  const normalized = input.trim().replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
-  const parts = normalized.split("/").map(sanitizeFolderSegment).filter(Boolean);
+  const normalized = input
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\/+|\/+$/g, "");
+  const parts = normalized
+    .split("/")
+    .map(sanitizeFolderSegment)
+    .filter(Boolean);
   return parts.join("/");
 }
 
@@ -44,15 +50,34 @@ function buildContextString(input: unknown): string {
     imageUrl?: unknown;
   };
 
-  const entries: Array<[string, string]> = [
-    ["title", truncateValue(normalizeWhitespace(toSafeString(raw.title)), 90)],
-    ["category", truncateValue(normalizeWhitespace(toSafeString(raw.category)), 40)],
-    ["description", truncateValue(normalizeWhitespace(toSafeString(raw.description)), 120)],
-    ["createdAt", truncateValue(normalizeWhitespace(toSafeString(raw.createdAt)), 35)],
-    ["imageUrl", truncateValue(normalizeWhitespace(toSafeString(raw.imageUrl)), 220)],
-  ].filter(([, value]) => value.length > 0);
+  const entries: [string, string][] = (
+    [
+      [
+        "title",
+        truncateValue(normalizeWhitespace(toSafeString(raw.title)), 90),
+      ],
+      [
+        "category",
+        truncateValue(normalizeWhitespace(toSafeString(raw.category)), 40),
+      ],
+      [
+        "description",
+        truncateValue(normalizeWhitespace(toSafeString(raw.description)), 120),
+      ],
+      [
+        "createdAt",
+        truncateValue(normalizeWhitespace(toSafeString(raw.createdAt)), 35),
+      ],
+      [
+        "imageUrl",
+        truncateValue(normalizeWhitespace(toSafeString(raw.imageUrl)), 220),
+      ],
+    ] as [string, string][]
+  ).filter(([, value]) => value.length > 0);
 
-  const context = entries.map(([k, v]) => `${k}=${v.replace(/[|=]/g, " ")}`).join("|");
+  const context = entries
+    .map(([k, v]) => `${k}=${v.replace(/[|=]/g, " ")}`)
+    .join("|");
   // Cloudinary context has practical size limits; keep below common thresholds.
   return truncateValue(context, 350);
 }
@@ -69,7 +94,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
-    const maxUploadSize = Number(process.env.MAX_UPLOAD_SIZE_BYTES ?? "15728640");
+    const maxUploadSize = Number(
+      process.env.MAX_UPLOAD_SIZE_BYTES ?? "15728640",
+    );
 
     if (!cloudName || !apiKey || !apiSecret) {
       return res.status(500).json({
@@ -85,8 +112,8 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       typeof fileSizeRaw === "number"
         ? fileSizeRaw
         : typeof fileSizeRaw === "string" && fileSizeRaw.trim()
-        ? Number(fileSizeRaw)
-        : undefined;
+          ? Number(fileSizeRaw)
+          : undefined;
 
     if (fileSize !== undefined) {
       if (Number.isNaN(fileSize) || fileSize < 0) {

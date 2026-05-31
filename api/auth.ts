@@ -44,7 +44,7 @@ function safeCompare(a: string, b: string): boolean {
   const aBytes = Buffer.from(a);
   const bBytes = Buffer.from(b);
   if (aBytes.length !== bBytes.length) return false;
-  return crypto.timingSafeEqual(aBytes, bBytes);
+  return crypto.timingSafeEqual(new Uint8Array(aBytes), new Uint8Array(bBytes));
 }
 
 function getAuthSecretPath(): string {
@@ -105,8 +105,9 @@ function getAuthSecret(fallback?: string): string {
   return derived;
 }
 
-function encodeBase64Url(value: string) {
-  return Buffer.from(value)
+function encodeBase64Url(value: string | Buffer): string {
+  const buf = Buffer.isBuffer(value) ? value : Buffer.from(value);
+  return buf
     .toString("base64")
     .replace(/=/g, "")
     .replace(/\+/g, "-")
