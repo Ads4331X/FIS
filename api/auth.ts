@@ -14,6 +14,7 @@ type AuthRequestBody = {
   password?: string;
   currentPassword?: string;
   newPassword?: string;
+  newUsername?: string;
 };
 
 const COOKIE_NAME = "fis_admin_auth";
@@ -46,19 +47,62 @@ function safeCompare(a: string, b: string): boolean {
   return crypto.timingSafeEqual(aBytes, bBytes);
 }
 
-function getAuthSecret(): string {
+function getAuthSecretPath(): string {
+  return process.env.ADMIN_AUTH_SECRET_FILE?.trim()
+    ? path.resolve(process.env.ADMIN_AUTH_SECRET_FILE.trim())
+    : path.join(path.dirname(getUserStorePath()), "admin-auth-secret.txt");
+}
+
+function loadAuthSecret(): string | null {
+  try {
+    const secretPath = getAuthSecretPath();
+    if (!fs.existsSync(secretPath)) return null;
+    const raw = fs.readFileSync(secretPath, "utf8").trim();
+    return raw || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthSecret(secret: string): void {
+  const secretPath = getAuthSecretPath();
+  fs.mkdirSync(path.dirname(secretPath), { recursive: true });
+  fs.writeFileSync(secretPath, secret, "utf8");
+}
+
+function getAuthSecret(fallback?: string): string {
   const envSecret = process.env.ADMIN_AUTH_SECRET?.trim();
   if (envSecret) return envSecret;
 
+  const storedSecret = loadAuthSecret();
+  if (storedSecret) return storedSecret;
+
+  if (fallback?.trim()) {
+    const derived = fallback.trim();
+    try {
+      saveAuthSecret(derived);
+    } catch {
+      // ignore write failures and continue with derived secret
+    }
+    return derived;
+  }
+
   const users = getConfiguredUsers();
-  const fallback = users
+  const fallbackSecret = users
     .map((user) => `${user.username}:${user.passwordHash}:${user.salt}`)
     .join("|");
-
-  return crypto
+  const derived = crypto
     .createHash("sha256")
-    .update(fallback || "fis-admin-auth-secret")
+    .update(fallbackSecret || "fis-admin-auth-secret")
     .digest("hex");
+
+  try {
+    saveAuthSecret(derived);
+  } catch {
+    // ignore write failures
+  }
+
+  return derived;
 }
 
 function encodeBase64Url(value: string) {
@@ -160,34 +204,46 @@ function loadStoredUsers(): UserRecord[] {
   }
 }
 
-function parseAdminUsersEnv(): UserRecord[] {
+function parseJsonBody<T>(body: unknown): T {
+  if (typeof body === "object" && body !== null) {
+    return body as T;
+  }
+  if (typeof body === "string") {
+    try {
+      return JSON.parse(body) as T;
+    } catch {
+      return {} as T;
+    }
+  }
+  return {} as T;
+}
+
+function parseAdminUsersEnv(): UserRecord | null {
   try {
+    const username = process.env.ADMIN_USERNAME?.trim();
+    const password = process.env.ADMIN_PASSWORD;
+    if (username && password) {
+      const envUser = normalizeUserEntry({ username, password });
+      if (envUser) return envUser;
+    }
+
     const raw = process.env.ADMIN_USERS?.trim();
-    if (!raw) return [];
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map(normalizeUserEntry)
-      .filter((user): user is UserRecord => Boolean(user));
+    if (!Array.isArray(parse d) || parsed.length === 0) return null;
+
+    return normalizeUserEntry(parsed[0]) ?? null;
   } catch {
-    return [];
+    return null;
   }
 }
 
 function getConfiguredUsers(): UserRecord[] {
   const stored = loadStoredUsers();
-  if (stored.length > 0) return stored;
+  if (stored.length > 0) return [stored[0]];
 
-  const envUsers = parseAdminUsersEnv();
-  if (envUsers.length > 0) return envUsers;
-
-  const username = process.env.ADMIN_USERNAME?.trim();
-  const password = process.env.ADMIN_PASSWORD;
-  if (username && password) {
-    return [normalizeUserEntry({ username, password })!];
-  }
-
-  return [];
+  const envUser = parseAdminUsersEnv();
+  return envUser ? [envUser] : [];
 }
 
 function getUserByName(username: string): UserRecord | undefined {
@@ -349,26 +405,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === "PUT") {
-    const body = (req.body ?? {}) as AuthRequestBody;
-    const username = (body.username ?? "").trim();
-    const currentPassword = body.currentPassword ?? "";
-    const newPassword = body.newPassword ?? "";
-
-    if (!username || !currentPassword || !newPassword) {
-      res.status(400).json({
-        error: {
-          message: "Username, current password, and new password are required.",
-        },
-      });
+    if (!storedToken) {
+      res.status(401).json({ error: { message: "Not authenticated." } });
       return;
     }
 
-    const user = getUserByName(username);
-    if (!user || !verifyPassword(currentPassword, user)) {
-      incrementFailedAttempt(clientIp);
+    const sessionPayload = verifyJwt(storedToken, authSecret);
+    if (!sessionPayload) {
       res
         .status(401)
-        .json({ error: { message: "Invalid username or password." } });
+        .json({ error: { message: "Invalid or expired session." } });
+      return;
+    }
+
+    const body = parseJsonBody<AuthRequestBody>(req.body);
+    const currentPassword = body.currentPassword ?? "";
+    const newPassword = body.newPassword?.trim() ?? "";
+    const newUsername = body.newUsername?.trim() ?? "";
+
+    if (!currentPassword || (!newPassword && !newUsername)) {
+      res.status(400).json({
+        error: {
+          message:
+            "Current password is required, and at least one of new username or new password must be provided.",
+        },
+      });
       return;
     }
 
@@ -376,27 +437,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(501).json({
         error: {
           message:
-            "Password changes are not supported in this deployment. Ensure the server can write to the admin users file path.",
+            "Password and username changes are not supported in this deployment. Ensure the server can write to the admin users file path.",
         },
       });
       return;
     }
 
-    const updatedUsers = getConfiguredUsers().map((record) =>
-      record.username === username
-        ? {
-            username,
-            passwordHash: crypto
-              .scryptSync(newPassword, record.salt, 64)
-              .toString("hex"),
-            salt: record.salt,
-          }
-        : record,
-    );
+    const currentUsername = sessionPayload.username;
+    const user = getUserByName(currentUsername);
+    if (!user || !verifyPassword(currentPassword, user)) {
+      incrementFailedAttempt(clientIp);
+      res
+        .status(401)
+        .json({ error: { message: "Invalid password for current user." } });
+      return;
+    }
+
+    const desiredUsername = newUsername || currentUsername;
+    if (desiredUsername !== currentUsername && getUserByName(desiredUsername)) {
+      res.status(409).json({
+        error: { message: "The requested username is already taken." },
+      });
+      return;
+    }
+
+    const updatedUsers = getConfiguredUsers().map((record) => {
+      if (record.username !== currentUsername) return record;
+      return {
+        username: desiredUsername,
+        passwordHash: newPassword
+          ? crypto.scryptSync(newPassword, record.salt, 64).toString("hex")
+          : record.passwordHash,
+        salt: record.salt,
+      };
+    });
+
     saveUserStore(updatedUsers);
-    res
-      .status(200)
-      .json({ ok: true, message: "Password updated successfully." });
+
+    const responsePayload = { ok: true, username: desiredUsername } as {
+      ok: true;
+      username: string;
+    };
+
+    if (desiredUsername !== currentUsername) {
+      const refreshedToken = signJwt(
+        {
+          username: desiredUsername,
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + AUTH_TOKEN_TTL_SECONDS,
+        },
+        authSecret,
+      );
+      res.setHeader("Set-Cookie", buildAuthCookie(refreshedToken));
+      responsePayload.username = desiredUsername;
+    }
+
+    res.status(200).json(responsePayload);
     return;
   }
 
@@ -407,7 +503,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const body = (req.body ?? {}) as AuthRequestBody;
+    const body = parseJsonBody<AuthRequestBody>(req.body);
     const username = (body.username ?? "").trim();
     const password = body.password ?? "";
 

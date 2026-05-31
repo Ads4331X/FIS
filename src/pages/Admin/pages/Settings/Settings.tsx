@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 
 export default function Settings() {
-  const [username, setUsername] = useState("admin");
+  const [currentUsername, setCurrentUsername] = useState("admin");
+  const [newUsername, setNewUsername] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,7 +33,8 @@ export default function Settings() {
         if (!response.ok) return;
         const data = await response.json();
         if (data?.username) {
-          setUsername(String(data.username));
+          setCurrentUsername(String(data.username));
+          setNewUsername("");
         }
       } catch {
         // ignore
@@ -47,15 +49,27 @@ export default function Settings() {
     setMessage(null);
     setNotes([]);
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!currentPassword) {
       setMessage({
         severity: "error",
-        text: "Please fill in all password fields.",
+        text: "Current password is required to update credentials.",
       });
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    const usernameUpdate =
+      newUsername?.trim() && newUsername !== currentUsername;
+    const passwordUpdate = Boolean(newPassword);
+
+    if (!usernameUpdate && !passwordUpdate) {
+      setMessage({
+        severity: "error",
+        text: "Please enter a new username or new password to update.",
+      });
+      return;
+    }
+
+    if (passwordUpdate && newPassword !== confirmPassword) {
       setMessage({
         severity: "error",
         text: "New password and confirmation do not match.",
@@ -70,19 +84,33 @@ export default function Settings() {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
           currentPassword,
-          newPassword,
+          newUsername: usernameUpdate ? newUsername.trim() : undefined,
+          newPassword: passwordUpdate ? newPassword : undefined,
         }),
       });
 
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
+        const successParts: string[] = [];
+        if (usernameUpdate) successParts.push("Username updated");
+        if (passwordUpdate) successParts.push("Password updated");
+
         setMessage({
           severity: "success",
-          text: "Password updated successfully.",
+          text:
+            successParts.length > 0
+              ? `${successParts.join(" and ")}.`
+              : "Credentials updated successfully.",
         });
+        if (
+          typeof data?.username === "string" &&
+          data.username !== currentUsername
+        ) {
+          setCurrentUsername(data.username);
+          setNewUsername(data.username);
+        }
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -91,7 +119,7 @@ export default function Settings() {
 
       if (response.status === 501) {
         setNotes([
-          "Password changes are not enabled for this deployment.",
+          "Username changes are not enabled for this deployment.",
           "Configure ADMIN_USERS_FILE for persistent admin user management.",
         ]);
       }
@@ -101,7 +129,7 @@ export default function Settings() {
         text:
           typeof data?.error?.message === "string"
             ? data.error.message
-            : "Unable to change password. Please check your credentials.",
+            : "Unable to update username. Please check your credentials.",
       });
     } catch (error) {
       setMessage({
@@ -123,18 +151,26 @@ export default function Settings() {
           Admin Settings
         </Typography>
         <Typography sx={{ mb: 3, color: "text.secondary" }}>
-          Use this page to update the admin password for the currently signed-in
-          user. If password changes are not available in your deployment, the
-          backend will show a guidance message.
+          Use this page to update the signed-in admin user's username or
+          password. You can update either one or both fields.
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <Stack spacing={2}>
             <TextField
-              label="Admin Username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              label="Current Username"
+              value={currentUsername}
               fullWidth
+              disabled
+              autoComplete="username"
+            />
+            <TextField
+              label="New Username"
+              value={newUsername}
+              onChange={(event) => setNewUsername(event.target.value)}
+              fullWidth
+              helperText="Enter a new username to update your admin account."
+              autoComplete="username"
               disabled={isSaving}
             />
             <TextField
@@ -144,6 +180,7 @@ export default function Settings() {
               onChange={(event) => setCurrentPassword(event.target.value)}
               fullWidth
               required
+              autoComplete="current-password"
             />
             <TextField
               label="New Password"
@@ -151,7 +188,9 @@ export default function Settings() {
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               fullWidth
-              required
+              helperText="Leave blank to keep the current password."
+              autoComplete="new-password"
+              disabled={isSaving}
             />
             <TextField
               label="Confirm New Password"
@@ -159,7 +198,9 @@ export default function Settings() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               fullWidth
-              required
+              helperText="Confirm only if changing the password."
+              autoComplete="new-password"
+              disabled={isSaving}
             />
 
             {message && (
@@ -176,7 +217,7 @@ export default function Settings() {
             )}
 
             <Button type="submit" variant="contained" disabled={isSaving}>
-              {isSaving ? "Saving…" : "Change Password"}
+              {isSaving ? "Saving…" : "Update Username"}
             </Button>
           </Stack>
         </Box>
