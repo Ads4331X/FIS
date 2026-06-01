@@ -65,10 +65,7 @@ export function ImageManager({
   const loadTimerRef = useRef<number | null>(null);
   const requestIdRef = useRef(0);
 
-  const effectiveFolder = useMemo(
-    () => (viewMode === "category" ? folder : ALL_CATEGORY_VALUE),
-    [viewMode, folder],
-  );
+  const effectiveFolder = viewMode === "category" ? folder : ALL_CATEGORY_VALUE;
 
   const selectedCategory = useMemo(
     () =>
@@ -105,7 +102,7 @@ export function ImageManager({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
     return list;
-  }, [visibleImagesBySearch, viewMode]);
+  }, [visibleImagesBySearch]);
 
   const totalLoadedPages = Math.max(
     1,
