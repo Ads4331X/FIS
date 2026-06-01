@@ -65,19 +65,27 @@ export function ImageManager({
   const loadTimerRef = useRef<number | null>(null);
   const requestIdRef = useRef(0);
 
+  const effectiveFolder = useMemo(
+    () => (viewMode === "category" ? folder : ALL_CATEGORY_VALUE),
+    [viewMode, folder],
+  );
+
   const selectedCategory = useMemo(
     () =>
       FOLDERS.find(
-        (c) => (folder === ALL_CATEGORY_VALUE ? "" : folder) === c.folder,
+        (c) =>
+          (effectiveFolder === ALL_CATEGORY_VALUE ? "" : effectiveFolder) ===
+          c.folder,
       ),
-    [folder],
+    [effectiveFolder],
   );
   const prefixes = useMemo(() => {
-    const effectiveFolder = folder === ALL_CATEGORY_VALUE ? "" : folder;
-    if (!selectedCategory) return effectiveFolder ? [effectiveFolder] : [];
+    const resolvedFolder =
+      effectiveFolder === ALL_CATEGORY_VALUE ? "" : effectiveFolder;
+    if (!selectedCategory) return resolvedFolder ? [resolvedFolder] : [];
     if (!selectedCategory.folder) return [];
     return [selectedCategory.folder];
-  }, [folder, selectedCategory]);
+  }, [effectiveFolder, selectedCategory]);
 
   const visibleImagesBySearch = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -110,21 +118,18 @@ export function ImageManager({
   const sectionTitle = viewMode === "category" ? "By Category" : "All Images";
 
   useEffect(() => {
-    if (viewMode !== "category" && folder !== ALL_CATEGORY_VALUE) {
-      setFolder(ALL_CATEGORY_VALUE);
-    }
-  }, [viewMode, folder]);
-
-  useEffect(() => {
     if (loadTimerRef.current !== null) {
       window.clearTimeout(loadTimerRef.current);
     }
 
     let active = true;
     const requestId = ++requestIdRef.current;
-    setPage(1);
+    // Defer resetting the page to the async timeout callback to avoid
+    // calling setState synchronously inside the effect body which can
+    // trigger cascading renders.
     loadTimerRef.current = window.setTimeout(async () => {
       if (!active) return;
+      setPage(1);
       setLoading(true);
       setLoadMsg("");
       try {
