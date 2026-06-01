@@ -6,7 +6,7 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import EmailIcon from "@mui/icons-material/Email";
-import { siteContact } from "../../constants/siteContact";
+import { siteContact, SITE_NAME } from "../../constants/siteContact";
 import { TikTokIcon } from "../icons/TikTokIcon";
 import { footerNavigationLinks } from "../../constants/navigationLinks";
 
@@ -26,10 +26,10 @@ function Footer() {
           <Box sx={{ maxWidth: 300 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Link component={NavLink} to="/">
-                <img src={FisLogo} alt="logo" width={28} />
+                <img src={FisLogo} alt={SITE_NAME} width={28} />
               </Link>
               <Box sx={{ fontWeight: "bold", color: "#074783" }}>
-                Fairyland Secondary School
+                {SITE_NAME}
               </Box>
             </Box>
 
@@ -159,7 +159,7 @@ function Footer() {
           }}
         >
           <Box sx={{ color: "#777", fontSize: "14px" }}>
-            © {new Date().getFullYear()} Fairyland School. All rights reserved.
+            © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </Box>
 
           {/* socials — same order as Contact aside */}

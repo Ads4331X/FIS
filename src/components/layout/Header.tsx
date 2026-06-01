@@ -6,13 +6,18 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import { useState } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { primaryNavigationLinks } from "../../constants/navigationLinks";
+import { SITE_NAME } from "../../constants/siteContact";
 
 function Header() {
   const isMobile = useMediaQuery("(max-width:820px)");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const applyNowLink = primaryNavigationLinks.find((link) => link.path === "/apply_now");
-  const centeredNavLinks = primaryNavigationLinks.filter((link) => link.path !== "/apply_now");
+  const applyNowLink = primaryNavigationLinks.find(
+    (link) => link.path === "/apply_now",
+  );
+  const centeredNavLinks = primaryNavigationLinks.filter(
+    (link) => link.path !== "/apply_now",
+  );
 
   return (
     <Box
@@ -38,17 +43,38 @@ function Header() {
       >
         {/* Logo */}
         <Box
-          sx={{
-            width: { xs: 46, sm: 52, md: 58 },
-            height: { xs: 46, sm: 52, md: 58 },
-            display: "flex",
-            alignItems: "center",
-            flexShrink: 0,
-          }}
+          sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}
         >
-          <Link to="/" component={NavLink}>
-            <img src={FisLogo} alt="logo" style={{ width: "100%" }} />
+          <Link
+            to="/"
+            component={NavLink}
+            sx={{ display: "flex", alignItems: "center" }}
+          >
+            <Box
+              sx={{
+                width: { xs: 36, sm: 42, md: 48 },
+                height: { xs: 36, sm: 42, md: 48 },
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <img
+                src={FisLogo}
+                alt={SITE_NAME}
+                style={{ width: "100%", height: "auto" }}
+              />
+            </Box>
           </Link>
+          <Box
+            sx={{
+              fontWeight: "bold",
+              color: "#074783",
+              fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
+              whiteSpace: "nowrap",
+            }}
+          >
+            {SITE_NAME}
+          </Box>
         </Box>
 
         {/* Desktop Nav Links — centered absolutely */}

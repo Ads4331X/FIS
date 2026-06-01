@@ -2,6 +2,7 @@
  * Single source of truth for school contact info (Footer, Contact page, maps).
  */
 
+export const SITE_NAME = "Fairyland Secondary School";
 const MAP_QUERY = "Fairyland International School";
 
 export const siteContact = {
