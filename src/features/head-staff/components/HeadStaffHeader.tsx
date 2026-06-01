@@ -16,7 +16,7 @@ export function HeadStaffHeader() {
       </Typography>
       <Typography
         component="p"
-        sx={{
+        sx={{   
           color: "#4B5563",
           mt: 2,
           mx: "auto",
