@@ -776,6 +776,159 @@ export default defineConfig(({ mode }) => {
             }
           });
 
+          const STORAGE_HEAD_STAFF = path.join(
+            process.cwd(),
+            "data",
+            "head-staff.json",
+          );
+
+          const parseBody = async (
+            req: import("node:http").IncomingMessage,
+          ) => {
+            return new Promise<Record<string, unknown> | null>((resolve) => {
+              let body = "";
+              req.on("data", (chunk) => {
+                body += chunk.toString();
+              });
+              req.on("end", () => {
+                try {
+                  resolve(body ? JSON.parse(body) : {});
+                } catch {
+                  resolve(null);
+                }
+              });
+            });
+          };
+
+          const readHeadStaff = (): Array<Record<string, unknown>> => {
+            try {
+              if (!fs.existsSync(STORAGE_HEAD_STAFF)) return [];
+              const content = fs.readFileSync(STORAGE_HEAD_STAFF, "utf8");
+              const parsed = JSON.parse(content);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          };
+
+          const writeHeadStaff = (items: Array<Record<string, unknown>>) => {
+            fs.mkdirSync(path.dirname(STORAGE_HEAD_STAFF), { recursive: true });
+            fs.writeFileSync(
+              STORAGE_HEAD_STAFF,
+              JSON.stringify(items, null, 2),
+              "utf8",
+            );
+          };
+
+          server.middlewares.use("/api/head-staff", async (req, res) => {
+            try {
+              const url = new URL(req.url ?? "", "http://localhost");
+              const pathParts = url.pathname.split("/").filter(Boolean);
+              const itemId = pathParts.length > 2 ? pathParts[2] : undefined;
+              const method = req.method?.toUpperCase();
+
+              if (method === "GET" && !itemId) {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                return res.end(JSON.stringify({ staff: readHeadStaff() }));
+              }
+
+              const body = (await parseBody(req)) ?? {};
+              const name =
+                typeof body.name === "string" ? body.name.trim() : "";
+              const position =
+                typeof body.position === "string" ? body.position.trim() : "";
+              const description =
+                typeof body.description === "string"
+                  ? body.description.trim()
+                  : "";
+              const imageUrl =
+                typeof body.imageUrl === "string" ? body.imageUrl.trim() : "";
+              const items = readHeadStaff();
+
+              if (method === "POST" && !itemId) {
+                if (!name || !position) {
+                  res.statusCode = 400;
+                  return res.end(
+                    JSON.stringify({
+                      error: { message: "Name and position are required." },
+                    }),
+                  );
+                }
+                const record = {
+                  id: crypto.randomBytes(8).toString("hex"),
+                  name,
+                  position,
+                  description,
+                  imageUrl,
+                };
+                items.unshift(record);
+                writeHeadStaff(items);
+                res.statusCode = 201;
+                res.setHeader("Content-Type", "application/json");
+                return res.end(JSON.stringify(record));
+              }
+
+              if (itemId && method === "PUT") {
+                const index = items.findIndex((item) => item.id === itemId);
+                if (index === -1) {
+                  res.statusCode = 404;
+                  res.setHeader("Content-Type", "application/json");
+                  return res.end(
+                    JSON.stringify({
+                      error: { message: "Staff member not found." },
+                    }),
+                  );
+                }
+                if (!name || !position) {
+                  res.statusCode = 400;
+                  res.setHeader("Content-Type", "application/json");
+                  return res.end(
+                    JSON.stringify({
+                      error: { message: "Name and position are required." },
+                    }),
+                  );
+                }
+                items[index] = {
+                  id: itemId,
+                  name,
+                  position,
+                  description,
+                  imageUrl,
+                };
+                writeHeadStaff(items);
+                res.setHeader("Content-Type", "application/json");
+                return res.end(JSON.stringify(items[index]));
+              }
+
+              if (itemId && method === "DELETE") {
+                const next = items.filter((item) => item.id !== itemId);
+                writeHeadStaff(next);
+                res.setHeader("Content-Type", "application/json");
+                return res.end(JSON.stringify({ ok: true }));
+              }
+
+              res.setHeader("Allow", "GET, POST, PUT, DELETE");
+              res.statusCode = 405;
+              res.setHeader("Content-Type", "application/json");
+              res.end(
+                JSON.stringify({ error: { message: "Method not allowed." } }),
+              );
+            } catch (error) {
+              res.statusCode = 500;
+              res.end(
+                JSON.stringify({
+                  error: {
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to load head staff.",
+                  },
+                }),
+              );
+            }
+          });
+
           // ── /api/delete ──────────────────────────────────────────────────
           server.middlewares.use("/api/delete", async (req, res) => {
             try {

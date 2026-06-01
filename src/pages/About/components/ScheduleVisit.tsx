@@ -161,7 +161,7 @@ export function ScheduleVisit() {
             <Button
               disableRipple
               variant="contained"
-              href={admissionOpen ? "/apply_now" : undefined}
+              href={admissionOpen ? "/apply-now" : undefined}
               disabled={!admissionOpen}
               endIcon={<ArrowRightAltIcon />}
               sx={{

@@ -58,7 +58,7 @@ export function GalleryCta() {
           <Button
             disableRipple
             variant="contained"
-            href="/apply_now"
+            href="/apply-now"
             sx={{
               backgroundColor: "#BA1A20",
               color: "white",

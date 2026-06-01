@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { createElement } from "react";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 export type AdminSection = {
@@ -19,6 +20,13 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     path: "/admin/noticeboard",
     icon: createElement(CampaignOutlinedIcon, { fontSize: "small" }),
     subtitle: "Update, edit, and manage school-wide announcements.",
+  },
+  {
+    key: "head-staff",
+    label: "Head Staff",
+    path: "/admin/head-staff",
+    icon: createElement(GroupOutlinedIcon, { fontSize: "small" }),
+    subtitle: "Add, update, and remove head staff records for the home page.",
   },
   {
     key: "gallerymanagement",

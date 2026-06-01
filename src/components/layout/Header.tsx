@@ -13,10 +13,10 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const applyNowLink = primaryNavigationLinks.find(
-    (link) => link.path === "/apply_now",
+    (link) => link.path === "/apply-now",
   );
   const centeredNavLinks = primaryNavigationLinks.filter(
-    (link) => link.path !== "/apply_now",
+    (link) => link.path !== "/apply-now",
   );
 
   return (

@@ -13,7 +13,7 @@ export default function PrincipalMessage() {
       >
         <Box
           component="img"
-          src="/images/principal.jpg"
+          src="/images/head-staff/principal.jpg"
           alt="Principal photo"
           sx={{
             width: "100%",

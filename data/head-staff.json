@@ -1,0 +1,23 @@
+[
+  {
+    "id": "principal",
+    "name": "Mrs. Priya Patel",
+    "position": "Principal",
+    "description": "Oversees academic operations and student development.",
+    "imageUrl": "/images/head-staff/principal.jpg"
+  },
+  {
+    "id": "vice-principal",
+    "name": "Ms. Deepa Verma",
+    "position": "Vice Principal",
+    "description": "Supports curriculum delivery and academic planning.",
+    "imageUrl": ""
+  },
+  {
+    "id": "activities-head",
+    "name": "Mrs. Kavita Joshi",
+    "position": "Head of Activities",
+    "description": "Leads clubs, events and student enrichment programs.",
+    "imageUrl": ""
+  }
+]

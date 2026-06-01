@@ -120,7 +120,7 @@ export default function HomeHero() {
                 transform: "translateY(-2px)",
               },
             }}
-            href="/apply_now"
+            href="/apply-now"
           >
             Start Your Journey <ArrowRightAltOutlinedIcon fontSize="medium" />
           </Button>

@@ -10,7 +10,7 @@ export const primaryNavigationLinks: NavigationLink[] = [
   { label: "Gallery", path: "/gallery" },
   { label: "Notices", path: "/notices" },
   { label: "Contact", path: "/contact" },
-  { label: "Apply Now", path: "/apply_now" },
+  { label: "Apply Now", path: "/apply-now" },
 ];
 
 export const footerNavigationLinks: NavigationLink[] =

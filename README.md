@@ -25,7 +25,7 @@ A modern, responsive school website built with React, TypeScript, and Material U
 | `/academics` | Academics — curriculum, vision, results    |
 | `/gallery`   | Gallery — Cloudinary-powered photo gallery |
 | `/contact`   | Contact — form, map, contact info          |
-| `/apply_now` | Admission — application form               |
+| `/apply-now` | Admission — application form               |
 
 ---
 

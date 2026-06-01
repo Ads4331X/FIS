@@ -88,7 +88,7 @@ export default function ReadyToJoin() {
               <Button
                 disableRipple
                 variant="contained"
-                href="/apply_now"
+                href="/apply-now"
                 sx={{
                   backgroundColor: "#BA1A20",
                   color: "white",
@@ -140,27 +140,41 @@ export default function ReadyToJoin() {
             sx={{
               position: "relative",
               overflow: "hidden",
-              minHeight: { xs: 220, sm: 300, md: "100%" }, 
+              minHeight: { xs: 220, sm: 300, md: "100%" },
             }}
           >
+            {/* Image */}
+            {/* Image */}
             <Box
               sx={{
                 position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                top: 0,
+                bottom: 0,
+                left: "-30px", // extend image under left side
+                right: 0,
                 backgroundImage: "url('/images/readytojoin.png')",
                 backgroundSize: "cover",
-                backgroundPosition: "center",
+                backgroundPosition: "20% center",
                 backgroundRepeat: "no-repeat",
               }}
             />
+
+            {/* Smooth blend */}
             <Box
               sx={{
                 position: "absolute",
                 inset: 0,
-                background:
-                  "linear-gradient(to right, rgba(0,28,58,0.85), rgba(0,28,58,0.4), rgba(0,28,58,0))",
+                background: `
+        linear-gradient(
+          90deg,
+          #001C3A 0%,
+          rgba(0, 28, 58, 0.85) 15%,
+          rgba(0, 28, 58, 0.55) 30%,
+          rgba(0, 28, 58, 0.25) 50%,
+          rgba(0, 28, 58, 0.08) 70%,
+          transparent 100%
+        )
+      `,
               }}
             />
           </Grid>

@@ -15,6 +15,7 @@ import Gallery from "../pages/Gallery/Gallery";
 import Notices from "../pages/Notices/Notices";
 import Admin from "../pages/Admin/Admin";
 import GalleryManagement from "../pages/Admin/pages/GalleryManagement/GalleryManagement";
+import HeadStaffManagement from "../pages/Admin/pages/HeadStaffManagement/HeadStaffManagement";
 import NoticeBoard from "../pages/Admin/pages/NoticeBoard/NoticeBoard";
 import Settings from "../pages/Admin/pages/Settings/Settings";
 
@@ -30,16 +31,17 @@ function App() {
       "/gallery": "Gallery",
       "/notices": "Notices",
       "/contact": "Contact",
-      "/apply_now": "Admission",
+      "/apply-now": "Admission",
       "/admin": "Admin",
       "/admin/noticeboard": "Admin - Notice Board",
+      "/admin/head-staff": "Admin - Head Staff",
       "/admin/gallerymanagement": "Admin - Gallery Management",
       "/admin/settings": "Admin - Settings",
     };
 
-    const currentPageTitle =
+    const title =
       pageTitles[location.pathname] ?? "Fairyland International School";
-    document.title = `${currentPageTitle} | Fairyland International School`;
+    document.title = `${title} | Fairyland International School`;
   }, [location.pathname]);
 
   return (
@@ -50,6 +52,7 @@ function App() {
         <Route path="/admin" element={<Admin />}>
           <Route index element={<Navigate to="noticeboard" replace />} />
           <Route path="noticeboard" element={<NoticeBoard />} />
+          <Route path="head-staff" element={<HeadStaffManagement />} />
           <Route path="gallerymanagement" element={<GalleryManagement />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="noticeboard" replace />} />
@@ -59,7 +62,7 @@ function App() {
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/notices" element={<Notices />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/apply_now" element={<Admission />} />
+        <Route path="/apply-now" element={<Admission />} />
       </Routes>
       {!isAdminRoute && <Footer />}
       <ScrollToTop />
