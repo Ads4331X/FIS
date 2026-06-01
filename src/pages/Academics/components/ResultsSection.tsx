@@ -4,12 +4,16 @@ import { StatGrid } from "../../../components/ui/StatGrid";
 const resultItems = [
   { label: "SEE Pass Rate", value: "100%" },
   { label: "Distinction Holders", value: "35+" },
-  { label: "Top GPA", value: "4.0" },
+  { label: "Top GPA", value: "3.95" },
 ];
 
 export function ResultsSection({ sectionId }: { sectionId?: string }) {
   return (
-    <Box id={sectionId} component="section" sx={{ py: { xs: 6, md: 8 }, bgcolor: "#f8fafc" }}>
+    <Box
+      id={sectionId}
+      component="section"
+      sx={{ py: { xs: 6, md: 8 }, bgcolor: "#f8fafc" }}
+    >
       <Container maxWidth="lg">
         <Box
           component="h2"
@@ -34,7 +38,8 @@ export function ResultsSection({ sectionId }: { sectionId?: string }) {
             mb: 3.5,
           }}
         >
-          Consistent outcomes from disciplined teaching, guided practice, and focused board preparation.
+          Consistent outcomes from disciplined teaching, guided practice, and
+          focused board preparation.
         </Box>
 
         <StatGrid items={resultItems} sx={{ py: 0 }} />
