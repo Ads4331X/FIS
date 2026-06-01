@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect } from "react";
-import { Fab, Fade, useMediaQuery, useScrollTrigger, useTheme } from "@mui/material";
+import {
+  Fab,
+  Fade,
+  useMediaQuery,
+  useScrollTrigger,
+  useTheme,
+} from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useLocation } from "react-router-dom";
 
@@ -37,7 +43,7 @@ function ScrollToTop() {
 
   const handleClick = useCallback(() => {
     const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
     window.scrollTo({
