@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
-import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import { StatGrid } from "../../components/ui/StatGrid";
 import HomeHero from "./components/HomeHero";
 import AcademicExcellence from "./components/AcademicExcellence";
