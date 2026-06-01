@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Box, Button, CircularProgress, Container, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Typography,
+} from "@mui/material";
 import { fetchImages, type GalleryImage } from "../../services/Cloudinary";
 import { CategoryFilter } from "./components/CategoryFilter";
 import { GalleryGrid } from "./components/GalleryGrid";
@@ -36,7 +42,8 @@ export default function Gallery() {
       setLoading(true);
       setError("");
       try {
-        const { images: imgs, nextCursor: cursor } = await fetchImages(activeCategory);
+        const { images: imgs, nextCursor: cursor } =
+          await fetchImages(activeCategory);
         if (!active || requestId !== requestIdRef.current) return;
         setImages(imgs);
         setNextCursor(cursor);
@@ -67,7 +74,7 @@ export default function Gallery() {
     try {
       const { images: moreImages, nextCursor: newCursor } = await fetchImages(
         activeCategory,
-        nextCursor
+        nextCursor,
       );
       if (requestId !== requestIdRef.current) return;
       setImages((prev) => [...prev, ...moreImages]);
@@ -93,8 +100,18 @@ export default function Gallery() {
 
   return (
     <Box sx={{ bgcolor: "#F5F7FB", minHeight: "100vh" }}>
-      <Container maxWidth="xl" sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 4, md: 6 } }}>
-        <Box sx={{ textAlign: "center", maxWidth: 860, mx: "auto", mb: { xs: 3, md: 4 } }}>
+      <Container
+        maxWidth="xl"
+        sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 4, md: 6 } }}
+      >
+        <Box
+          sx={{
+            textAlign: "center",
+            maxWidth: 860,
+            mx: "auto",
+            mb: { xs: 3, md: 4 },
+          }}
+        >
           <Typography
             component="h1"
             sx={{
@@ -114,7 +131,8 @@ export default function Gallery() {
               lineHeight: 1.8,
             }}
           >
-            Explore the vibrant life at {SITE_NAME} through our visual journey of discovery and growth.
+            Explore the vibrant life at {SITE_NAME} through our visual journey
+            of discovery and growth.
           </Typography>
         </Box>
 

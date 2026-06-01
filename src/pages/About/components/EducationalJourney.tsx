@@ -107,8 +107,8 @@ const items = [
         <Title>Primary Exploration</Title>
         <Desc>
           Thematic, activity-rich learning for Classes 1–5 that strengthens
-          literacy, numeracy, science, and social confidence through inquiry
-          and collaboration.
+          literacy, numeracy, science, and social confidence through inquiry and
+          collaboration.
         </Desc>
       </Box>
     ),

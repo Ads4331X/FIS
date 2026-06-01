@@ -20,10 +20,7 @@ export function AcademicsHero({
           Shaping Tomorrow&apos;s Leaders{" "}
           <Box component="span" sx={{ fontWeight: 800 }}>
             with{" "}
-            <Box
-              component="span"
-              sx={{ color: "rgba(247, 250, 255, 0.98)" }}
-            >
+            <Box component="span" sx={{ color: "rgba(247, 250, 255, 0.98)" }}>
               Integrity
             </Box>
           </Box>
@@ -65,7 +62,10 @@ export function AcademicsHero({
               borderRadius: "10px",
               fontWeight: 700,
               textTransform: "none",
-              "&:hover": { borderColor: "#fff", backgroundColor: "rgba(255,255,255,0.08)" },
+              "&:hover": {
+                borderColor: "#fff",
+                backgroundColor: "rgba(255,255,255,0.08)",
+              },
             }}
           >
             Our Vision
