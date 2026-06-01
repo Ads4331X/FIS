@@ -207,7 +207,7 @@ export function ScheduleVisit() {
                 "&:active": { transform: "scale(0.96)" },
               }}
             >
-              Download Brochure
+              Download Prospectus
             </Button>
           </Box>
 

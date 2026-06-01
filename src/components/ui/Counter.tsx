@@ -27,7 +27,7 @@ export function Counter() {
         }
 
         if (r3.current) {
-          new CountUp(r3.current, 15, { suffix: "+" }).start();
+          new CountUp(r3.current, 10, { suffix: "+" }).start();
         }
 
         observer.disconnect();

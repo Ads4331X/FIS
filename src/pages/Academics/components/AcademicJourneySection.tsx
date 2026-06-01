@@ -7,7 +7,7 @@ type StatItem = { label: string; value: number; suffix?: string };
 const secondaryStats: StatItem[] = [
   { label: "Pass Rate", value: 100, suffix: "%" },
   { label: "Students", value: 115, suffix: "+" },
-  { label: "Clubs", value: 20, suffix: "+" },
+  { label: "Clubs", value: 10, suffix: "+" },
 ];
 
 function StatsStrip({
@@ -130,7 +130,11 @@ export function AcademicJourneySection({ sectionId }: { sectionId?: string }) {
       imgWidth: "42%",
       cardRef: secondaryCardRef,
       extra: (
-        <StatsStrip stats={secondaryStats} active={active} animated={animated} />
+        <StatsStrip
+          stats={secondaryStats}
+          active={active}
+          animated={animated}
+        />
       ),
     },
   ];
