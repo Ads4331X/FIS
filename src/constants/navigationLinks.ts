@@ -5,7 +5,7 @@ export type NavigationLink = {
 
 export const primaryNavigationLinks: NavigationLink[] = [
   { label: "Home", path: "/" },
-  { label: "About Us", path: "/about_us" },
+  { label: "About Us", path: "/about-us" },
   { label: "Academics", path: "/academics" },
   { label: "Gallery", path: "/gallery" },
   { label: "Notices", path: "/notices" },

@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     const pageTitles: Record<string, string> = {
       "/": "Home",
-      "/about_us": "About Us",
+      "/about-us": "About Us",
       "/academics": "Academics",
       "/gallery": "Gallery",
       "/notices": "Notices",
@@ -54,7 +54,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="noticeboard" replace />} />
         </Route>
-        <Route path="/about_us" element={<About />} />
+        <Route path="/about-us" element={<About />} />
         <Route path="/academics" element={<Academics />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/notices" element={<Notices />} />

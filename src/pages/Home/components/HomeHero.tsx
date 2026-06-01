@@ -3,9 +3,8 @@ import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 
-const HERO_BADGE_TEXT =
-  import.meta.env.VITE_HOME_HERO_BADGE?.trim() ||
-  "Ranked #1 In Academic Progress 2023";
+// const HERO_BADGE_TEXT = import.meta.env.VITE_HOME_HERO_BADGE?.trim();
+// "Ranked #1 In Academic Progress 2023";
 
 export default function HomeHero() {
   return (
@@ -170,8 +169,7 @@ export default function HomeHero() {
             },
           }}
         />
-
-        {/* badge */}
+        {/* badge
         <Box
           sx={{
             position: "absolute",
@@ -195,7 +193,7 @@ export default function HomeHero() {
           }}
         >
           {HERO_BADGE_TEXT}
-        </Box>
+        </Box> */}
       </Box>
     </Container>
   );

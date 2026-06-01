@@ -21,7 +21,7 @@ A modern, responsive school website built with React, TypeScript, and Material U
 | Route | Description |
 |---|---|
 | `/` | Home — hero, stats, academic overview, CTA |
-| `/about_us` | About — mission, timeline, schedule visit |
+| `/about-us` | About — mission, timeline, schedule visit |
 | `/academics` | Academics — curriculum, vision, results |
 | `/gallery` | Gallery — Cloudinary-powered photo gallery |
 | `/contact` | Contact — form, map, contact info |

@@ -6,6 +6,7 @@ import { StatGrid } from "../../components/ui/StatGrid";
 import HomeHero from "./components/HomeHero";
 import AcademicExcellence from "./components/AcademicExcellence";
 import ReadyToJoin from "./components/ReadyToJoin";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 
 const homeStats = [
   {
@@ -19,9 +20,9 @@ const homeStats = [
     label: "Board Examination Results",
   },
   {
-    icon: <EmojiEventsOutlinedIcon sx={{ fontSize: 40 }} />,
-    value: "25+",
-    label: "Extracurricular Activities",
+    icon: <SchoolOutlinedIcon sx={{ fontSize: 40 }} />,
+    value: "15+",
+    label: "Years of Experience",
   },
 ];
 
