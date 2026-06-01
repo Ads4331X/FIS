@@ -133,9 +133,9 @@ export function ScheduleVisit() {
               mx: "auto",
             }}
           >
-            Join a community dedicated to academic rigor, creative expression,
-            and moral integrity — where every child is seen, heard, and
-            inspired.
+            Join a community in pollution free Kapan dedicated to academic
+            rigour, creative expression, and moral integrity where every child
+            is seen, heard, and inspired.
           </Box>
 
           {/* buttons */}

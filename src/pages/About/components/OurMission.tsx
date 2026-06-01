@@ -1,6 +1,7 @@
 import { Box, Container } from "@mui/material";
 import { Counter } from "../../../components/ui/Counter";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import { SITE_NAME } from "../../../constants/siteContact";
 
 export function OurMission() {
   return (
@@ -76,11 +77,11 @@ export function OurMission() {
                 lineHeight: 1.7,
               }}
             >
-              Fairyland Secondary School was founded in 2009 with a singular
-              vision: to create an educational sanctuary where every child feels
-              empowered to explore their potential. We blend traditional values
-              with modern pedagogical approaches to prepare students for a
-              rapidly changing world.
+              {SITE_NAME} was founded in 2009 with a singular vision: to create
+              an educational sanctuary where every child is supported through
+              thematic, hands-on learning. We combine Montessori-inspired early
+              childhood practice, inquiry-based methods, and strong character
+              values to prepare students for a changing world.
             </Box>
           </Box>
 

@@ -79,7 +79,7 @@ function Header() {
           </Box>
         </Box>
 
-        {/* Desktop Nav — flex, shrinks with viewport, no wrapping */}
+        {/* Desktop Nav   flex, shrinks with viewport, no wrapping */}
         {!isMobile && (
           <Box
             component="nav"

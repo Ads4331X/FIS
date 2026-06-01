@@ -162,7 +162,7 @@ export default function Form({
           sx={{ mb: 2, wordBreak: "break-word" }}
           onClose={() => setStatus("idle")}
         >
-          Thank you — your message was submitted. We will get back to you soon.
+          Thank you your message was submitted. We will get back to you soon.
         </Alert>
       )}
       {status === "error" && (

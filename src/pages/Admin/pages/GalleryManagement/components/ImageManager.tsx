@@ -207,7 +207,7 @@ export function ImageManager({
       setDeleteMsg("Image deleted.");
       setTimeout(() => setDeleteMsg(""), 3000);
     } catch {
-      setDeleteMsg("Delete failed — please remove from Cloudinary dashboard.");
+      setDeleteMsg("Delete failed   please remove from Cloudinary dashboard.");
       setTimeout(() => setDeleteMsg(""), 5000);
     } finally {
       setDeleting(null);

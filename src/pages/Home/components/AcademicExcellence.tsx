@@ -8,7 +8,7 @@ const cards = [
     badgeSx: { backgroundColor: "#E3F2FD", color: "#074783" },
     title: "Nursery & Pre-School",
     description:
-      "Fostering curiosity through play-based learning and social development in a safe, vibrant space.",
+      "Montessori-inspired Nursery and Pre-School with sensory discovery, practical life routines, and early social learning.",
     sx: { color: "#454748" },
     gridSize: { xs: 12, sm: 12, md: 4 },
   },
@@ -17,7 +17,7 @@ const cards = [
     badgeSx: { backgroundColor: "#E8F5E9", color: "#2E7D32" },
     title: "Classes 1 to 5",
     description:
-      "Building strong fundamentals in literacy, numeracy, and scientific inquiry through interactive learning tools and dedicated guidance.",
+      "Thematic, interactive learning for Classes 1–5 that strengthens literacy, numeracy, science, and creative thinking.",
     sx: { backgroundColor: "#00315E", color: "#7FADF0" },
     titleSx: { color: "#fff" },
     gridSize: { xs: 12, sm: 12, md: 8 },
@@ -28,7 +28,7 @@ const cards = [
     badgeSx: { backgroundColor: "#FFF3E0", color: "#EF6C00" },
     title: "Classes 6 to 10",
     description:
-      "Rigorous academic training and regular assessment cycles to ensure every student hits their peak potential.",
+      "Structured support for Classes 6–10 with inquiry-based lessons and a balanced co-curricular approach to help students thrive.",
     sx: { backgroundColor: "#e8edf0", color: "#454748" },
     titleSx: { color: "#074783" },
     gridSize: { xs: 12, sm: 12, md: 8 },
@@ -37,7 +37,7 @@ const cards = [
   {
     title: "Board Prep Program",
     description:
-      "Specialized streams in Science, Commerce, and Humanities...",
+      "Balanced academic support and enrichment rooted in thoughtful practice, character development, and co-curricular engagement.",
     sx: { color: "white", backgroundColor: "red", fontSize: "0.7rem" },
     gridSize: { xs: 12, sm: 12, md: 4 },
     extra: (

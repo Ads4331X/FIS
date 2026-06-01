@@ -2,11 +2,11 @@
  * Single source of truth for school contact info (Footer, Contact page, maps).
  */
 
-export const SITE_NAME = "Fairyland Secondary School";
+export const SITE_NAME = "Fairyland International School";
 const MAP_QUERY = "Fairyland International School";
 
 export const siteContact = {
-  addressDisplay: "Kapan, Jyotinagar",
+  addressDisplay: "Baluwakhani, Kapan, Budhanilakantha-10, Kathmandu",
 
   /** Same URL as Footer “Contact” location click */
   mapOpenUrl:

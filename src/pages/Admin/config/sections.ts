@@ -26,7 +26,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     path: "/admin/gallerymanagement",
     icon: createElement(PhotoLibraryOutlinedIcon, { fontSize: "small" }),
     subtitle:
-      "Organize and curate the digital memories of Fairyland Secondary.",
+      "Organize and curate the digital memories of Fairyland International School.",
   },
   {
     key: "settings",

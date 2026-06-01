@@ -162,7 +162,7 @@ function Footer() {
             © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </Box>
 
-          {/* socials — same order as Contact aside */}
+          {/* socials   same order as Contact aside */}
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <Link
               href={siteContact.social.facebook}

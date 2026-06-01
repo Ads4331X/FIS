@@ -2,6 +2,7 @@ import { Box, Container, Button } from "@mui/material";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import { SITE_NAME } from "../../../constants/siteContact";
 
 // const HERO_BADGE_TEXT = import.meta.env.VITE_HOME_HERO_BADGE?.trim();
 // "Ranked #1 In Academic Progress 2023";
@@ -72,10 +73,8 @@ export default function HomeHero() {
               color: "red",
             }}
           >
-            {" "}
-            Fairyland
-          </Box>{" "}
-          Secondary School{" "}
+            {SITE_NAME}
+          </Box>
         </Box>
         {/* short description */}
         <Box

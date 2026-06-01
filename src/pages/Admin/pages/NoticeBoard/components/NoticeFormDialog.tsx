@@ -25,7 +25,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import LinkIcon from "@mui/icons-material/Link";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
-import { deleteImage, uploadNoticeFile, uploadNoticeImageUrl, uploadNoticeRecord } from "../../../../../services/Cloudinary";
+import {
+  deleteImage,
+  uploadNoticeFile,
+  uploadNoticeImageUrl,
+  uploadNoticeRecord,
+} from "../../../../../services/Cloudinary";
 import {
   NOTICE_CATEGORIES,
   NOTICE_STATUSES,
@@ -39,7 +44,10 @@ type NoticeFormDialogProps = {
   notice: Notice | null;
   onClose: () => void;
   onSave: (
-    notice: Omit<Notice, "id" | "postedAt"> & { id?: string; postedAt?: string },
+    notice: Omit<Notice, "id" | "postedAt"> & {
+      id?: string;
+      postedAt?: string;
+    },
   ) => void;
 };
 
@@ -84,12 +92,18 @@ type NoticeFormContentsProps = {
   onSave: NoticeFormDialogProps["onSave"];
 };
 
-function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps) {
+function NoticeFormContents({
+  notice,
+  onClose,
+  onSave,
+}: NoticeFormContentsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPublishedLocked = notice?.status === "published";
 
   const [title, setTitle] = useState(() => notice?.title ?? "");
-  const [description, setDescription] = useState(() => notice?.description ?? "");
+  const [description, setDescription] = useState(
+    () => notice?.description ?? "",
+  );
   const [category, setCategory] = useState<NoticeCategory>(
     () => notice?.category ?? "Event",
   );
@@ -145,7 +159,8 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
     const previousCloudinaryId = notice?.cloudinaryId ?? notice?.id;
     let cloudinaryId: string | undefined = notice?.cloudinaryId;
     let resourceType: string | undefined = notice?.resourceType;
-    let finalImageUrl = imageMode === "none" ? undefined : imageUrl.trim() || undefined;
+    let finalImageUrl =
+      imageMode === "none" ? undefined : imageUrl.trim() || undefined;
 
     if (shouldSyncToCloudinary) {
       setUploading(true);
@@ -157,7 +172,7 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           if (notice?.resourceType === "raw" && notice?.cloudinaryId) {
             await deleteImage(notice.cloudinaryId, "raw");
           }
-          // Upload image file — resourceType will be "image"
+          // Upload image file   resourceType will be "image"
           const result = await uploadNoticeFile(selectedFile, {
             title,
             category,
@@ -210,7 +225,7 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           if (notice?.resourceType === "image" && notice?.cloudinaryId) {
             await deleteImage(notice.cloudinaryId, "image");
           }
-          // Upload metadata record — resourceType will be "raw"
+          // Upload metadata record   resourceType will be "raw"
           const result = await uploadNoticeRecord({
             title,
             category,
@@ -245,7 +260,7 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
       }
     }
 
-    // Blob preview URLs are temporary — don't persist them for drafts
+    // Blob preview URLs are temporary   don't persist them for drafts
     if (!shouldSyncToCloudinary && imageMode === "upload") {
       finalImageUrl = undefined;
     }
@@ -282,7 +297,10 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <DialogContent
+        dividers
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      >
         {submitError && <Alert severity="error">{submitError}</Alert>}
         <TextField
           label="Title"
@@ -309,7 +327,9 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
             <Select
               label="Category"
               value={category}
-              onChange={(event) => setCategory(event.target.value as NoticeCategory)}
+              onChange={(event) =>
+                setCategory(event.target.value as NoticeCategory)
+              }
             >
               {NOTICE_CATEGORIES.map((option) => (
                 <MenuItem key={option} value={option}>
@@ -323,7 +343,9 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
             <Select
               label="Status"
               value={status}
-              onChange={(event) => setStatus(event.target.value as NoticeStatus)}
+              onChange={(event) =>
+                setStatus(event.target.value as NoticeStatus)
+              }
             >
               {NOTICE_STATUSES.map((option) => (
                 <MenuItem
@@ -338,7 +360,10 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
           </FormControl>
         </Stack>
         {isPublishedLocked && (
-          <Typography variant="caption" sx={{ color: "text.secondary", mt: -1 }}>
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary", mt: -1 }}
+          >
             Published notices cannot be moved back to draft.
           </Typography>
         )}
@@ -367,7 +392,10 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
               <LinkIcon fontSize="small" sx={{ mr: 0.5 }} />
               URL
             </ToggleButton>
-            <ToggleButton value="upload" sx={{ textTransform: "none", px: 1.5 }}>
+            <ToggleButton
+              value="upload"
+              sx={{ textTransform: "none", px: 1.5 }}
+            >
               <CloudUploadIcon fontSize="small" sx={{ mr: 0.5 }} />
               Upload
             </ToggleButton>
@@ -415,7 +443,8 @@ function NoticeFormContents({ notice, onClose, onSave }: NoticeFormContentsProps
               </Button>
               {selectedFile && (
                 <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                  This file will be uploaded to Cloudinary when you post the notice.
+                  This file will be uploaded to Cloudinary when you post the
+                  notice.
                 </Typography>
               )}
               {uploadError && <Alert severity="error">{uploadError}</Alert>}

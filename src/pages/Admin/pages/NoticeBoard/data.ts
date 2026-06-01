@@ -110,7 +110,7 @@ export function generateNoticeId(): string {
 
 export function formatNoticeDate(iso: string): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return " ";
   return date.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -120,7 +120,7 @@ export function formatNoticeDate(iso: string): string {
 
 export function formatRelativeTime(iso: string): string {
   const target = new Date(iso).getTime();
-  if (Number.isNaN(target)) return "—";
+  if (Number.isNaN(target)) return " ";
   const diffMs = Date.now() - target;
   const diffMin = Math.round(diffMs / 60000);
   if (diffMin < 1) return "just now";

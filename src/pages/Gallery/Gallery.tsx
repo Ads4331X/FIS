@@ -5,6 +5,7 @@ import { CategoryFilter } from "./components/CategoryFilter";
 import { GalleryGrid } from "./components/GalleryGrid";
 import { Lightbox } from "./components/Lightbox";
 import { GalleryCta } from "./components/GalleryCta";
+import { SITE_NAME } from "../../constants/siteContact";
 
 export default function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -113,7 +114,7 @@ export default function Gallery() {
               lineHeight: 1.8,
             }}
           >
-            Explore the vibrant life at Fairyland Secondary School through our visual journey of discovery and growth.
+            Explore the vibrant life at {SITE_NAME} through our visual journey of discovery and growth.
           </Typography>
         </Box>
 

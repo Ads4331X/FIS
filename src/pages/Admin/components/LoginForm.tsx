@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import { SITE_NAME } from "../../../constants/siteContact";
 
 type LoginFormProps = {
   onLogin: () => void;
@@ -80,7 +81,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               Admin Panel
             </Typography>
             <Typography sx={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-              Fairyland Secondary School
+              {SITE_NAME}
             </Typography>
           </Box>
         </Box>

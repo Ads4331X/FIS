@@ -22,7 +22,7 @@ const contactStats = [
   },
   {
     icon: <EmojiEventsOutlinedIcon sx={{ fontSize: 40 }} />,
-    value: "15+",
+    value: "10+",
     label: "Extra-curricular Clubs",
   },
 ];

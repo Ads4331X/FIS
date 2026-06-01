@@ -295,7 +295,7 @@ export async function uploadImage(
       }
     };
 
-    xhr.onerror = () => reject(new Error("Upload failed — network error."));
+    xhr.onerror = () => reject(new Error("Upload failed   network error."));
     xhr.send(formData);
   });
 }
@@ -407,7 +407,7 @@ export async function uploadNoticeFile(
     };
 
     xhr.onerror = () =>
-      reject(new Error("Notice upload failed — network error."));
+      reject(new Error("Notice upload failed   network error."));
     xhr.send(formData);
   });
 }
@@ -699,7 +699,7 @@ export async function fetchNotices(
  *
  * FIX: Previously this tried to infer resource_type from the publicId extension,
  * but Cloudinary public_ids never include extensions, so it always fell back to
- * "image" — causing a 400 for raw assets (e.g. notice JSON files).
+ * "image"   causing a 400 for raw assets (e.g. notice JSON files).
  */
 export async function deleteImage(
   publicId: string,

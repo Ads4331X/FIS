@@ -1,5 +1,6 @@
 import { Box, Button } from "@mui/material";
 import { Hero } from "../../../components/ui/Hero";
+import { SITE_NAME } from "../../../constants/siteContact";
 
 type AcademicsHeroProps = {
   onExploreCurriculum?: () => void;
@@ -28,7 +29,7 @@ export function AcademicsHero({
           </Box>
         </>
       }
-      description="At Fairyland Secondary School, we believe in a holistic curriculum designed to foster excellence through curiosity, discipline, and a commitment to moral values."
+      description={`At ${SITE_NAME}, we believe in a holistic curriculum designed to foster excellence through curiosity, discipline, and a commitment to moral values.`}
       actions={
         <Box
           sx={{

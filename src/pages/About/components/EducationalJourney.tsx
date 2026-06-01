@@ -86,8 +86,9 @@ const items = [
       <Box sx={{ textAlign: "right" }}>
         <Title>Early Foundation</Title>
         <Desc>
-          Play-based learning in Nursery and KG where wonder is nurtured through
-          sensory exploration and social interaction.
+          Montessori-inspired learning in Nursery and KG, with practical life
+          exercises, sensorial play, and discovery activities that support the
+          young learner's absorbent mind.
         </Desc>
       </Box>
     ),
@@ -105,8 +106,9 @@ const items = [
       <Box sx={{ textAlign: "right" }}>
         <Title>Primary Exploration</Title>
         <Desc>
-          Transitioning to formal literacy, numeracy, and environmental studies
-          with a focus on building core academic confidence.
+          Thematic, activity-rich learning for Classes 1–5 that strengthens
+          literacy, numeracy, science, and social confidence through inquiry
+          and collaboration.
         </Desc>
       </Box>
     ),
@@ -116,8 +118,9 @@ const items = [
       <Box sx={{ textAlign: "right" }}>
         <Title>Secondary Excellence</Title>
         <Desc>
-          Advanced curriculum focusing on Science, Arts, and Mathematics,
-          preparing students for board examinations and future careers.
+          Classes 6–10 focus on academic depth, practical inquiry, and
+          co-curricular balance to develop confident learners and responsible
+          citizens.
         </Desc>
       </Box>
     ),

@@ -30,7 +30,7 @@ export default function ContactMap({
       >
         <Box
           component="iframe"
-          title="Fairyland International School — map"
+          title="Fairyland International School   map"
           src={embedUrl}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
