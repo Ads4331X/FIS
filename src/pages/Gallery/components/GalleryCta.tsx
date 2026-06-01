@@ -1,8 +1,11 @@
 import { Box, Button, Container } from "@mui/material";
+import { siteContact } from "../../../constants/siteContact";
 
 export function GalleryCta() {
   return (
-    <Box sx={{ bgcolor: "#F5F7FB", pt: { xs: 5, md: 7 }, pb: { xs: 6, md: 8 } }}>
+    <Box
+      sx={{ bgcolor: "#F5F7FB", pt: { xs: 5, md: 7 }, pb: { xs: 6, md: 8 } }}
+    >
       <Container
         maxWidth="lg"
         disableGutters
@@ -66,7 +69,10 @@ export function GalleryCta() {
               fontWeight: 800,
               transition: "all 0.3s ease",
               "&:hover": { backgroundColor: "#DD3735" },
-              "&:active": { backgroundColor: "#DD3735", transform: "scale(0.96)" },
+              "&:active": {
+                backgroundColor: "#DD3735",
+                transform: "scale(0.96)",
+              },
               "&:focus, &.Mui-focusVisible": { outline: "none" },
             }}
           >
@@ -75,7 +81,14 @@ export function GalleryCta() {
 
           <Button
             disableRipple
-            href="/contact?prospectus=true"
+            onClick={() => {
+              const a = document.createElement("a");
+              a.href = siteContact.prospectusUrl;
+              a.download = siteContact.prospectusFileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }}
             sx={{
               backgroundColor: "rgba(255,255,255,0.1)",
               color: "white",
@@ -100,4 +113,3 @@ export function GalleryCta() {
     </Box>
   );
 }
-

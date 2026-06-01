@@ -22,6 +22,8 @@ export const siteContact = {
   phoneTel: "014164344",
 
   email: "fairylandinternationalschool@gmail.com",
+  prospectusUrl: "/Fairyland_School_Prospectus.pdf",
+  prospectusFileName: "Fairyland_School_Prospectus.pdf",
 
   social: {
     facebook: "https://www.facebook.com/fairyland.schooll/",

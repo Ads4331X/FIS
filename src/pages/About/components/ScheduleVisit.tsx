@@ -1,6 +1,7 @@
 import { Box, Container, Button } from "@mui/material";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import { siteContact } from "../../../constants/siteContact";
 
 function isAdmissionOpen(): boolean {
   const month = new Date().getMonth() + 1;
@@ -9,6 +10,15 @@ function isAdmissionOpen(): boolean {
 
 export function ScheduleVisit() {
   const admissionOpen = isAdmissionOpen();
+
+  const handleDownloadProspectus = () => {
+    const a = document.createElement("a");
+    a.href = siteContact.prospectusUrl;
+    a.download = siteContact.prospectusFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   return (
     <Box
@@ -186,7 +196,7 @@ export function ScheduleVisit() {
 
             <Button
               disableRipple
-              href="/contact"
+              onClick={handleDownloadProspectus}
               endIcon={<DownloadOutlinedIcon />}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.08)",
