@@ -4,6 +4,7 @@ import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import { StatGrid } from "../../components/ui/StatGrid";
 import HomeHero from "./components/HomeHero";
 import AcademicExcellence from "./components/AcademicExcellence";
+import PrincipalMessage from "./components/LeadershipSection";
 import ReadyToJoin from "./components/ReadyToJoin";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 
@@ -39,6 +40,7 @@ export default function Home() {
           }}
         />
       </Box>
+      <PrincipalMessage />
       <AcademicExcellence />
       <ReadyToJoin />
     </Box>

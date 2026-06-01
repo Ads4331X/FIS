@@ -34,8 +34,9 @@ function Footer() {
             </Box>
 
             <Box component="p" sx={{ mt: 2, color: "#555" }}>
-              Developing excellence, character, and leadership since 1998. Our
-              mission is to provide global education grounded in local values.
+              Founded in 2009, we blend Montessori inspired early learning with
+              thematic inquiry and strong character values to develop confident,
+              creative, and responsible students.
             </Box>
           </Box>
 
