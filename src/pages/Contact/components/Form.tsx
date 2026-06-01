@@ -42,7 +42,11 @@ const fieldSx = {
   },
 };
 
-export default function Form({ isVisitRequest = false }: { isVisitRequest?: boolean }) {
+export default function Form({
+  isVisitRequest = false,
+}: {
+  isVisitRequest?: boolean;
+}) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -187,7 +191,7 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
         <TextField
           fullWidth
           label="Full Name"
-          placeholder="John Doe"
+          placeholder="Enter your full name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           sx={fieldSx}
@@ -196,7 +200,7 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
           fullWidth
           type="email"
           label="Email Address"
-          placeholder="john@example.com"
+          placeholder="Enter your email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           sx={fieldSx}
@@ -205,7 +209,7 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
       <TextField
         fullWidth
         label="Subject"
-        placeholder="Inquiry about Admission"
+        placeholder="Enter a subject"
         value={isVisitRequest ? VISIT_SUBJECT : subject}
         onChange={(e) => setSubject(e.target.value)}
         slotProps={{ input: { readOnly: isVisitRequest } }}
@@ -247,7 +251,7 @@ export default function Form({ isVisitRequest = false }: { isVisitRequest?: bool
         multiline
         minRows={5}
         label="Message"
-        placeholder="How can we help you?"
+        placeholder="Enter your message"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         sx={{ ...fieldSx, mb: 2.5 }}

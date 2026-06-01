@@ -48,7 +48,7 @@ const SEED_ACTIVITY: NoticeActivity[] = [
     id: "act-1",
     type: "updated",
     title: "Updated Timetable",
-    detail: "Admin John edited Exam Notice",
+    detail: "Admin edited Exam Notice",
     timestamp: daysAgo(0),
   },
   {
@@ -67,12 +67,27 @@ const SEED_ACTIVITY: NoticeActivity[] = [
   },
 ];
 
+const ACTIVITY_STORAGE_KEY = "fis-notice-activity";
+
 export function loadActivity(): NoticeActivity[] {
-  return SEED_ACTIVITY;
+  if (typeof window === "undefined") return SEED_ACTIVITY;
+
+  try {
+    const stored = window.localStorage.getItem(ACTIVITY_STORAGE_KEY);
+    return stored ? (JSON.parse(stored) as NoticeActivity[]) : SEED_ACTIVITY;
+  } catch {
+    return SEED_ACTIVITY;
+  }
 }
 
-export function saveActivity(_activity: NoticeActivity[]) {
-  return;
+export function saveActivity(activity: NoticeActivity[]) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(activity));
+  } catch {
+    // ignore storage failures
+  }
 }
 
 export function appendActivity(
