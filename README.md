@@ -18,14 +18,14 @@ A modern, responsive school website built with React, TypeScript, and Material U
 
 ## Pages
 
-| Route | Description |
-|---|---|
-| `/` | Home — hero, stats, academic overview, CTA |
-| `/about-us` | About — mission, timeline, schedule visit |
-| `/academics` | Academics — curriculum, vision, results |
-| `/gallery` | Gallery — Cloudinary-powered photo gallery |
-| `/contact` | Contact — form, map, contact info |
-| `/apply_now` | Admission — application form |
+| Route        | Description                                |
+| ------------ | ------------------------------------------ |
+| `/`          | Home — hero, stats, academic overview, CTA |
+| `/about-us`  | About — mission, timeline, schedule visit  |
+| `/academics` | Academics — curriculum, vision, results    |
+| `/gallery`   | Gallery — Cloudinary-powered photo gallery |
+| `/contact`   | Contact — form, map, contact info          |
+| `/apply_now` | Admission — application form               |
 
 ---
 
@@ -126,17 +126,15 @@ npm run preview
 2. Copy your **cloud name**, **API key**, and **API secret** into the `.env` file (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`).
 3. Images are organized into folders:
 
-| Label | Folder |
-|---|---|
-| School | `School` |
-| Events | `School/Events` |
-| Sports | `School/Sports` |
+| Label    | Folder            |
+| -------- | ----------------- |
+| School   | `School`          |
+| Events   | `School/Events`   |
+| Sports   | `School/Sports`   |
 | Students | `School/Students` |
-| Tour | `School/Tour` |
+| Tour     | `School/Tour`     |
 
 ---
-
-
 
 ## Deployment (Vercel)
 
@@ -151,7 +149,7 @@ The `vercel.json` config routes all API calls to the serverless function and all
 {
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)",     "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
 ```
@@ -175,12 +173,12 @@ src/constants/siteContact.ts
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Type-check and build for production |
+| Command           | Description                          |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | Start development server             |
+| `npm run build`   | Type-check and build for production  |
 | `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint |
+| `npm run lint`    | Run ESLint                           |
 
 ---
 

@@ -13,6 +13,5 @@ export const primaryNavigationLinks: NavigationLink[] = [
   { label: "Apply Now", path: "/apply_now" },
 ];
 
-export const footerNavigationLinks: NavigationLink[] = primaryNavigationLinks.filter(
-  (link) => link.path !== "/",
-);
+export const footerNavigationLinks: NavigationLink[] =
+  primaryNavigationLinks.filter((link) => link.path !== "/");
