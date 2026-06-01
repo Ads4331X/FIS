@@ -49,7 +49,7 @@ export default function Academics() {
               mb: 1,
             }}
           >
-            Enroll Now
+            Contact Us
           </Typography>
           <Typography
             sx={{
@@ -61,8 +61,8 @@ export default function Academics() {
               fontSize: { xs: "0.92rem", md: "1rem" },
             }}
           >
-            Share your details and our admissions team will guide you through the
-            next steps.
+            Share your details and our admissions team will guide you through
+            the next steps.
           </Typography>
           <Form />
         </Container>
