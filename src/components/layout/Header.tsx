@@ -26,19 +26,18 @@ function Header() {
         top: 0,
         zIndex: 1000,
         backgroundColor: "white",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
         color: "#1F2937",
-        px: { xs: 2, sm: 3, md: 4 },
-        py: 0,
       }}
     >
       <Container
         maxWidth="xl"
         sx={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          minHeight: { xs: 52, sm: 58, md: 64 },
+          height: { xs: 56, sm: 60, md: 64 },
+          px: { xs: 2, sm: 3, md: 4 },
+          gap: 2,
         }}
       >
         {/* Logo */}
@@ -51,43 +50,47 @@ function Header() {
             sx={{ display: "flex", alignItems: "center" }}
           >
             <Box
+              component="img"
+              src={FisLogo}
+              alt={SITE_NAME}
               sx={{
-                width: { xs: 36, sm: 42, md: 48 },
-                height: { xs: 36, sm: 42, md: 48 },
-                display: "flex",
-                alignItems: "center",
+                width: { xs: 36, sm: 40, md: 44 },
+                height: { xs: 36, sm: 40, md: 44 },
+                objectFit: "contain",
               }}
-            >
-              <img
-                src={FisLogo}
-                alt={SITE_NAME}
-                style={{ width: "100%", height: "auto" }}
-              />
-            </Box>
+            />
           </Link>
           <Box
             sx={{
-              fontWeight: "bold",
+              fontWeight: 800,
               color: "#074783",
-              fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
-              whiteSpace: "nowrap",
+              // clamp: shrinks fluidly between breakpoints
+              fontSize: "clamp(0.7rem, 1.2vw, 1rem)",
+              lineHeight: 1.2,
+              // allow site name to shrink but never disappear
+              flexShrink: 1,
+              minWidth: 0,
+              maxWidth: { xs: 140, sm: 180, md: 220 },
+              // overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
             {SITE_NAME}
           </Box>
         </Box>
 
-        {/* Desktop Nav Links — centered absolutely */}
+        {/* Desktop Nav — flex, shrinks with viewport, no wrapping */}
         {!isMobile && (
           <Box
             component="nav"
             sx={{
               display: "flex",
-              gap: { sm: 0.5, md: 1, lg: 2 },
               alignItems: "center",
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
+              flex: 1,
+              justifyContent: "center",
+              gap: 0,
+              overflow: "hidden",
+              minWidth: 0,
             }}
           >
             {centeredNavLinks.map((item) => (
@@ -97,15 +100,19 @@ function Header() {
                 to={item.path}
                 sx={{
                   color: "#555",
-                  fontSize: { sm: "0.82rem", md: "0.88rem", lg: "0.95rem" },
-                  fontWeight: "bold",
+                  // fluid font: shrinks with viewport
+                  fontSize: "clamp(0.68rem, 0.9vw, 0.9rem)",
+                  fontWeight: 700,
                   textDecoration: "none",
                   display: "flex",
                   alignItems: "center",
-                  padding: { sm: "5px 5px", md: "5px 6px", lg: "6px 8px" },
+                  // fluid padding: tightens on narrower screens
+                  px: "clamp(4px, 0.7vw, 12px)",
+                  py: "6px",
                   borderBottom: "2px solid transparent",
-                  transition: "all 0.3s ease",
-                  whiteSpace: "nowrap",
+                  flexShrink: 1,
+                  transition: "all 0.25s ease",
+                  borderRadius: "4px 4px 0 0",
                   "&:hover": {
                     color: "#074783",
                     borderBottom: "2px solid #074783",
@@ -122,74 +129,65 @@ function Header() {
           </Box>
         )}
 
-        {/* Right side: Apply Now (desktop) or Hamburger (mobile) */}
-        <Box sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-          {/* Apply Now — always visible on desktop (>820px) */}
+        {/* Right side */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexShrink: 0,
+            ml: "auto",
+          }}
+        >
           {!isMobile && applyNowLink && (
             <Link
               component={NavLink}
               to={applyNowLink.path}
               sx={{
                 textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: { sm: "0.82rem", md: "0.88rem", lg: "0.95rem" },
-                fontWeight: "bold",
-                padding: { sm: "6px 10px", md: "7px 12px", lg: "8px 14px" },
+                fontSize: "clamp(0.68rem, 0.9vw, 0.88rem)",
+                fontWeight: 700,
+                px: { sm: "10px", md: "14px", lg: "18px" },
+                py: "8px",
                 borderRadius: "999px",
-                border: "1px solid #074783",
+                border: "2px solid #074783",
                 color: "#074783",
                 backgroundColor: "transparent",
-                transition: "all 0.3s ease",
                 whiteSpace: "nowrap",
-                "&:hover": {
-                  color: "#ffffff",
-                  backgroundColor: "#074783",
-                },
-                "&.active": {
-                  color: "#ffffff",
-                  backgroundColor: "#074783",
-                },
+                transition: "all 0.25s ease",
+                "&:hover": { color: "#ffffff", backgroundColor: "#074783" },
+                "&.active": { color: "#ffffff", backgroundColor: "#074783" },
               }}
             >
               {applyNowLink.label}
             </Link>
           )}
 
-          {/* Hamburger — mobile only */}
           {isMobile && (
             <IconButton
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMenuOpen((prev) => !prev)}
               size="small"
-              sx={{
-                width: 40,
-                height: 40,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
             >
               {menuOpen ? (
-                <MenuOpenIcon sx={{ fontSize: 30 }} />
+                <MenuOpenIcon sx={{ fontSize: 28 }} />
               ) : (
-                <MenuIcon sx={{ fontSize: 30 }} />
+                <MenuIcon sx={{ fontSize: 28 }} />
               )}
             </IconButton>
           )}
         </Box>
       </Container>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Dropdown */}
       {isMobile && (
         <Box
           sx={{
             width: "100%",
             overflow: "hidden",
-            maxHeight: menuOpen ? 400 : 0,
+            maxHeight: menuOpen ? 500 : 0,
             opacity: menuOpen ? 1 : 0,
             transition: "max-height 0.4s ease, opacity 0.3s ease",
+            borderTop: menuOpen ? "1px solid #eee" : "none",
           }}
         >
           {primaryNavigationLinks.map((item) => (
@@ -200,14 +198,15 @@ function Header() {
               sx={{
                 display: "flex",
                 textDecoration: "none",
-                fontWeight: "bold",
+                fontWeight: 700,
                 color: "#1F2937",
                 fontSize: "0.95rem",
-                borderBottom: "1px solid #ddd",
-                padding: "10px 16px",
-                transform: menuOpen ? "translateY(0)" : "translateY(-10px)",
-                transition: "transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-                "&.active": { color: "#074783" },
+                borderBottom: "1px solid #f0f0f0",
+                px: 3,
+                py: "12px",
+                transition: "background 0.2s, color 0.2s",
+                "&:hover": { backgroundColor: "#f0f4ff", color: "#074783" },
+                "&.active": { color: "#074783", backgroundColor: "#f0f4ff" },
               }}
               onClick={() => setMenuOpen(false)}
             >
