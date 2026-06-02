@@ -9,27 +9,27 @@ type Props = {
 export function HeadStaffCard({ member }: Props) {
   return (
     <Card
+      elevation={0}
       sx={{
-        borderRadius: 4,
+        borderRadius: 3,
         overflow: "hidden",
         width: "100%",
         height: "100%",
-
-        boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
-        transition: "0.3s ease",
-
+        backgroundColor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease",
         "&:hover": {
-          transform: "translateY(-6px)",
-          boxShadow: "0 18px 45px rgba(15, 23, 42, 0.15)",
+          transform: "translateY(-4px)",
+          boxShadow: "0 12px 28px rgba(0, 0, 0, 0.08)",
         },
       }}
     >
-      {/* image */}
       <Box
         sx={{
-          aspectRatio: "1 / 1",
+          aspectRatio: "4 / 5",
           overflow: "hidden",
-          bgcolor: "#E2E8F0",
+          bgcolor: "grey.100",
         }}
       >
         <Box
@@ -43,22 +43,23 @@ export function HeadStaffCard({ member }: Props) {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            transition: "0.4s ease",
-            "&:hover": {
-              transform: "scale(1.05)",
+            transition: "transform 0.4s ease",
+            ".swiper-slide:hover &": {
+              transform: "scale(1.04)",
             },
           }}
         />
       </Box>
 
-      <CardContent sx={{ p: 2.5, textAlign: "center" }}>
+      <CardContent sx={{ p: { xs: 2, md: 2.5 }, textAlign: "center" }}>
         <Typography
+          variant="overline"
           sx={{
-            fontSize: "0.75rem",
-            letterSpacing: "0.12em",
-            fontWeight: 700,
+            fontSize: "0.7rem",
+            letterSpacing: "0.15em",
+            fontWeight: 600,
             color: "primary.main",
-            textTransform: "uppercase",
+            display: "block",
             mb: 0.5,
           }}
         >
@@ -66,20 +67,23 @@ export function HeadStaffCard({ member }: Props) {
         </Typography>
 
         <Typography
+          variant="h6"
           sx={{
-            fontSize: "1.15rem",
-            fontWeight: 800,
-            mb: 1,
+            fontSize: { xs: "1rem", md: "1.1rem" },
+            fontWeight: 700,
+            mb: 0.75,
+            color: "text.primary",
           }}
         >
           {member.name}
         </Typography>
 
         <Typography
+          variant="body2"
           sx={{
-            fontSize: "0.9rem",
             color: "text.secondary",
             lineHeight: 1.6,
+            fontSize: { xs: "0.8rem", md: "0.85rem" },
           }}
         >
           {member.description}

@@ -9,22 +9,43 @@ export default function HeadStaffSection() {
   const { staff, loading, error } = useHeadStaff();
 
   return (
-    <Container sx={{ py: { xs: 5, md: 8 } }}>
-      <HeadStaffHeader />
+    <Box
+      component="section"
+      sx={{
+        py: { xs: 5, sm: 7, md: 10 },
+        bgcolor: "background.default",
+        overflow: "hidden",
+      }}
+    >
+      <Container
+        maxWidth="lg"
+        sx={{
+          px: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
+        <HeadStaffHeader />
 
-      <Box sx={{ mt: 4 }}>
-        {loading ? (
-          <HeadStaffSkeleton />
-        ) : error ? (
-          <Alert severity="error" sx={{ maxWidth: 720, mx: "auto" }}>
-            {error}
-          </Alert>
-        ) : staff.length === 0 ? (
-          <HeadStaffEmptyState />
-        ) : (
-          <HeadStaffCarousel staff={staff.slice(0, 6)} />
-        )}
-      </Box>
-    </Container>
+        <Box sx={{ mt: { xs: 3, md: 5 } }}>
+          {loading ? (
+            <HeadStaffSkeleton />
+          ) : error ? (
+            <Alert
+              severity="error"
+              sx={{
+                maxWidth: 600,
+                mx: "auto",
+                borderRadius: 2,
+              }}
+            >
+              {error}
+            </Alert>
+          ) : staff.length === 0 ? (
+            <HeadStaffEmptyState />
+          ) : (
+            <HeadStaffCarousel staff={staff.slice(0, 6)} />
+          )}
+        </Box>
+      </Container>
+    </Box>
   );
 }

@@ -81,7 +81,7 @@ export default function PrincipalMessage() {
               fontSize: { xs: "1rem", md: "1.05rem" },
             }}
           >
-            Mr. Bishnu Chandra Adhakari
+            Mr. Bishnu Chandra Adhikari
           </Typography>
           <Typography
             component="div"
