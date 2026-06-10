@@ -1,59 +1,52 @@
-import { Box, Card, Skeleton } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 
 export function HeadStaffSkeleton() {
   return (
     <Box
       sx={{
         display: "grid",
-        gap: { xs: 2, md: 3 },
         gridTemplateColumns: {
-          xs: "1fr",
-          sm: "repeat(2, 1fr)",
-          md: "repeat(3, 1fr)",
+          xs: "repeat(1, minmax(0, 1fr))",
+          sm: "repeat(2, minmax(0, 1fr))",
+          md: "repeat(3, minmax(0, 1fr))",
         },
+        gap: { xs: 2, sm: 3 },
       }}
     >
-      {[1, 2, 3].map((index) => (
-        <Card
-          key={index}
-          elevation={0}
-          sx={{
-            borderRadius: 3,
-            overflow: "hidden",
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Skeleton
-            variant="rectangular"
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <Box key={i} sx={{ minWidth: 0 }}>
+          <Box
             sx={{
-              height: { xs: 240, sm: 280, md: 300 },
-              bgcolor: "grey.100",
+              display: "flex",
+              flexDirection: "row",
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: "1px solid #e8eef6",
+              borderLeft: "4px solid #c8daf5",
+              height: 110,
             }}
-          />
-          <Box sx={{ p: { xs: 2, md: 2.5 }, textAlign: "center" }}>
+          >
             <Skeleton
-              width="35%"
-              height={14}
-              sx={{ mx: "auto", mb: 1, bgcolor: "grey.200" }}
+              variant="rectangular"
+              sx={{ width: 110, flexShrink: 0, bgcolor: "#e8eef6" }}
             />
-            <Skeleton
-              width="55%"
-              height={22}
-              sx={{ mx: "auto", mb: 1.25, bgcolor: "grey.200" }}
-            />
-            <Skeleton
-              width="85%"
-              height={14}
-              sx={{ mx: "auto", mb: 0.5, bgcolor: "grey.200" }}
-            />
-            <Skeleton
-              width="65%"
-              height={14}
-              sx={{ mx: "auto", bgcolor: "grey.200" }}
-            />
+            <Box
+              sx={{
+                flex: 1,
+                px: 2,
+                py: 2,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                gap: 1,
+              }}
+            >
+              <Skeleton width="50%" height={10} sx={{ bgcolor: "#e8eef6" }} />
+              <Skeleton width="75%" height={16} sx={{ bgcolor: "#e8eef6" }} />
+              <Skeleton width="90%" height={10} sx={{ bgcolor: "#e8eef6" }} />
+            </Box>
           </Box>
-        </Card>
+        </Box>
       ))}
     </Box>
   );

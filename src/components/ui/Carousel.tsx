@@ -71,6 +71,8 @@ export function Carousel<T>({
       onMouseLeave={() => {
         if (pauseOnHover) setIsPaused(false);
       }}
+      role="region"
+      aria-label={label ?? "carousel"}
     >
       <Box sx={{ overflow: "hidden", width: "100%" }}>
         <Box
@@ -86,7 +88,7 @@ export function Carousel<T>({
               key={label ? `${label}-${index}` : index}
               sx={{ flex: "0 0 100%", width: "100%", px: { xs: 0, sm: 1 } }}
             >
-              {renderSlide(item)}
+              <Box sx={{ width: "100%" }}>{renderSlide(item)}</Box>
             </Box>
           ))}
         </Box>

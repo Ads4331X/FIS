@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import { StatGrid } from "../../components/ui/StatGrid";
@@ -43,7 +43,9 @@ export default function Home() {
       </Box>
       <PrincipalMessage />
       <AcademicExcellence />
-      <HeadStaffShowcase />
+      <Container>
+        <HeadStaffShowcase />
+      </Container>
       <ReadyToJoin />
     </Box>
   );

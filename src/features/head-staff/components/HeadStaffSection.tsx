@@ -1,51 +1,54 @@
-import { Box, Container, Alert } from "@mui/material";
-import { HeadStaffCarousel } from "./HeadStaffCarousel";
+import { Alert, Box } from "@mui/material";
+import { HeadStaffCard } from "./HeadStaffCard";
 import { HeadStaffEmptyState } from "./HeadStaffEmptyState";
 import { HeadStaffHeader } from "./HeadStaffHeader";
 import { HeadStaffSkeleton } from "./HeadStaffSkeleton";
 import { useHeadStaff } from "../hooks/useHeadStaff";
 
+// Rendered inside <Container> in Home.tsx — no extra wrapper needed
 export default function HeadStaffSection() {
   const { staff, loading, error } = useHeadStaff();
 
-  return (
-    <Box
-      component="section"
-      sx={{
-        py: { xs: 5, sm: 7, md: 10 },
-        bgcolor: "background.default",
-        overflow: "hidden",
-      }}
-    >
-      <Container
-        maxWidth="lg"
-        sx={{
-          px: { xs: 2, sm: 3, md: 4 },
-        }}
-      >
-        <HeadStaffHeader />
+  const dedupedStaff = staff
+    .filter((m, i, arr) => arr.findIndex((x) => x.id === m.id) === i)
+    .slice(0, 6);
 
-        <Box sx={{ mt: { xs: 3, md: 5 } }}>
-          {loading ? (
-            <HeadStaffSkeleton />
-          ) : error ? (
-            <Alert
-              severity="error"
-              sx={{
-                maxWidth: 600,
-                mx: "auto",
-                borderRadius: 2,
-              }}
-            >
-              {error}
-            </Alert>
-          ) : staff.length === 0 ? (
-            <HeadStaffEmptyState />
-          ) : (
-            <HeadStaffCarousel staff={staff.slice(0, 6)} />
-          )}
-        </Box>
-      </Container>
+  return (
+    <Box component="section" sx={{ py: { xs: 6, sm: 8, md: 10 } }}>
+      <HeadStaffHeader />
+
+      <Box sx={{ mt: { xs: 4, md: 6 } }}>
+        {loading ? (
+          <HeadStaffSkeleton />
+        ) : error ? (
+          <Alert
+            severity="error"
+            sx={{ borderRadius: 2, maxWidth: 600, mx: "auto" }}
+          >
+            {error}
+          </Alert>
+        ) : dedupedStaff.length === 0 ? (
+          <HeadStaffEmptyState />
+        ) : (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(1, minmax(0, 1fr))",
+                sm: "repeat(2, minmax(0, 1fr))",
+                md: "repeat(3, minmax(0, 1fr))",
+              },
+              gap: { xs: 2, sm: 3 },
+            }}
+          >
+            {dedupedStaff.map((member, index) => (
+              <Box key={`${member.id}-${index}`} sx={{ minWidth: 0 }}>
+                <HeadStaffCard member={member} />
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 }

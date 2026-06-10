@@ -1,94 +1,156 @@
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import type { HeadStaffMember } from "../types/headStaff.types";
-import { HEAD_STAFF_FALLBACK_IMAGE } from "../utils/headStaff.utils";
+import PersonOutlineIcon from "@mui/icons-material/Person2Outlined";
 
 type Props = {
   member: HeadStaffMember;
 };
 
 export function HeadStaffCard({ member }: Props) {
+  const hasImage = Boolean(member.imageUrl);
+
   return (
-    <Card
-      elevation={0}
+    <Box
       sx={{
-        borderRadius: 3,
+        display: "flex",
+        flexDirection: "row",
+        borderRadius: "12px",
         overflow: "hidden",
-        width: "100%",
+        bgcolor: "#ffffff",
+        border: "1px solid #e8eef6",
+        boxShadow: "0 1px 6px rgba(20,40,90,0.06)",
+        // Signature: blue left accent bar
+        borderLeft: "4px solid #2878eb",
+        transition: "box-shadow 0.22s ease",
         height: "100%",
-        backgroundColor: "background.paper",
-        border: "1px solid",
-        borderColor: "divider",
-        transition: "transform 0.25s ease, box-shadow 0.25s ease",
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 12px 28px rgba(0, 0, 0, 0.08)",
+          boxShadow: "0 6px 24px rgba(20,40,90,0.11)",
         },
       }}
     >
+      {/* Photo — fixed square, sits flush left */}
       <Box
         sx={{
-          aspectRatio: "4 / 5",
+          width: { xs: 96, sm: 110 },
+          flexShrink: 0,
+          bgcolor: "#dde3ef",
+          position: "relative",
           overflow: "hidden",
-          bgcolor: "grey.100",
         }}
       >
+        {hasImage ? (
+          <Box
+            component="img"
+            src={member.imageUrl}
+            alt={member.name}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+              const fb = e.currentTarget.nextSibling as HTMLElement | null;
+              if (fb) fb.style.removeProperty("display");
+            }}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center top",
+              display: "block",
+            }}
+          />
+        ) : null}
+
+        {/* Placeholder icon */}
         <Box
-          component="img"
-          src={member.imageUrl || HEAD_STAFF_FALLBACK_IMAGE}
-          alt={member.name}
-          onError={(e) => {
-            e.currentTarget.src = HEAD_STAFF_FALLBACK_IMAGE;
-          }}
           sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.4s ease",
-            ".swiper-slide:hover &": {
-              transform: "scale(1.04)",
-            },
+            display: hasImage ? "none" : "flex",
+            position: "absolute",
+            inset: 0,
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            bgcolor: "#dde3ef",
+            gap: 0.5,
           }}
-        />
+        >
+          <PersonOutlineIcon sx={{ fontSize: 36, color: "#9db3d0" }} />
+        </Box>
       </Box>
 
-      <CardContent sx={{ p: { xs: 2, md: 2.5 }, textAlign: "center" }}>
+      {/* Info — sits right of photo, vertically centered */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          px: { xs: 1.5, sm: 2 },
+          py: { xs: 1.5, sm: 2 },
+          minWidth: 0, // prevents text overflow
+        }}
+      >
+        {/* Position label — small uppercase badge */}
         <Typography
-          variant="overline"
           sx={{
-            fontSize: "0.7rem",
-            letterSpacing: "0.15em",
-            fontWeight: 600,
-            color: "primary.main",
-            display: "block",
+            fontSize: "0.65rem",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#2878eb",
             mb: 0.5,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
           {member.position}
         </Typography>
 
+        {/* Name */}
         <Typography
-          variant="h6"
           sx={{
-            fontSize: { xs: "1rem", md: "1.1rem" },
-            fontWeight: 700,
-            mb: 0.75,
-            color: "text.primary",
+            fontWeight: 800,
+            fontSize: { xs: "0.9rem", sm: "0.95rem" },
+            color: "#1a2b4a",
+            lineHeight: 1.3,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
           }}
         >
           {member.name}
         </Typography>
 
-        <Typography
-          variant="body2"
+        {/* Divider line */}
+        <Box
           sx={{
-            color: "text.secondary",
-            lineHeight: 1.6,
-            fontSize: { xs: "0.8rem", md: "0.85rem" },
+            mt: 1.25,
+            width: 28,
+            height: 2,
+            borderRadius: 1,
+            bgcolor: "#e0eaf8",
           }}
-        >
-          {member.description}
-        </Typography>
-      </CardContent>
-    </Card>
+        />
+
+        {/* Description — only if present */}
+        {member.description && (
+          <Typography
+            sx={{
+              mt: 1,
+              fontSize: "0.75rem",
+              color: "#6b7f99",
+              lineHeight: 1.55,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {member.description}
+          </Typography>
+        )}
+      </Box>
+    </Box>
   );
 }

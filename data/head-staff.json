@@ -14,10 +14,24 @@
     "imageUrl": ""
   },
   {
-    "id": "activities-head",
+    "id": "activities-",
     "name": "Mrs. Kavita Joshi",
     "position": "Head of Activities",
     "description": "Leads clubs, events and student enrichment programs.",
     "imageUrl": ""
+  },
+  {
+    "id": "activitie",
+    "name": "Mrs. Kavita Joshi",
+    "position": "Head of Activities",
+    "description": "Leads clubs, events and student enrichment programs.",
+    "imageUrl": ""
+  },
+  {
+    "id": "prinpal",
+    "name": "Mr. Bishnu Chandra Adhikari",
+    "position": "Principal",
+    "description": "Oversees academic operations and student development.",
+    "imageUrl": "/images/head-staff/principal.jpg"
   }
 ]
